@@ -1,0 +1,107 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Extensibility"
+  eyebrow="Philosophy"
+  description="gode is designed to be everyone's editor — moldable at every layer."
+  prev={{ href: "/docs/architecture/", title: "godex harness" }}
+  next={{ href: "/docs/event-bus/", title: "Event bus & journal" }}
+>
+  <p>
+    A foundational goal of gode is for it to be <strong>everyone's editor</strong>. That
+    only works if it is extensible and moldable at every layer — from the harness internals
+    a research lab forks, all the way out to the addon a single user drops in.
+  </p>
+
+  <p>
+    Extensibility is not a feature bolted on top. It shapes the architecture: the event bus
+    is a public seam, the tool registry is uniform across built-ins and external tools, and
+    transports are pluggable. Whatever you want to build, there is a place to plug it in
+    without forking the world.
+  </p>
+
+  <h2>Layers of extensibility</h2>
+
+  <h3>1. Fork the harness</h3>
+  <p>
+    <code>godex</code> is a Go package. ML labs and tooling teams that need deep changes
+    can fork it: swap the runner, add new event types, replace the journal format, wire in
+    custom telemetry. Because every state transition flows through a typed bus, modifying
+    one part of the system rarely cascades into the rest.
+  </p>
+  <p>
+    This is the right layer for research: train a coding agent against a custom reward
+    signal, capture trajectories from the journal, replay them deterministically, swap the
+    provider for a local model.
+  </p>
+
+  <h3>2. Embed the CLI</h3>
+  <p>
+    <code>gode</code> is a single static binary. It runs in CI, in cron jobs, inside other
+    binaries, behind webhooks — anywhere you can shell out. Provider, workspace, data
+    directory, MCP servers, and approval policy are all flags or environment.
+  </p>
+  <pre><code>gode acp --provider mock --auto-approve
+gode app-server --listen ws://127.0.0.1:0
+make ask PROMPT="summarize this repo"</code></pre>
+
+  <h3>3. MCP — language-agnostic tools</h3>
+  <p>
+    Model Context Protocol servers are the right answer when you want to extend the agent's
+    capabilities without writing Go and without rebuilding gode. Spawn a process, expose
+    tools, attach it to a session. gode is a strong reference implementation: tools are
+    surfaced as <code>mcp.&lt;server&gt;.&lt;tool&gt;</code> in the same registry as
+    built-ins, with the same permissions surface and the same event lifecycle.
+  </p>
+
+  <h3>4. Skills</h3>
+  <p>
+    Skills are reusable, declarative capabilities the agent can invoke — the layer above
+    raw tools. gode treats skills as first-class: they are discoverable, manageable from
+    the TUI, and reuse the same tool registry underneath. They are how you bundle "the way
+    we do X here" into something the agent can pick up across sessions.
+  </p>
+
+  <h3>5. Transports and clients</h3>
+  <p>
+    The TUI, ACP, and app-server all sit on top of the same godex core. If your editor or
+    agent client speaks ACP, gode is already an agent for it. If it speaks the Codex
+    app-server style, gode is already a server for it. Adding a third transport is a
+    matter of subscribing to the bus and translating events to your wire format.
+  </p>
+
+  <h3>6. Compiled Go addons (planned)</h3>
+  <p>
+    For users who want native-speed extensions without forking the harness, gode is
+    planned to support <strong>compiled Go addons</strong>. The model: drop in a Go module
+    that registers tools, event subscribers, or transport adapters, and have it loaded at
+    startup with no interpreter, no IPC overhead, and no shimming. Built-in performance
+    for third-party code.
+  </p>
+
+  <div class="callout">
+    <strong>Why compiled addons over scripting?</strong> Coding agents are latency-sensitive
+    systems. Every tool call, every event delivery, every diff applied is on the hot path.
+    A compiled addon model keeps third-party extensions on the same performance footing as
+    everything else in the binary.
+  </div>
+
+  <h2>Pick your layer</h2>
+  <ul>
+    <li><strong>Research labs</strong> → fork the harness. You want maximum control and the journal as ground truth.</li>
+    <li><strong>Platform teams</strong> → embed the CLI. You want repeatable, headless agent runs in your existing pipelines.</li>
+    <li><strong>Tool authors</strong> → ship an MCP server. Language-agnostic, isolated, easy to distribute.</li>
+    <li><strong>Workflow authors</strong> → publish a skill. Capture how your team works without writing code.</li>
+    <li><strong>Editor / client builders</strong> → speak ACP or the app-server protocol. The agent core is yours.</li>
+    <li><strong>Performance-critical extenders</strong> → wait for compiled Go addons, or fork today.</li>
+  </ul>
+
+  <h2>The constant</h2>
+  <p>
+    Across every layer, the contract is the same: typed events on a shared bus, tools
+    behind a uniform registry, sessions as journaled JSONL. Extend any layer and the rest
+    of the system keeps working — that is what "moldable" means in practice.
+  </p>
+</DocsLayout>

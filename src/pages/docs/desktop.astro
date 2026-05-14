@@ -1,0 +1,71 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Gode Desktop"
+  eyebrow="Surfaces"
+  description="The native desktop app built on top of the gode core."
+  prev={{ href: "/docs/tui/", title: "TUI" }}
+  next={{ href: "/docs/acp/", title: "Agent Client Protocol" }}
+>
+  <p>
+    <strong>Gode Desktop</strong> is a native macOS / Windows / Linux app built on Electron
+    that wraps the same <code>godex</code> core as the CLI. It is not a separate agent — it
+    is another surface over the same harness, the same event bus, the same tool registry,
+    and the same session journal.
+  </p>
+
+  <div class="callout">
+    <strong>Same brain, different chair.</strong> Anything the TUI or ACP can do, the
+    desktop can do — and vice versa. Sessions journaled by one are readable by the other.
+  </div>
+
+  <h2>What you get</h2>
+  <ul>
+    <li><strong>Chat transcript</strong> with streaming assistant output and inline tool calls.</li>
+    <li><strong>Composer</strong> for prompts, attachments, and steering an active turn.</li>
+    <li><strong>Embedded terminal</strong> powered by xterm.js and a real PTY (<code>node-pty</code>) — the agent's shell tool runs in a real terminal you can see and interact with.</li>
+    <li><strong>Browser panel</strong> for in-app web views the agent can drive or you can read alongside the chat.</li>
+    <li><strong>Session sidebar</strong> for resume, search, and switching between workspaces.</li>
+    <li><strong>Account menu</strong> for provider and model selection.</li>
+  </ul>
+
+  <h2>How it talks to gode</h2>
+  <p>
+    The desktop bundles the <code>gode</code> binary as a resource and runs it as the
+    backing agent. Communication happens over the <a href="/docs/app-server/">app server</a>
+    transport — Codex-style JSON-RPC — so the renderer process speaks to the same protocol
+    any other client would.
+  </p>
+
+  <p>
+    That means everything you read on the protocol pages applies: <code>thread/start</code>,
+    <code>turn/start</code>, <code>turn/steer</code>, <code>fs/readFile</code>,
+    <code>command/exec</code>. The desktop is "just" a polished consumer of those methods.
+  </p>
+
+  <h2>Architecture</h2>
+  <ul>
+    <li><strong>Main process</strong> — Electron host, spawns the bundled <code>gode app-server</code> and brokers connections.</li>
+    <li><strong>Renderer</strong> — React + Tailwind UI, Radix primitives, Zustand stores for chat/session/terminal state.</li>
+    <li><strong>Terminal subsystem</strong> — xterm.js front, <code>node-pty</code> back, surfaced both as a panel for humans and as the substrate for agent shell calls.</li>
+    <li><strong>Browser panel</strong> — Electron <code>BrowserView</code> the agent can navigate.</li>
+  </ul>
+
+  <h2>Why a desktop app at all</h2>
+  <p>
+    The TUI is sharp for terminal-native users; ACP makes gode portable into editors. A
+    native desktop adds the things only an OS-level app can do well: a real PTY, embedded
+    web views with cookies and devtools, native window management, file drag-and-drop,
+    notifications, and a UI surface where multi-pane layouts (chat + terminal + browser)
+    are a natural fit rather than a compromise.
+  </p>
+
+  <h2>Status</h2>
+  <p>
+    Alpha alongside the rest of gode. The same caveat applies: protocol surface, bundled
+    binary contract, and UI affordances may change. The desktop tracks the core — when the
+    harness adds a capability, the desktop is one of the first places it shows up.
+  </p>
+</DocsLayout>

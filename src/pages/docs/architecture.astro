@@ -1,0 +1,52 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="godex harness"
+  eyebrow="Architecture"
+  description="The shape of the godex core: runner, providers, tools, and bus."
+  prev={{ href: "/docs/install/", title: "Install & run" }}
+  next={{ href: "/docs/extensibility/", title: "Extensibility" }}
+>
+  <p>
+    <code>godex</code> is the engine inside <code>gode</code>. The CLI, the TUI, the ACP
+    transport, and the app server are all thin shells over it. If you understand how godex
+    is laid out, you understand how the agent runs.
+  </p>
+
+  <h2>The pieces</h2>
+  <ul>
+    <li><strong>Runner</strong> — drives a turn end to end: ingest user input, call the provider, dispatch tool calls, fan out events.</li>
+    <li><strong>Provider interface</strong> — abstracts the model. Adapters for OpenAI/Codex, Anthropic Claude (in progress), and a deterministic mock for tests.</li>
+    <li><strong>Tool registry</strong> — a uniform interface for built-in tools and MCP-exposed tools.</li>
+    <li><strong>MCP manager</strong> — owns the lifecycle of attached MCP servers and surfaces their tools into the registry.</li>
+    <li><strong>Event bus</strong> — typed events for every state transition. Multiple subscribers, no coupling.</li>
+    <li><strong>JSONL journal</strong> — durable per-session log of events. Replay, debugging, and resume all read from it.</li>
+    <li><strong>Workspace state</strong> — the agent's view of the working directory: files, todos, goal state, memory.</li>
+    <li><strong>Context management</strong> — keeps token budgets sane across long sessions, including compaction.</li>
+  </ul>
+
+  <h2>How a turn flows</h2>
+  <ol>
+    <li>The transport (TUI, ACP, app-server) calls <code>session/prompt</code> on the runner.</li>
+    <li>The runner emits a <code>turn_started</code> event and asks the provider for the next assistant turn.</li>
+    <li>Provider streams back text deltas and tool calls. Each delta becomes an event.</li>
+    <li>Each tool call goes through the registry. If it requires permission, the runner emits a permission request event and waits.</li>
+    <li>Tool results are appended to the conversation; the loop continues until the provider signals end of turn.</li>
+    <li>Every event is journaled to JSONL alongside being broadcast on the bus.</li>
+  </ol>
+
+  <div class="callout">
+    <strong>Why this shape.</strong> Putting every transition on a typed bus means
+    transports, observers, and replay tools never need to call into runner internals. They
+    just subscribe.
+  </div>
+
+  <h2>Why Go</h2>
+  <ul>
+    <li>One static binary, fast cold start, easy to ship.</li>
+    <li>Goroutines and channels map naturally onto event-driven concurrency.</li>
+    <li>Strong stdlib for processes, IO, and JSON-RPC transports — exactly what an agent harness needs.</li>
+  </ul>
+</DocsLayout>

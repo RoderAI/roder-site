@@ -1,0 +1,45 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="App server"
+  eyebrow="Protocols"
+  description="Codex-style JSON-RPC over stdio or WebSocket for desktop control."
+  prev={{ href: "/docs/acp/", title: "Agent Client Protocol" }}
+>
+  <p>
+    <code>gode app-server</code> mirrors Codex's app-server naming and wire style: JSON-RPC-shaped
+    messages without the <code>jsonrpc</code> field, an <code>initialize</code> handshake
+    before requests, and Codex-like method names.
+  </p>
+
+  <h2>Methods</h2>
+  <ul>
+    <li><code>thread/start</code></li>
+    <li><code>turn/start</code></li>
+    <li><code>turn/steer</code> — pass <code>threadId</code>, <code>expectedTurnId</code>, and text <code>input</code> to add steering instructions to the active turn.</li>
+    <li><code>fs/readFile</code></li>
+    <li><code>command/exec</code></li>
+  </ul>
+
+  <h2>Transports</h2>
+  <ul>
+    <li><code>--listen stdio://</code> — JSONL over stdin/stdout.</li>
+    <li><code>--listen ws://IP:PORT</code> — WebSocket frames plus <code>/readyz</code> and <code>/healthz</code>.</li>
+    <li><code>--listen off</code> — disable the local control transport entirely.</li>
+  </ul>
+
+  <pre><code>go run ./cmd/gode app-server --listen ws://127.0.0.1:0</code></pre>
+
+  <h2>When to use the app server vs ACP</h2>
+  <ul>
+    <li><strong>ACP</strong> — you want interoperability with the broader ACP ecosystem, or your client already speaks ACP.</li>
+    <li><strong>App server</strong> — you are building a desktop integration that already speaks the Codex app-server style, or you need WebSocket transport with healthchecks.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Both transports share the godex core.</strong> They differ in wire format and
+    method names, not in what the agent can actually do.
+  </div>
+</DocsLayout>

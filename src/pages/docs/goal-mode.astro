@@ -1,0 +1,36 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Goal mode"
+  eyebrow="Capabilities"
+  description="Long-running goals with subagents and structured progress."
+  prev={{ href: "/docs/mcp/", title: "MCP integration" }}
+  next={{ href: "/docs/tui/", title: "TUI" }}
+>
+  <p>
+    Goal mode is gode's pattern for tasks that span many turns: declare a goal, let the
+    agent break it into todos, and let it spawn subagents for delimited subtasks while a
+    parent agent tracks overall progress.
+  </p>
+
+  <h2>The pieces</h2>
+  <ul>
+    <li><strong>goal</strong> tool — declare and update a structured goal for the session.</li>
+    <li><strong>todo</strong> tool — maintain a task list visible to the agent and the UI.</li>
+    <li><strong>subagent</strong> tool — spawn a child agent scoped to a single subtask, returning a result the parent uses to continue.</li>
+  </ul>
+
+  <h2>Why subagents</h2>
+  <p>
+    Long tasks accumulate context. Doing everything in one agent forces every irrelevant
+    intermediate detail through the same context window. A subagent runs in its own scope
+    and returns a summarized result, keeping the parent's context focused on the goal.
+  </p>
+
+  <div class="callout">
+    <strong>Goal mode is a workflow, not a separate runtime.</strong> It is built entirely
+    out of the same tool registry, event bus, and provider interface as everything else.
+  </div>
+</DocsLayout>

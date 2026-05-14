@@ -1,0 +1,112 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Agent Client Protocol"
+  eyebrow="Protocols"
+  description="Run gode as an ACP agent over stdio."
+  prev={{ href: "/docs/tui/", title: "TUI" }}
+  next={{ href: "/docs/app-server/", title: "App server" }}
+>
+  <p>
+    <code>gode acp</code> runs gode as an
+    <a href="https://agentclientprotocol.com/protocol/overview" rel="noopener">Agent Client Protocol</a>
+    agent over stdio. It speaks JSON-RPC 2.0 with one JSON message per line on stdin/stdout,
+    which is the transport ACP clients expect.
+  </p>
+
+  <pre><code>go run ./cmd/gode acp \
+  --workspace "$PWD" \
+  --data-dir "$HOME/.gode" \
+  --provider openai \
+  --model gpt-5.5</code></pre>
+
+  <p>For offline testing:</p>
+  <pre><code>go run ./cmd/gode acp --provider mock --auto-approve</code></pre>
+
+  <h2>What gode advertises</h2>
+  <ul>
+    <li><code>session/new</code>, <code>session/prompt</code>, <code>session/cancel</code>, <code>session/update</code>.</li>
+    <li>Optional <code>session/list</code> and <code>session/close</code>.</li>
+    <li>Text and <code>resource_link</code> prompt blocks. Images, audio, and embedded resources are rejected unless those capabilities are added later.</li>
+    <li>Stdio MCP servers passed in <code>session/new</code>. HTTP and SSE MCP transports are not advertised.</li>
+    <li>Tool progress through <code>tool_call</code> and <code>tool_call_update</code> session updates.</li>
+    <li>Permission requests through <code>session/request_permission</code> when a tool needs user approval.</li>
+  </ul>
+
+  <h2>Minimal client exchange</h2>
+
+  <p>Initialize the connection:</p>
+  <pre><code>{`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":1,"clientInfo":{"name":"example-client","version":"0.1.0"}}}`}</code></pre>
+
+  <p>Response:</p>
+  <pre><code>{`{"jsonrpc":"2.0","id":1,"result":{
+  "protocolVersion":1,
+  "agentInfo":{"name":"gode","title":"Gode","version":"dev"},
+  "agentCapabilities":{
+    "loadSession":false,
+    "mcpCapabilities":{"http":false,"sse":false},
+    "promptCapabilities":{"image":false,"audio":false,"embeddedContext":false},
+    "sessionCapabilities":{"list":{},"close":{}}
+  },
+  "authMethods":[]
+}}`}</code></pre>
+
+  <p>Create a session with an absolute working directory:</p>
+  <pre><code>{`{"jsonrpc":"2.0","id":2,"method":"session/new","params":{"cwd":"/absolute/path/to/workspace","mcpServers":[]}}`}</code></pre>
+
+  <p>Send a prompt using ACP content blocks:</p>
+  <pre><code>{`{"jsonrpc":"2.0","id":3,"method":"session/prompt","params":{
+  "sessionId":"SESSION_ID",
+  "prompt":[
+    {"type":"text","text":"summarize this repo"},
+    {"type":"resource_link","name":"README.md","uri":"file:///absolute/path/to/workspace/README.md"}
+  ]
+}}`}</code></pre>
+
+  <h2>Streaming updates</h2>
+  <p>While the turn runs, gode emits <code>session/update</code> notifications:</p>
+  <pre><code>{`{"jsonrpc":"2.0","method":"session/update","params":{
+  "sessionId":"SESSION_ID",
+  "update":{"sessionUpdate":"agent_message_chunk","content":{"type":"text","text":"..."}}
+}}`}</code></pre>
+
+  <p>When the turn completes, the original <code>session/prompt</code> request gets a stop reason:</p>
+  <pre><code>{`{"jsonrpc":"2.0","id":3,"result":{"stopReason":"end_turn"}}`}</code></pre>
+
+  <h2>Cancellation</h2>
+  <p>To cancel an active turn, send a notification:</p>
+  <pre><code>{`{"jsonrpc":"2.0","method":"session/cancel","params":{"sessionId":"SESSION_ID"}}`}</code></pre>
+  <p>The active prompt request will return:</p>
+  <pre><code>{`{"jsonrpc":"2.0","id":3,"result":{"stopReason":"cancelled"}}`}</code></pre>
+
+  <h2>MCP servers in ACP</h2>
+  <p>
+    On <code>session/new</code> you can attach stdio MCP servers. Tools they expose are
+    registered as <code>mcp.&lt;server-name&gt;.&lt;tool-name&gt;</code>:
+  </p>
+  <pre><code>{`{"jsonrpc":"2.0","id":2,"method":"session/new","params":{
+  "cwd":"/absolute/path/to/workspace",
+  "mcpServers":[{
+    "name":"tools",
+    "command":"/absolute/path/to/mcp-server",
+    "args":["--stdio"],
+    "env":[{"name":"EXAMPLE","value":"1"}]
+  }]
+}}`}</code></pre>
+
+  <h2>Permissions</h2>
+  <p>If a tool needs approval, gode sends a request to the client:</p>
+  <pre><code>{`{"jsonrpc":"2.0","id":"permission-...","method":"session/request_permission","params":{
+  "sessionId":"SESSION_ID",
+  "toolCall":{"toolCallId":"call-1","title":"shell.exec","kind":"execute","status":"pending"},
+  "options":[
+    {"optionId":"allow_once","name":"Allow once","kind":"allow_once"},
+    {"optionId":"reject_once","name":"Reject","kind":"reject_once"}
+  ]
+}}`}</code></pre>
+
+  <p>Reply with the selected outcome:</p>
+  <pre><code>{`{"jsonrpc":"2.0","id":"permission-...","result":{"outcome":{"outcome":"selected","optionId":"allow_once"}}}`}</code></pre>
+</DocsLayout>

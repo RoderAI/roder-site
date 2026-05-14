@@ -1,0 +1,103 @@
+---
+import Layout from "./Layout.astro";
+
+export interface Props {
+  title: string;
+  eyebrow?: string;
+  description?: string;
+  prev?: { href: string; title: string };
+  next?: { href: string; title: string };
+}
+
+const { title, eyebrow, description, prev, next } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+const sections = [
+  {
+    label: "Getting started",
+    items: [
+      { href: "/docs/", title: "Overview" },
+      { href: "/docs/install/", title: "Install & run" },
+      { href: "/docs/use-cases/", title: "Use cases" },
+    ],
+  },
+  {
+    label: "Architecture",
+    items: [
+      { href: "/docs/architecture/", title: "godex harness" },
+      { href: "/docs/extensibility/", title: "Extensibility" },
+      { href: "/docs/event-bus/", title: "Event bus & journal" },
+      { href: "/docs/sessions/", title: "Sessions & resume" },
+      { href: "/docs/providers/", title: "Providers" },
+    ],
+  },
+  {
+    label: "Capabilities",
+    items: [
+      { href: "/docs/tools/", title: "Built-in tools" },
+      { href: "/docs/mcp/", title: "MCP integration" },
+      { href: "/docs/goal-mode/", title: "Goal mode" },
+    ],
+  },
+  {
+    label: "Surfaces",
+    items: [
+      { href: "/docs/tui/", title: "TUI" },
+      { href: "/docs/desktop/", title: "Gode Desktop" },
+    ],
+  },
+  {
+    label: "Protocols",
+    items: [
+      { href: "/docs/acp/", title: "Agent Client Protocol" },
+      { href: "/docs/app-server/", title: "App server" },
+    ],
+  },
+];
+---
+
+<Layout title={`${title} · gode docs`} description={description}>
+  <div class="container">
+    <div class="docs-shell">
+      <aside class="sidebar">
+        {sections.map((section) => (
+          <>
+            <h4>{section.label}</h4>
+            <ul>
+              {section.items.map((item) => {
+                const itemPath = item.href.replace(/\/$/, "") || "/";
+                const active = itemPath === path;
+                return (
+                  <li>
+                    <a href={item.href} class={active ? "active" : ""}>{item.title}</a>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        ))}
+      </aside>
+      <article class="doc-content">
+        {eyebrow && <div class="eyebrow">{eyebrow}</div>}
+        <h1>{title}</h1>
+        <slot />
+        {(prev || next) && (
+          <nav class="next-prev">
+            {prev ? (
+              <a href={prev.href}>
+                <span class="label">← Previous</span>
+                <span class="title">{prev.title}</span>
+              </a>
+            ) : <span />}
+            {next ? (
+              <a href={next.href} class="next">
+                <span class="label">Next →</span>
+                <span class="title">{next.title}</span>
+              </a>
+            ) : <span />}
+          </nav>
+        )}
+      </article>
+    </div>
+  </div>
+</Layout>
