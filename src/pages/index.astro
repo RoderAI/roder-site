@@ -1,0 +1,85 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const features = [
+  { href: "/docs/architecture/", title: "godex harness", body: "Event bus, JSONL journal, runner, providers, and tools as one composable core." },
+  { href: "/docs/extensibility/", title: "Extensibility", body: "Fork the harness, embed the CLI, ship MCPs and skills, or wait for compiled Go addons." },
+  { href: "/docs/event-bus/", title: "Event bus", body: "Every state transition is a typed event. TUI, plugins, replay, and RL all subscribe to the same stream." },
+  { href: "/docs/tools/", title: "Built-in tools", body: "Shell, edit, patch, search, git, LSP, MCP, memory, todo, subagent, download." },
+  { href: "/docs/mcp/", title: "MCP integration", body: "Stdio MCP servers attached per session, exposed as mcp.<server>.<tool> in the registry." },
+  { href: "/docs/acp/", title: "Agent Client Protocol", body: "Run gode as an ACP agent over stdio for any compliant client." },
+  { href: "/docs/app-server/", title: "App server", body: "Codex-style JSON-RPC over stdio or WebSocket for desktop control." },
+  { href: "/docs/sessions/", title: "Sessions & resume", body: "Disk-backed sessions you can list, search, and pick up where you left off." },
+  { href: "/docs/goal-mode/", title: "Goal mode", body: "Long-running goals with subagents, todos, and structured progress." },
+  { href: "/docs/tui/", title: "TUI", body: "Bubble Tea + Lip Gloss interface with composable view models." },
+  { href: "/docs/desktop/", title: "Gode Desktop", body: "Native Electron app with embedded terminal and browser, talking to gode over the app-server." },
+];
+---
+
+<Layout title="gode · Go-native coding agent harness">
+  <section class="container">
+    <div class="hero">
+      <img class="logo" src="/logo.png" alt="gode logo" />
+      <h1 class="wordmark">gode</h1>
+      <p class="tagline">
+        A Go-native TUI coding agent and event-driven agent harness.
+        Open-source infrastructure for building, training, and running coding agents.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/docs/">Read the docs</a>
+        <a class="btn btn-secondary" href="/docs/install/">Install</a>
+        <a class="btn btn-secondary" href="/docs/acp/">ACP guide</a>
+      </div>
+    </div>
+
+    <pre><code>$ go run ./cmd/gode
+$ go run ./cmd/gode resume
+$ go run ./cmd/gode acp --provider mock --auto-approve
+$ go run ./cmd/gode app-server --listen ws://127.0.0.1:0</code></pre>
+
+    <h2>What gode is</h2>
+    <p>
+      <code>gode</code> wraps an internal harness called <code>godex</code> that owns the moving parts of a
+      coding agent: sessions, tools, workspace state, MCP connections, context management,
+      provider adapters, and an event bus that everything else hangs off of.
+    </p>
+    <p>
+      The goal is to give ML labs and tool builders a solid open base to train, evaluate,
+      and run coding agents without re-implementing the surrounding plumbing each time.
+    </p>
+
+    <div class="callout">
+      <strong>Alpha.</strong> Packages, commands, configuration, and event formats may move,
+      break, or disappear. There are no API guarantees yet.
+    </div>
+
+    <h2>Explore</h2>
+    <div class="features">
+      {features.map((f) => (
+        <a class="feature-card" href={f.href}>
+          <h3>{f.title}</h3>
+          <p>{f.body}</p>
+        </a>
+      ))}
+    </div>
+
+    <h2>Why an event bus?</h2>
+    <p>
+      Coding agents are systems, not scripts. Tool calls, message deltas, permission
+      requests, and workspace mutations all need to fan out to the UI, the journal,
+      external observers, and replay infrastructure at the same time. gode treats every
+      meaningful state transition as a typed event on a shared bus, so subscribing a new
+      consumer — a new view, an OpenTelemetry exporter, an RL replay buffer — is a small
+      change rather than a refactor.
+    </p>
+
+    <h2>Status</h2>
+    <ul>
+      <li>OpenAI / Codex provider with multi-turn tool result continuation.</li>
+      <li>Anthropic Claude Go adapter (in progress).</li>
+      <li>Stdio MCP servers, with HTTP and SSE transports planned.</li>
+      <li>ACP and Codex-style app-server transports for external control.</li>
+      <li>OpenTelemetry tracing wired through the runner; Jaeger ready out of the box.</li>
+    </ul>
+  </section>
+</Layout>

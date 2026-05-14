@@ -1,0 +1,52 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Sessions & resume"
+  eyebrow="Architecture"
+  description="How gode persists work and lets you pick it up later."
+  prev={{ href: "/docs/event-bus/", title: "Event bus & journal" }}
+  next={{ href: "/docs/providers/", title: "Providers" }}
+>
+  <p>
+    A <strong>session</strong> in gode is a single conversation with the agent: a sequence
+    of turns, tool calls, and workspace mutations bound to a working directory. Sessions
+    are persisted as JSONL journals and can be resumed.
+  </p>
+
+  <h2>Where they live</h2>
+  <p>
+    Sessions are written under your data directory (default <code>~/.gode</code>, override
+    with <code>--data-dir</code> on ACP). Each session is its own JSONL file scoped to the
+    workspace it ran in.
+  </p>
+
+  <h2>Resuming</h2>
+  <pre><code>gode resume</code></pre>
+  <p>
+    Opens a compact inline picker. Type to search, press <code>tab</code> to toggle between
+    sessions from the current workspace and all sessions, then <code>enter</code> to resume.
+  </p>
+
+  <h2>What resume actually does</h2>
+  <ol>
+    <li>Loads the JSONL journal for the chosen session.</li>
+    <li>Replays events to rebuild conversation history, todo state, memory, and the in-memory tool registry view.</li>
+    <li>Reconnects MCP servers as needed.</li>
+    <li>Hands control back to the transport so you can continue the turn.</li>
+  </ol>
+
+  <h2>Compaction</h2>
+  <p>
+    Long sessions blow past provider context windows. gode supports compaction — summarizing
+    older turns into a smaller form while keeping the journal intact on disk. The full
+    journal is still available for replay and debugging; only what is fed back to the
+    provider is shortened.
+  </p>
+
+  <div class="callout">
+    <strong>The journal is durable, the context is ephemeral.</strong> Compaction shrinks
+    what the model sees. It does not delete history.
+  </div>
+</DocsLayout>

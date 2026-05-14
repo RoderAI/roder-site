@@ -1,0 +1,56 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Overview"
+  eyebrow="Getting started"
+  description="What gode is, what godex is, and how the pieces fit together."
+  next={{ href: "/docs/install/", title: "Install & run" }}
+>
+  <p>
+    <strong>gode</strong> (Go Code) is a Go-native TUI coding agent and the event-driven harness
+    that powers it. The harness is called <strong>godex</strong>, and it owns the moving parts
+    of a coding agent: sessions, tools, workspace state, MCP connections, context
+    management, provider adapters, and an event bus that everything else subscribes to.
+  </p>
+
+  <p>
+    The intent is a clean, extensible base that ML labs and tool builders can use to train,
+    evaluate, and run coding agents — without re-implementing the surrounding infrastructure
+    every time.
+  </p>
+
+  <div class="callout">
+    <strong>Alpha.</strong> Packages, commands, configuration, event formats, and integration
+    points may move, break, or disappear without notice.
+  </div>
+
+  <h2>Repository shape</h2>
+  <ul>
+    <li><code>cmd/gode</code> — CLI entrypoint (TUI, ACP, app-server, resume, version).</li>
+    <li><code>internal/godex</code> — event bus, JSONL journal, runner, provider interface, MCP manager, tool registry.</li>
+    <li><code>internal/godex/appserver</code> — Codex-style app-server protocol, request handling, transports for desktop control.</li>
+    <li><code>internal/godex/tools/builtin</code> — broad initial coding tool set.</li>
+    <li><code>internal/tui</code> — Bubble Tea UI with composable Lip Gloss components and view models.</li>
+  </ul>
+
+  <h2>Three ways to drive it</h2>
+  <ol>
+    <li><strong>TUI</strong> — interactive Bubble Tea interface for humans.</li>
+    <li><strong>ACP</strong> — JSON-RPC over stdio for any Agent Client Protocol client.</li>
+    <li><strong>App server</strong> — Codex-style JSON-RPC over stdio or WebSocket for desktop integrations.</li>
+  </ol>
+
+  <p>
+    All three share the same <code>godex</code> core. The event bus is the seam: every UI,
+    transport, and observer is just another subscriber.
+  </p>
+
+  <h2>Read next</h2>
+  <ul>
+    <li><a href="/docs/architecture/">godex harness</a> — how the core is laid out.</li>
+    <li><a href="/docs/event-bus/">Event bus &amp; journal</a> — the shared spine.</li>
+    <li><a href="/docs/tools/">Built-in tools</a> — what the agent can actually do.</li>
+  </ul>
+</DocsLayout>

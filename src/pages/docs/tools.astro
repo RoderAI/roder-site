@@ -1,0 +1,59 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Built-in tools"
+  eyebrow="Capabilities"
+  description="The standard tool surface gode ships with."
+  prev={{ href: "/docs/providers/", title: "Providers" }}
+  next={{ href: "/docs/mcp/", title: "MCP integration" }}
+>
+  <p>
+    gode ships a broad initial set of coding tools. They live under
+    <code>internal/godex/tools/builtin</code> and are registered into the same tool registry
+    as MCP-exposed tools — providers see them through one uniform interface.
+  </p>
+
+  <h2>The set</h2>
+  <ul>
+    <li><strong>shell</strong> — execute commands in the workspace, with stdout/stderr streamed as events.</li>
+    <li><strong>files</strong> — read, list, and stat files inside the workspace.</li>
+    <li><strong>edit</strong> — targeted in-place file edits with explicit before/after strings.</li>
+    <li><strong>patch</strong> — apply unified diffs across one or more files in a single call.</li>
+    <li><strong>search</strong> — fast text search across the workspace.</li>
+    <li><strong>git</strong> — git status/log/diff/branch operations as structured tool calls.</li>
+    <li><strong>lsp</strong> — Language Server Protocol bridge for symbol-aware operations.</li>
+    <li><strong>mcp</strong> — invoke tools surfaced by attached MCP servers.</li>
+    <li><strong>memory</strong> — read and write the local memory store.</li>
+    <li><strong>todo</strong> — structured per-session todo list, surfaced to the model and the UI.</li>
+    <li><strong>goal</strong> — declare and update long-running goals (see Goal mode).</li>
+    <li><strong>subagent</strong> — spawn a child agent to handle a delimited subtask.</li>
+    <li><strong>download</strong> — fetch a remote artifact into the workspace.</li>
+  </ul>
+
+  <h2>Permissions</h2>
+  <p>
+    Tools that mutate state or run code can require user approval. When the model invokes
+    one, the runner emits a permission request event. The active transport (TUI, ACP,
+    app-server) decides how to surface that to the user, then sends the resolution back.
+  </p>
+
+  <p>
+    For headless flows, <code>--auto-approve</code> short-circuits permission requests so
+    the agent runs without interactive consent. Use it deliberately.
+  </p>
+
+  <h2>Adding tools</h2>
+  <p>
+    Tools implement a small Go interface (name, schema, invoke). Once registered, they are
+    available to every provider through the tool registry — no per-provider plumbing needed.
+    For tools you don't want to write in Go, expose them via an MCP server instead.
+  </p>
+
+  <div class="callout">
+    <strong>Built-in vs MCP.</strong> Built-in tools live in the binary and have direct
+    access to workspace state. MCP tools are processes; they're isolated and easy to ship
+    independently.
+  </div>
+</DocsLayout>
