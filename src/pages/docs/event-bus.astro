@@ -3,54 +3,45 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 ---
 
 <DocsLayout
-  title="Event bus & journal"
+  title="Events & replay"
   eyebrow="Architecture"
-  description="The shared spine that ties the harness, UI, and observers together."
-  prev={{ href: "/docs/extensibility/", title: "Extensibility" }}
-  next={{ href: "/docs/sessions/", title: "Sessions & resume" }}
+  description="The typed event stream that makes Roder observable, replayable, and usable by clients."
+  prev={{ href: "/docs/extensibility/", title: "Extension model" }}
+  next={{ href: "/docs/sessions/", title: "Sessions & state" }}
 >
   <p>
-    Every meaningful state transition in <code>godex</code> is an event. Events are the only
-    contract between the runner and everything else: the TUI, the ACP transport, the
-    app-server, the JSONL journal, OpenTelemetry, and any future RL or replay system.
+    Roder represents meaningful runtime transitions as <code>RoderEvent</code> values in
+    <code>roder-api</code>. Events are wrapped in an <code>EventEnvelope</code> with source,
+    timestamp, thread id, turn id, and stable event identity.
   </p>
 
-  <h2>Why a bus</h2>
-  <p>
-    A coding agent has many simultaneous consumers of the same information: a UI rendering
-    deltas, a journal persisting them, a transport relaying them to a remote client, and
-    potentially an observer collecting trajectories for training. Coupling the runner to
-    each of these directly makes the runner brittle. With a typed event bus, adding a new
-    consumer is a subscription, not a refactor.
-  </p>
-
-  <h2>What flows through it</h2>
+  <h2>What flows through the stream</h2>
   <ul>
-    <li>Turn lifecycle: <code>turn_started</code>, <code>turn_completed</code>, <code>turn_cancelled</code>.</li>
-    <li>Assistant message chunks (text deltas).</li>
-    <li>Tool call lifecycle: pending, running, completed, failed.</li>
-    <li>Permission requests and resolutions.</li>
-    <li>Workspace mutations: file edits, todo updates, memory writes.</li>
-    <li>Session lifecycle: created, resumed, closed, compacted.</li>
+    <li>Runtime and extension registration events.</li>
+    <li>Session creation, session load, turn start, turn completion, and cancellation.</li>
+    <li>Context assembly, inference start, and provider inference events.</li>
+    <li>Tool call requested, started, completed, and failed events.</li>
+    <li>Approval requests, approval resolutions, policy decisions, and plan-mode exits.</li>
+    <li>Subagent lifecycle events and child-agent transcript updates.</li>
+    <li>Task, notification, memory, file-change preview, and UI-oriented events.</li>
   </ul>
 
-  <h2>The JSONL journal</h2>
+  <h2>Why this matters</h2>
   <p>
-    Every event is also written to a per-session JSONL file on disk. This is the source of
-    truth for resume: when you reopen a session, the journal is replayed to reconstruct
-    state. It is also the source of truth for debugging — you can <code>cat</code> a session
-    journal and read exactly what happened, in order.
+    The TUI, app server, journals, telemetry exporters, eval harnesses, and future training
+    systems should not reach into the runner. They subscribe to the same event stream and
+    render, persist, score, or replay from canonical data.
+  </p>
+
+  <h2>Event sinks</h2>
+  <p>
+    Extensions can register <code>EventSink</code> implementations. That is the natural
+    seam for OpenTelemetry, JSONL stores, RL trajectory collection, audit logs, or product
+    analytics without coupling those concerns to <code>roder-core</code>.
   </p>
 
   <div class="callout">
-    <strong>One stream, many readers.</strong> If you can subscribe to the bus, you can
-    build something on top of gode without modifying it. That is the point.
+    <strong>Design rule.</strong> If a behavior is important to reproduce or explain later,
+    it should become a typed event instead of a side-effect hidden in a UI or provider adapter.
   </div>
-
-  <h2>OpenTelemetry</h2>
-  <p>
-    The runner emits OTLP/gRPC spans alongside events. <code>make run</code> exports to
-    <code>localhost:4317</code> by default, and <code>./jaeger.sh</code> spins up a local
-    Jaeger to look at them.
-  </p>
 </DocsLayout>

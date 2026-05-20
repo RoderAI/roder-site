@@ -5,54 +5,57 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 <DocsLayout
   title="Install & run"
   eyebrow="Getting started"
+  description="Build and run the Rust Roder workspace."
   prev={{ href: "/docs/", title: "Overview" }}
-  next={{ href: "/docs/architecture/", title: "godex harness" }}
+  next={{ href: "/docs/use-cases/", title: "Use cases" }}
 >
   <h2>From source</h2>
-  <p>You need Go installed. Clone the repo and run via <code>go run</code> or the Makefile.</p>
-  <pre><code>go run ./cmd/gode version
-go run ./cmd/gode
-go run ./cmd/gode resume
-make run</code></pre>
-
   <p>
-    <code>make run</code> enables local OpenTelemetry tracing by default and exports OTLP/gRPC
-    spans to <code>localhost:4317</code>.
+    Build from the Rust workspace in <code>~/w/gode</code>. The primary binary is
+    <code>roder</code>, provided by <code>crates/roder-cli</code>.
   </p>
 
-  <h2>Resume a session</h2>
+  <pre><code>cd ~/w/gode
+cargo build --workspace
+cargo test -p roder-cli
+cargo run -p roder-cli</code></pre>
+
+  <h2>Configuration</h2>
   <p>
-    <code>gode resume</code> opens a compact inline session picker. Type to search, press
-    <code>tab</code> to toggle between sessions from the current workspace and all sessions,
-    then <code>enter</code> to resume.
+    Roder reads <code>~/.roder/config.toml</code> and supports environment overrides for
+    common defaults.
   </p>
 
-  <h2>Tracing with Jaeger</h2>
-  <pre><code>./jaeger.sh
-make run</code></pre>
-  <p>Then open Jaeger at <a href="http://localhost:16686">http://localhost:16686</a>.</p>
-
-  <h2>Homebrew</h2>
-  <p>
-    The formula builds <code>gode</code> from source, so local installs do not need a signed
-    binary artifact. To create a local release from a clean working tree:
-  </p>
-  <pre><code>VERSION=0.1.0 make release-brew
-brew install --build-from-source ./Formula/gode.rb</code></pre>
+  <pre><code>RODER_PROVIDER=openai RODER_MODEL=gpt-5.5 cargo run -p roder-cli
+RODER_PROVIDER=mock cargo run -p roder-cli</code></pre>
 
   <p>
-    That creates <code>dist/gode-v0.1.0.tar.gz</code>, computes its checksum, and writes
-    <code>Formula/gode.rb</code> with a <code>file://</code> URL for local testing. To
-    publish a formula update that points at the git tag instead:
+    Provider API keys can be set through config or the provider-specific environment keys.
+    The default distribution resolves OpenAI, Anthropic, Gemini, Codex OAuth, web search,
+    subagent, JSONL session, memory, and built-in tool extensions from that configuration.
   </p>
-  <pre><code>VERSION=0.1.0 PUBLISH=1 make release-brew</code></pre>
 
+  <h2>Policy modes</h2>
   <p>
-    <code>PUBLISH=1</code> creates tag <code>v0.1.0</code>, rewrites the formula to use the
-    git tag and revision, commits <code>Formula/gode.rb</code>, and pushes the tag plus the
-    current branch to <code>origin</code>.
+    The CLI accepts policy controls that flow into the runtime policy gate.
   </p>
 
-  <h2>Quick prompt</h2>
-  <pre><code>make ask PROMPT="summarize this repo"</code></pre>
+  <pre><code>cargo run -p roder-cli -- --mode plan
+cargo run -p roder-cli -- --mode accept-edits
+cargo run -p roder-cli -- --yolo</code></pre>
+
+  <h2>App server</h2>
+  <p>
+    Start the local JSON-RPC control plane over stdio when building a desktop client,
+    integration test, or automation wrapper.
+  </p>
+
+  <pre><code>cargo run -p roder-cli -- app-server
+cargo run -p roder-cli -- app-server --mode plan</code></pre>
+
+  <div class="callout">
+    <strong>Status note.</strong> The Rust app server currently supports stdio transport.
+    WebSocket transport exists in the older Go implementation and is part of the parity
+    target, but the Rust CLI rejects non-stdio listen addresses today.
+  </div>
 </DocsLayout>

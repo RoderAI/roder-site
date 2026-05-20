@@ -24,39 +24,39 @@ const sections = [
   {
     label: "Architecture",
     items: [
-      { href: "/docs/architecture/", title: "godex harness" },
-      { href: "/docs/extensibility/", title: "Extensibility" },
-      { href: "/docs/event-bus/", title: "Event bus & journal" },
-      { href: "/docs/sessions/", title: "Sessions & resume" },
-      { href: "/docs/providers/", title: "Providers" },
+      { href: "/docs/architecture/", title: "Runtime architecture" },
+      { href: "/docs/extensibility/", title: "Extension model" },
+      { href: "/docs/event-bus/", title: "Events & replay" },
+      { href: "/docs/sessions/", title: "Sessions & state" },
+      { href: "/docs/providers/", title: "Inference providers" },
     ],
   },
   {
     label: "Capabilities",
     items: [
-      { href: "/docs/tools/", title: "Built-in tools" },
+      { href: "/docs/tools/", title: "Tools & policy" },
       { href: "/docs/mcp/", title: "MCP integration" },
-      { href: "/docs/goal-mode/", title: "Goal mode" },
+      { href: "/docs/goal-mode/", title: "Plan mode & goals" },
     ],
   },
   {
     label: "Surfaces",
     items: [
       { href: "/docs/tui/", title: "TUI" },
-      { href: "/docs/desktop/", title: "Gode Desktop" },
+      { href: "/docs/desktop/", title: "Desktop clients" },
     ],
   },
   {
     label: "Protocols",
     items: [
-      { href: "/docs/acp/", title: "Agent Client Protocol" },
       { href: "/docs/app-server/", title: "App server" },
+      { href: "/docs/acp/", title: "ACP compatibility" },
     ],
   },
 ];
 ---
 
-<Layout title={`${title} · gode docs`} description={description}>
+<Layout title={`${title} · Roder`} description={description}>
   <div class="container">
     <div class="docs-shell">
       <aside class="sidebar">
@@ -85,13 +85,13 @@ const sections = [
           <nav class="next-prev">
             {prev ? (
               <a href={prev.href}>
-                <span class="label">← Previous</span>
+                <span class="label">Previous</span>
                 <span class="title">{prev.title}</span>
               </a>
             ) : <span />}
             {next ? (
               <a href={next.href} class="next">
-                <span class="label">Next →</span>
+                <span class="label">Next</span>
                 <span class="title">{next.title}</span>
               </a>
             ) : <span />}

@@ -1,168 +1,93 @@
 ---
 import DocsLayout from "../../layouts/DocsLayout.astro";
 
-const ghaSnippet = `name: gode-triage
+const ghaSnippet = `name: roder-smoke
 
 on:
-  issues:
-    types: [opened, labeled]
+  workflow_dispatch:
 
 jobs:
-  triage:
+  smoke:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with: { go-version: "1.23" }
-      - run: go install ./cmd/gode
-      - name: Run gode
-        env:
-          ANTHROPIC_API_KEY: \${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          gode acp --provider anthropic --auto-approve \\
-            --prompt "Reproduce the failure described in issue #\${{ github.event.issue.number }} \\
-                      and open a draft PR with a fix or a failing test."
-      - uses: actions/upload-artifact@v4
-        with:
-          name: gode-journal
-          path: ~/.gode/sessions/`;
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test --workspace
+      - run: cargo test -p roder-cli`;
 ---
 
 <DocsLayout
   title="Use cases"
   eyebrow="Getting started"
-  description="Four ways teams put gode to work: CI automation, custom tool stacks, a plain coding agent, and as one link in a longer chain."
+  description="Where Roder fits: agent products, research harnesses, CI automation, and client integrations."
   prev={{ href: "/docs/install/", title: "Install & run" }}
-  next={{ href: "/docs/architecture/", title: "godex harness" }}
+  next={{ href: "/docs/architecture/", title: "Runtime architecture" }}
 >
   <p>
-    <code>gode</code> is a coding agent and an event-driven harness, which means it slots
-    into very different shapes of work. The four scenarios below are the ones we see most
-    often. Each starts with the smallest invocation that works and points at the docs you
-    will want next.
+    Roder is a harness, not just an end-user chat surface. The same runtime can sit behind
+    a terminal client, a desktop app, a CI job, an eval runner, or a lab-specific agent
+    distribution.
   </p>
 
-  <h2>1. gode as a plain coding agent</h2>
+  <h2>1. Build a coding-agent product</h2>
   <p>
-    The default shape. A developer opens a terminal in a repo, runs <code>gode</code>, and
-    drives it through the Bubble Tea TUI. Sessions are journaled to disk, so any run can
-    be resumed, searched, or replayed later.
+    Compose the core with the provider, storage, policy, and tool extensions you want.
+    Keep the runtime invariant layer stable while your product surface changes.
   </p>
 
-  <pre><code>$ gode
-$ gode resume
-$ gode --provider anthropic</code></pre>
-
-  <p>This is the right starting point when you want to:</p>
-  <ul>
-    <li>Pair with a model on a feature branch without leaving the terminal.</li>
-    <li>Triage a failing test or unfamiliar repo with shell, edit, search, and LSP tools available out of the box.</li>
-    <li>Keep a long-running <a href="/docs/goal-mode/">goal</a> alive across sessions, with todos and subagents tracking progress.</li>
-  </ul>
+  <pre><code>cargo run -p roder-cli
+cargo run -p roder-cli -- app-server</code></pre>
 
   <p>
-    Read next: <a href="/docs/tui/">TUI</a>, <a href="/docs/sessions/">Sessions &amp; resume</a>,
-    <a href="/docs/tools/">Built-in tools</a>.
+    Read next: <a href="/docs/app-server/">App server</a>, <a href="/docs/tui/">TUI</a>,
+    <a href="/docs/desktop/">Desktop clients</a>.
   </p>
 
-  <h2>2. gode in GitHub Actions</h2>
+  <h2>2. Build lab or eval infrastructure</h2>
   <p>
-    Because gode is a single Go binary and emits a structured event stream, it runs well
-    headless. Point it at a non-interactive provider, pass a prompt, and let the journal
-    capture everything for the run log.
+    Subscribe to typed events, persist the trajectory, score outcomes, and replay the run.
+    Provider-specific wire formats are normalized before they reach the harness.
+  </p>
+
+  <p>
+    Read next: <a href="/docs/event-bus/">Events &amp; replay</a>,
+    <a href="/docs/providers/">Inference providers</a>.
+  </p>
+
+  <h2>3. Add internal capabilities</h2>
+  <p>
+    Ship native Rust extensions for hot-path features, or attach MCP servers for
+    language-independent tools. Both paths end up as tool specs and runtime events.
+  </p>
+
+  <pre><code># ~/.roder/config.toml
+[web_search]
+enabled = true
+provider = "tavily"</code></pre>
+
+  <p>
+    Read next: <a href="/docs/extensibility/">Extension model</a>,
+    <a href="/docs/tools/">Tools &amp; policy</a>, <a href="/docs/mcp/">MCP integration</a>.
+  </p>
+
+  <h2>4. Run repeatable CI checks</h2>
+  <p>
+    Roder is early, but the workspace already supports normal Rust verification and
+    deterministic mock-provider flows for offline harness tests.
   </p>
 
   <pre><code>{ghaSnippet}</code></pre>
 
-  <p>Typical CI workloads:</p>
-  <ul>
-    <li>Reproduce an issue, attach logs, and open a draft PR.</li>
-    <li>Run a refactor across a generated codebase before each release tag.</li>
-    <li>Babysit flaky tests — let gode rerun, bisect, and post findings as a PR comment.</li>
-    <li>Generate or update changelogs, migration notes, or SDK examples from a diff.</li>
-  </ul>
-
+  <h2>5. Orchestrate subagents</h2>
   <p>
-    The <a href="/docs/event-bus/">JSONL journal</a> is the thing to keep — upload it as an
-    artifact and you have a full, replayable trace of what the agent did, what tools it
-    called, and which permission requests fired.
+    Enable the subagent extension, load disk-defined agents, and expose the canonical
+    <code>task</code> tool so parent turns can delegate bounded work.
   </p>
 
-  <h2>3. gode as part of a custom set of tooling</h2>
-  <p>
-    Fork the harness, keep the event bus, swap or add whatever you need. Every tool call,
-    message delta, and permission request is a typed event, so plugging in a custom UI,
-    exporter, or evaluator is a subscribe rather than a rewrite.
-  </p>
-
-  <p>Common shapes:</p>
-  <ul>
-    <li>
-      <strong>Internal IDE plugin.</strong> Run gode behind the
-      <a href="/docs/app-server/">app server</a> (JSON-RPC over stdio or WebSocket) and
-      let your editor drive sessions, render diffs, and approve tools.
-    </li>
-    <li>
-      <strong>Domain tool pack.</strong> Mount your own MCP servers via
-      <a href="/docs/mcp/">stdio MCP</a> — internal search, ticketing, deploy controls —
-      and they surface as <code>mcp.&lt;server&gt;.&lt;tool&gt;</code> in the registry
-      alongside the built-ins.
-    </li>
-    <li>
-      <strong>RL / evals.</strong> Subscribe to the event bus, write events into a replay
-      buffer, score on outcomes, retrain. The harness deliberately exposes structured
-      events instead of hiding them behind a CLI.
-    </li>
-    <li>
-      <strong>OpenTelemetry pipeline.</strong> Tracing is wired through the runner, so
-      runs show up in Jaeger or any OTLP-compatible backend with no extra glue.
-    </li>
-  </ul>
-
-  <pre><code>$ gode app-server --listen ws://127.0.0.1:0
-$ gode acp --provider mock --auto-approve</code></pre>
-
-  <p>
-    Read next: <a href="/docs/extensibility/">Extensibility</a>,
-    <a href="/docs/event-bus/">Event bus &amp; journal</a>,
-    <a href="/docs/app-server/">App server</a>.
-  </p>
-
-  <h2>4. gode in a chain of tools</h2>
-  <p>
-    Sometimes gode is one step in a longer pipeline — handed a prompt by an upstream agent
-    or script, expected to make a focused change, and then to hand off cleanly. The
-    <a href="/docs/acp/">ACP transport</a> is designed for exactly this: stdio JSON-RPC,
-    no terminal, no human in the loop.
-  </p>
-
-  <pre><code>planner | gode acp --provider openai --auto-approve | reviewer | gh pr create</code></pre>
-
-  <p>Shapes that work well:</p>
-  <ul>
-    <li>
-      <strong>Plan → code → review.</strong> A planning agent produces a task spec, gode
-      executes it, a separate reviewer agent checks the diff before merge.
-    </li>
-    <li>
-      <strong>Scheduled remediation.</strong> A cron job notices drift, hands gode a
-      prompt and the relevant context, gode opens a PR. The journal is the audit trail.
-    </li>
-    <li>
-      <strong>Sub-step in a larger agent.</strong> Treat gode as the "make the code
-      changes" specialist invoked by a higher-level orchestrator that handles planning,
-      memory, and approvals.
-    </li>
-    <li>
-      <strong>Multi-agent loops.</strong> Two or more gode instances on the same repo,
-      one writing, one reviewing — both emitting to the same event bus / journal so the
-      orchestrator can join the streams.
-    </li>
-  </ul>
-
-  <p>
-    Read next: <a href="/docs/acp/">ACP guide</a>,
-    <a href="/docs/providers/">Providers</a>,
-    <a href="/docs/goal-mode/">Goal mode</a>.
-  </p>
+  <pre><code># ~/.roder/config.toml
+[subagents]
+enabled = true
+default_agent = "explore"
+max_concurrent = 2
+max_depth = 1</code></pre>
 </DocsLayout>

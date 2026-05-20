@@ -1,0 +1,399 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ArchitectureExplorer from "../components/ArchitectureExplorer.astro";
+import ExtensionKernelDiagram from "../components/ExtensionKernelDiagram.astro";
+import TurnFlowDiagram from "../components/TurnFlowDiagram.astro";
+import "../styles/diagrams.css";
+
+const principles = [
+  "Stable core, extensible edges. The runtime owns lifecycle ordering, cancellation, capability enforcement, and event semantics.",
+  "Providers instead of forks. New inference protocols, storage engines, context systems, and policy backends should be pluggable subsystems.",
+  "Canonical internal representations. The core speaks Roder-native IR instead of leaking provider request shapes everywhere.",
+  "Capability-based access. Filesystem, shell, network, and secrets access are explicit and scoped, not ambient.",
+  "Event-sourced execution. The harness is replayable, resumable, and inspectable by default.",
+  "UI as client. The TUI consumes the same control plane as IDEs, web UIs, tests, and training systems.",
+];
+
+const roadmap = [
+  {
+    phase: "Phase 1: Core runtime",
+    items: ["Canonical turn items and event bus.", "Turn/session lifecycle and cancellation.", "Filesystem and process brokers.", "One inference engine and one session store.", "Reference CLI or TUI."],
+  },
+  {
+    phase: "Phase 2: Native extension kernel",
+    items: ["Stable extension API crate.", "Extension registry builder.", "Inference, context, policy, and persistence registration.", "Extension manifest introspection."],
+  },
+  {
+    phase: "Phase 3: Provider plurality",
+    items: ["Responses-style engine.", "Chat-Completions-style engine.", "Anthropic-style engine.", "Mock/local engines for testing.", "Capability negotiation across providers."],
+  },
+  {
+    phase: "Phase 4: Persistence and replay",
+    items: ["Event log and checkpoints.", "Resume and fork.", "Trace export.", "Replay across providers."],
+  },
+  {
+    phase: "Phase 5: App server and ecosystem",
+    items: ["Stable control-plane protocol.", "TUI as a client.", "Headless execution.", "IDE and web integration paths.", "Later process/WASM extension support."],
+  },
+];
+---
+
+<Layout
+  title="Roder Mission Whitepaper"
+  description="Roder's technical mission paper as a web page: a Rust-native extensible harness for coding agents."
+>
+  <section class="container paper-page">
+    <header class="paper-hero">
+      <div>
+        <div class="eyebrow-line">Roder Mission Whitepaper / Revised edition / May 2026</div>
+        <h1>Roder</h1>
+        <p class="paper-subtitle">A Rust-Native Extensible Harness for Coding Agents</p>
+        <p class="paper-kicker">
+          The last harness ever written: a stable, extensible foundation for coding agents,
+          research systems, reinforcement-learning environments, and AI-native developer tools.
+        </p>
+      </div>
+      <img src="/roder-icon.png" alt="Roder icon" />
+    </header>
+
+    <article class="paper-content">
+      <p class="paper-lede">
+        This revised whitepaper presents Roder as an opinionated systems foundation rather
+        than merely another coding-agent application. The emphasis is on core architecture,
+        provider-neutral inference, native harness extensibility, resumable execution, and
+        a control plane that lets many different products and research systems build on the
+        same runtime.
+      </p>
+
+      <nav class="paper-toc" aria-label="Whitepaper sections">
+        <a href="#abstract">Abstract</a>
+        <a href="#why">Why Roder exists</a>
+        <a href="#mission">Mission</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#extensions">Extensions</a>
+        <a href="#inference">Inference</a>
+        <a href="#context">Context</a>
+        <a href="#tools">Tools and safety</a>
+        <a href="#sessions">Sessions</a>
+        <a href="#control-plane">Control plane</a>
+        <a href="#research">Research and RL</a>
+        <a href="#governance">Governance</a>
+        <a href="#roadmap">Roadmap</a>
+        <a href="#closing">Closing</a>
+      </nav>
+
+      <h2 id="abstract">1. Abstract</h2>
+      <p>
+        Roder is an open-source Rust harness designed to be the common substrate for coding
+        agents, AI research systems, training environments, and customer-facing AI developer
+        tools. Instead of rebuilding the same runtime machinery in Python or Node for every
+        project, Roder proposes a durable reference implementation of the hard parts:
+        context assembly, inference orchestration, tool execution, filesystem mediation,
+        policy enforcement, state persistence, replay, and extension.
+      </p>
+      <p>
+        The key thesis is that the ecosystem does not need a new harness every time it
+        explores a new model, provider, workflow, or interface. What it needs is a stable
+        core with deliberately designed extension seams. Roder is intended to fill that
+        role: provider-neutral, strongly typed, high-performance, portable, and flexible
+        enough that serious downstream users can replace internal subsystems without
+        forking the whole codebase.
+      </p>
+      <blockquote>Roder is not the final coding agent. It is the harness beneath them.</blockquote>
+
+      <h2 id="why">2. Why Roder exists</h2>
+      <p>
+        Most mature agent systems converge on the same invisible architecture. They start
+        as a model loop, but quickly accrete the same requirements: a tool registry, file
+        and shell mediation, session history, context building, user approvals, telemetry,
+        replay, retries, cancellation, and some notion of persistence. By the time a
+        product becomes reliable, it has quietly grown a runtime.
+      </p>
+      <p>
+        Today that runtime is rebuilt repeatedly. The result is fragmentation: every project
+        invents its own transcript format, tool schema conventions, context pipeline,
+        provider wrapper, and persistence mechanism. Useful ideas are trapped inside
+        product-specific codebases, and teams fork upstream projects because they cannot
+        cleanly replace core internals such as storage, context planning, or model-wire logic.
+      </p>
+      <ul>
+        <li>Roder exists to make the harness itself reusable.</li>
+        <li>It aims to be lower-level than a polished end-user app, but higher-level than a bag of unrelated crates.</li>
+        <li>It is intentionally closer to a reference runtime than to a single-provider product.</li>
+        <li>Its architecture should let products, labs, and research teams extend heavily without a permanent fork.</li>
+      </ul>
+
+      <h2 id="mission">3. Mission and design principles</h2>
+      <p>
+        Roder's mission is to become the most solid maintained reference implementation of
+        an agent harness for coding work. The project should be useful to AI labs, model
+        creators, app makers, internal platform teams, and open-source developers who need
+        a serious runtime foundation. In spirit, the goal is similar to a kernel: a stable
+        base that is heavily extensible, open to forks, but designed so that most real
+        customization can happen upstream through supported interfaces.
+      </p>
+      <ul>
+        {principles.map((principle) => <li>{principle}</li>)}
+      </ul>
+
+      <h2 id="architecture">4. System architecture overview</h2>
+      <p>
+        Roder is best understood as a layered system. Applications sit at the edge. A local
+        app server provides the control plane. The core runtime manages turns, tools,
+        context, and permissions. Beneath that sits a native extension kernel through which
+        major subsystems can be replaced or augmented. At the bottom is an execution
+        substrate of filesystem, process, network, and storage brokers.
+      </p>
+      <ArchitectureExplorer />
+      <p>
+        This separation is what allows a polished coding assistant, a headless benchmark
+        runner, and an RL environment to reuse the same runtime. Each can present a
+        different interface or policy model while still depending on the same canonical
+        event model, tool mediation layer, and session semantics.
+      </p>
+      <TurnFlowDiagram />
+
+      <h2 id="extensions">5. Native extension kernel</h2>
+      <p>
+        The most important architectural move in Roder is to treat native extensions as
+        subsystem providers rather than just optional tools or hook scripts. A native
+        extension should be able to add behavior, but also to provide or replace core
+        services such as inference engines, session stores, context planners, policy
+        evaluators, or sandbox backends. This is how Roder supports heavy customization
+        without a fork.
+      </p>
+      <ExtensionKernelDiagram />
+      <p>
+        A minimal extension API revolves around an installation step against an extension
+        registry builder. The registry collects both contributors that participate in
+        lifecycle phases and providers that own replaceable services. This distinction is
+        useful: a context contributor adds data, while a context planner owns strategy; an
+        approval contributor participates in review, while a session store owns persistence.
+      </p>
+      <ul>
+        <li>Inference engines: stream canonical model events regardless of provider protocol.</li>
+        <li>Wire dialects: encode and decode provider-specific APIs while keeping the core provider-neutral.</li>
+        <li>Context internals: retrieval, planning, compaction, instruction shaping, and memory.</li>
+        <li>Persistence: session stores, checkpoint stores, and trace exporters.</li>
+        <li>Policy and safety: approval logic, enterprise constraints, and audit sinks.</li>
+        <li>Execution substrate: sandbox backends, filesystem brokers, shell strategies, and secret stores.</li>
+      </ul>
+
+      <h2 id="inference">6. Inference abstraction and wire dialects</h2>
+      <p>
+        A major reason harnesses become provider-bound is that provider-specific request
+        and streaming formats leak everywhere. Roder should make a clean separation between
+        the harness IR and the wire protocol used to talk to a model provider. The core
+        runtime should construct a canonical request that captures instructions,
+        conversation items, tool schemas, output requirements, and runtime hints. It should
+        then hand that request to an inference engine.
+      </p>
+      <p>
+        The inference engine is free to implement any backend: a Responses-style API, a
+        Chat-Completions-style API, Anthropic-style messages, a local model runner, or a
+        future protocol that does not exist today. Its responsibility is to translate from
+        canonical Roder request IR into the provider-specific representation and to emit a
+        canonical stream of inference events back to the host.
+      </p>
+      <table>
+        <thead><tr><th>Concern</th><th>Roder-owned</th><th>Extension-owned</th></tr></thead>
+        <tbody>
+          <tr><td>Canonical turn request</td><td>Yes</td><td>No</td></tr>
+          <tr><td>Provider HTTP or IPC transport</td><td>No</td><td>Yes</td></tr>
+          <tr><td>Wire request format</td><td>No</td><td>Yes</td></tr>
+          <tr><td>Canonical inference events</td><td>Yes</td><td>No</td></tr>
+          <tr><td>Provider capability reporting</td><td>Shared</td><td>Shared</td></tr>
+        </tbody>
+      </table>
+      <p>
+        This model creates an important long-term property: the rest of the harness does
+        not care if the active provider uses responses, messages, chat-style arrays,
+        graph-structured plans, or something entirely new. If a downstream lab invents a
+        novel inference technology, it implements an inference extension rather than
+        rewriting the harness.
+      </p>
+
+      <h2 id="context">7. Context internals</h2>
+      <p>
+        In many agent systems, context is treated as a blob of prompt text. Roder should
+        instead model it as a structured subsystem. Coding agents need repository facts,
+        file selections, plans, policy constraints, active tool affordances, environment
+        descriptions, retrieval results, previous-turn summaries, and sometimes hidden
+        control instructions. Those data sources have different lifetimes and different
+        costs, so they should not all be concatenated blindly.
+      </p>
+      <p>
+        A practical design is to separate context providers from a context planner.
+        Providers surface candidate context blocks such as repository metadata, retrieved
+        code, memory records, or policy instructions. The planner decides what to include,
+        in what order, and how to spend a limited token budget. That gives labs freedom to
+        experiment with retrieval, compaction, or prompt-shaping strategies while keeping
+        the host loop stable.
+      </p>
+      <ul>
+        <li>Context providers resolve typed blocks such as instructions, repository facts, memory, environment state, and retrieved documents.</li>
+        <li>A context planner turns those candidates into a budgeted plan for a given turn and model capability profile.</li>
+        <li>Compaction and summarization become first-class strategies instead of ad hoc prompt surgery.</li>
+        <li>Provider-specific shaping can happen at the inference boundary rather than leaking throughout the runtime.</li>
+      </ul>
+
+      <h2 id="tools">8. Tools, safety, and execution brokers</h2>
+      <p>
+        Roder is not simply an LLM wrapper. It is an execution environment. That means
+        safety is architectural, not cosmetic. Tools should execute through brokers that
+        expose scoped capabilities rather than ambient access to the host machine. A tool
+        executor may be given a workspace-limited filesystem handle, an approval-aware
+        shell runner, a network broker restricted by policy, and an event sink for
+        traceability.
+      </p>
+      <p>
+        This model supports both local interactive use and locked-down automated use. In a
+        personal setting, users may allow broad workspace access with approval prompts for
+        destructive commands. In a research setting, tool execution may occur inside a
+        dedicated sandbox backend. In an enterprise setting, policy contributors may veto
+        access to secrets, external networks, or specific command families.
+      </p>
+      <ul>
+        <li><strong>Technical sandbox:</strong> what is technically reachable by the process or sandbox backend.</li>
+        <li><strong>Capabilities:</strong> what the session, extension, or tool has been granted.</li>
+        <li><strong>Approval policy:</strong> which actions must pause and ask the user or a supervising service.</li>
+        <li><strong>Auditability:</strong> every sensitive action should become a structured event.</li>
+      </ul>
+
+      <h2 id="sessions">9. Sessions, persistence, and replay</h2>
+      <p>
+        Persistence is one of the clearest reasons to make Roder a real harness instead of
+        an app-specific loop. Product systems need history and resume. Research systems
+        need immutable traces. RL systems need trajectories that can be replayed or scored.
+        The core runtime should therefore orchestrate session stores and checkpoint stores
+        as explicit providers rather than burying transcripts in a UI cache.
+      </p>
+      <p>
+        A session store manages higher-level records such as threads, turns, turn items,
+        branching, and listing. A checkpoint store manages lower-level runtime events and
+        snapshots so the system can recover or replay efficiently. Extensions should also
+        be able to persist private typed state through extension-owned codecs and migration
+        hooks. This keeps the host generic while letting sophisticated extensions maintain
+        caches, indexes, or provider state across resumes.
+      </p>
+      <ul>
+        <li>Resume a prior coding session from durable state.</li>
+        <li>Fork a thread from an earlier turn and explore a different path.</li>
+        <li>Replay the same run against a different model provider.</li>
+        <li>Export structured traces for evaluation or training.</li>
+        <li>Persist extension-owned state without exposing extension internals to the host.</li>
+      </ul>
+
+      <h2 id="control-plane">10. Control plane and clients</h2>
+      <p>
+        Roder should include an embedded local app server as its control plane. This server
+        manages sessions, turns, event subscriptions, extension introspection, approvals,
+        tool invocation, and persistence management. Once that protocol exists, the TUI
+        becomes one client among many. Headless execution, IDE integrations, web frontends,
+        test harnesses, or RL environments can all consume the same protocol instead of
+        reaching directly into runtime internals.
+      </p>
+      <p>
+        This separation pays off quickly. It becomes easier to test the runtime, easier to
+        build multiple interfaces, and easier to reason about session identity and event
+        delivery. It also makes Roder attractive as infrastructure: a downstream project
+        can build a completely different user experience while relying on the same harness
+        core and the same extension ecosystem.
+      </p>
+
+      <h2 id="research">11. Roder as a research and RL harness</h2>
+      <p>
+        Roder's event model and subsystem boundaries make it naturally suitable for
+        reinforcement learning and evaluation. A task runner can create a workspace, start
+        a thread, feed in a problem statement, observe canonical tool-use and model events,
+        score the resulting artifact, and export the run as a trajectory. Because the
+        runtime is provider-neutral, the same task can be replayed across different models
+        or inference technologies with much less glue code.
+      </p>
+      <p>
+        This is important strategically. A harness that only serves an interactive TUI is
+        useful, but limited. A harness that also serves evaluation, replay, trace export,
+        and controlled experimentation becomes infrastructure. That is one of the strongest
+        reasons to keep Roder lower-level than a polished product while still shipping a
+        reference user interface.
+      </p>
+
+      <h2 id="governance">12. Governance and ecosystem role</h2>
+      <p>
+        Roder should remain open source, forkable, and welcoming to new ideas. At the same
+        time, it should be opinionated about stability. Core invariants, canonical types,
+        and extension contracts should evolve through deliberate RFC-style changes.
+        Experimental ideas should live in extension crates until their abstraction proves
+        broadly useful. Common interfaces should move upstream; product-specific behavior
+        should generally remain downstream.
+      </p>
+      <p>
+        The Linux-kernel comparison is useful only in spirit: Roder should aim to be a
+        maintained substrate that many systems build on. That does not mean the project
+        must mimic kernel process or culture exactly. It means the project should optimize
+        for long-term architectural integrity, a clear subsystem model, and an ecosystem
+        that benefits from shared foundations rather than incompatible reinventions.
+      </p>
+
+      <h2 id="roadmap">13. Implementation roadmap</h2>
+      <div class="roadmap-list">
+        {roadmap.map((phase) => (
+          <section>
+            <h3>{phase.phase}</h3>
+            <ul>
+              {phase.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </section>
+        ))}
+      </div>
+
+      <h2 id="closing">14. Closing statement</h2>
+      <p>
+        Roder's ambition is not to anticipate every future product shape. Its ambition is
+        to establish a harness architecture that can absorb future ideas without needing to
+        be rewritten each time. If the ecosystem gets a durable provider-neutral runtime,
+        then product builders can focus on UX, labs can focus on research, model creators
+        can focus on inference quality, and training teams can focus on environments and
+        evaluation rather than rebuilding the same substrate.
+      </p>
+      <p>
+        The strongest version of the project is therefore simple to state: Roder is the
+        last harness ever written not because it predicts every requirement in advance, but
+        because it gives new requirements a structured place to live. New inference
+        technologies become engines. New storage approaches become stores. New context
+        strategies become planners. New products become clients. The harness remains the
+        foundation.
+      </p>
+      <div class="callout">
+        <strong>Building on this foundation?</strong> The Roder authors work with AI labs
+        and startups on RL infrastructure, embedded harnesses, product integrations, and
+        OSS sponsorship. <a href="/contact/">Contact the authors</a>.
+      </div>
+    </article>
+  </section>
+
+  <script>
+    const setActiveDiagramNode = (diagram, target) => {
+      diagram.dataset.active = target;
+      diagram.querySelectorAll(".diagram-node").forEach((node) => {
+        node.setAttribute("aria-pressed", String(node.dataset.target === target));
+      });
+      diagram.querySelectorAll(".diagram-detail").forEach((detail) => {
+        detail.classList.toggle("is-active", detail.dataset.detail === target);
+      });
+    };
+
+    document.querySelectorAll(".interactive-diagram").forEach((diagram) => {
+      const initial = diagram.dataset.active;
+      if (initial) setActiveDiagramNode(diagram, initial);
+
+      diagram.addEventListener("click", (event) => {
+        const node = event.target instanceof Element
+          ? event.target.closest(".diagram-node")
+          : null;
+        if (!(node instanceof HTMLElement) || !node.dataset.target) return;
+        setActiveDiagramNode(diagram, node.dataset.target);
+      });
+    });
+  </script>
+</Layout>

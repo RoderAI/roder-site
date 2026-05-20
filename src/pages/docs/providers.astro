@@ -3,46 +3,47 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 ---
 
 <DocsLayout
-  title="Providers"
+  title="Inference providers"
   eyebrow="Architecture"
-  description="Provider adapters: OpenAI/Codex, Anthropic, mock."
-  prev={{ href: "/docs/sessions/", title: "Sessions & resume" }}
-  next={{ href: "/docs/tools/", title: "Built-in tools" }}
+  description="Provider extensions translate model APIs into canonical Roder inference events."
+  prev={{ href: "/docs/sessions/", title: "Sessions & state" }}
+  next={{ href: "/docs/tools/", title: "Tools & policy" }}
 >
   <p>
-    A <strong>provider</strong> turns gode's normalized turn into a model call and streams
-    the response back as events. Providers implement a common Go interface so the runner
-    does not need to know which model is behind it.
+    Providers are native extensions that implement <code>InferenceEngine</code>. The runtime
+    selects an engine by provider id, sends it a canonical Roder turn, and receives
+    canonical inference events back.
   </p>
 
-  <h2>Adapters</h2>
+  <h2>Default provider set</h2>
   <ul>
-    <li><strong>OpenAI / Codex</strong> — primary provider. Multi-turn tool result continuation, the OpenAI Responses API, image inputs, and compaction.</li>
-    <li><strong>Anthropic Claude</strong> — Go SDK adapter, in active development. Image input serialization is already in place.</li>
-    <li><strong>Mock</strong> — deterministic provider for tests, ACP integration runs, and offline development.</li>
-    <li><strong>Custom chat-completions models</strong> — supported via the chat-completions provider for self-hosted or alternative endpoints.</li>
+    <li><code>roder-ext-openai-responses</code> - OpenAI Responses-style inference.</li>
+    <li><code>roder-ext-openai-chat-completions</code> - chat-completions-compatible endpoints.</li>
+    <li><code>roder-ext-anthropic</code> - Anthropic Messages-style inference.</li>
+    <li><code>roder-ext-gemini</code> - Gemini through the configured Google-compatible path.</li>
+    <li><code>roder-core::fake_provider</code> - deterministic mock behavior for tests and offline work.</li>
+    <li><code>roder-codex-auth</code> and host wiring - Codex OAuth where enabled.</li>
   </ul>
 
-  <h2>Picking one</h2>
-  <pre><code>go run ./cmd/gode acp \
-  --workspace "$PWD" \
-  --data-dir "$HOME/.gode" \
-  --provider openai \
-  --model gpt-5.5</code></pre>
+  <h2>Selecting defaults</h2>
+  <pre><code># ~/.roder/config.toml
+provider = "openai"
+model = "gpt-5.5"
+reasoning = "medium"</code></pre>
 
-  <p>For offline testing:</p>
-  <pre><code>go run ./cmd/gode acp --provider mock --auto-approve</code></pre>
+  <pre><code>RODER_PROVIDER=anthropic RODER_MODEL=claude-opus-4-5 cargo run -p roder-cli
+RODER_PROVIDER=mock cargo run -p roder-cli</code></pre>
 
-  <h2>What the interface guarantees</h2>
+  <h2>Provider contract</h2>
   <ul>
-    <li>Streaming text deltas as events on the bus.</li>
-    <li>Structured tool calls with stable identifiers across the turn.</li>
-    <li>Cancellation via context — when the user cancels, the provider call stops promptly.</li>
-    <li>Image inputs serialized into the format each provider expects.</li>
+    <li>Advertise metadata, auth type, capabilities, and model descriptors.</li>
+    <li>Stream text, tool calls, errors, and completion as canonical <code>InferenceEvent</code> values.</li>
+    <li>Preserve tool-call ids across the turn so the runtime can route results back correctly.</li>
+    <li>Handle cancellation promptly when the active turn is interrupted.</li>
   </ul>
 
   <div class="callout">
-    <strong>Adding a provider</strong> is a matter of implementing the provider interface
-    and wiring its construction into the CLI. The runner does not change.
+    <strong>Provider-specific APIs stay outside the core.</strong> Responses, Messages,
+    Gemini, and chat-completions shapes are adapter details, not runtime types.
   </div>
 </DocsLayout>

@@ -6,7 +6,10 @@ export interface Props {
   description?: string;
 }
 
-const { title, description = "Go-native TUI coding agent and event-driven harness." } = Astro.props;
+const {
+  title,
+  description = "Roder is a Rust-native, extension-first agent harness for coding agents, research systems, and AI-native developer tools.",
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -16,24 +19,26 @@ const { title, description = "Go-native TUI coding agent and event-driven harnes
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Cabin:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
     />
     <title>{title}</title>
   </head>
   <body>
     <header class="site-header">
       <div class="container row">
-        <a class="brand" href="/"><img src="/logo.png" alt="" /> gode</a>
-        <nav class="nav-links">
+        <a class="brand" href="/"><img src="/roder-icon.png" alt="" /> <span>Roder</span></a>
+        <nav class="nav-links" aria-label="Primary">
           <a href="/docs/">Docs</a>
+          <a href="/mission/">Mission</a>
           <a href="/docs/architecture/">Architecture</a>
-          <a href="/docs/acp/">ACP</a>
-          <a href="https://github.com" rel="noopener">GitHub</a>
+          <a href="/docs/extensibility/">Extensions</a>
+          <a href="/contact/">Contact</a>
+          <a href="https://github.com/roderai/roder" rel="noopener">GitHub</a>
         </nav>
       </div>
     </header>
@@ -42,7 +47,7 @@ const { title, description = "Go-native TUI coding agent and event-driven harnes
     </main>
     <footer class="site-footer">
       <div class="container">
-        gode &middot; alpha software &middot; Go-native coding agent harness
+        Roder &middot; alpha software &middot; Rust-native extensible agent harness
       </div>
     </footer>
   </body>

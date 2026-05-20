@@ -3,34 +3,39 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 ---
 
 <DocsLayout
-  title="Goal mode"
+  title="Plan mode & goals"
   eyebrow="Capabilities"
-  description="Long-running goals with subagents and structured progress."
+  description="Policy-gated planning, long-running objectives, and mode transitions."
   prev={{ href: "/docs/mcp/", title: "MCP integration" }}
   next={{ href: "/docs/tui/", title: "TUI" }}
 >
   <p>
-    Goal mode is gode's pattern for tasks that span many turns: declare a goal, let the
-    agent break it into todos, and let it spawn subagents for delimited subtasks while a
-    parent agent tracks overall progress.
+    Roder separates planning from execution through policy modes. <code>plan</code> mode
+    blocks writes and process execution, records plan-exit requests, and requires an
+    explicit transition before the agent can move into implementation.
   </p>
 
-  <h2>The pieces</h2>
+  <h2>Runtime events</h2>
   <ul>
-    <li><strong>goal</strong> tool — declare and update a structured goal for the session.</li>
-    <li><strong>todo</strong> tool — maintain a task list visible to the agent and the UI.</li>
-    <li><strong>subagent</strong> tool — spawn a child agent scoped to a single subtask, returning a result the parent uses to continue.</li>
+    <li><code>PolicyModeChanged</code> records mode changes.</li>
+    <li><code>PolicyExitPlanRequested</code> records a request to leave plan mode.</li>
+    <li><code>PolicyExitPlanResolved</code> records the user's decision and resulting mode.</li>
+    <li><code>PolicyDecisionRecorded</code> captures per-tool allow, deny, approval, or auto-approval decisions.</li>
   </ul>
 
-  <h2>Why subagents</h2>
+  <h2>Client surface</h2>
   <p>
-    Long tasks accumulate context. Doing everything in one agent forces every irrelevant
-    intermediate detail through the same context window. A subagent runs in its own scope
-    and returns a summarized result, keeping the parent's context focused on the goal.
+    The app server exposes <code>session/set_mode</code>, <code>session/get</code>, and
+    <code>session/exit_plan</code>. The TUI uses those methods to keep the current mode
+    visible and to gate the move from planning to edits.
   </p>
 
-  <div class="callout">
-    <strong>Goal mode is a workflow, not a separate runtime.</strong> It is built entirely
-    out of the same tool registry, event bus, and provider interface as everything else.
-  </div>
+  <pre><code>{`{"jsonrpc":"2.0","id":1,"method":"session/set_mode","params":{"mode":"plan","reason":"design first"}}`}</code></pre>
+
+  <h2>Goals</h2>
+  <p>
+    Long-running goal state belongs above individual turns: a client can keep a visible
+    objective, show progress, and persist the plan alongside session state. The important
+    boundary is that goal UI does not bypass the policy gate.
+  </p>
 </DocsLayout>
