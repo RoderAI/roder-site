@@ -303,6 +303,39 @@ hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
 .doc-content { min-width: 0; max-width: 790px; }
 .doc-content > h1:first-child { margin-top: 0; }
 
+.doc-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.4rem 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  font-size: 0.92rem;
+}
+
+.doc-content th,
+.doc-content td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.7rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.doc-content th {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--graphite);
+  background: rgba(32, 41, 50, 0.05);
+}
+
+.doc-content tr:last-child td { border-bottom: none; }
+
+.columns-list {
+  columns: 2;
+  column-gap: 2rem;
+}
+
 .eyebrow {
   font-family: var(--mono);
   font-size: 0.76rem;
