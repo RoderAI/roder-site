@@ -1,0 +1,139 @@
+.contact-page {
+  padding-bottom: 4rem;
+}
+
+.contact-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 2rem;
+  align-items: center;
+  padding: clamp(3.5rem, 8vw, 6rem) 0 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.contact-hero h1 {
+  margin: 0.25rem 0 1rem;
+  max-width: 980px;
+  font-size: clamp(3.3rem, 8vw, 6.4rem);
+}
+
+.contact-hero p {
+  max-width: 840px;
+  color: var(--fg-muted);
+  font-size: 1.16rem;
+}
+
+.contact-hero img {
+  width: 170px;
+  height: 170px;
+  border-radius: 8px;
+  box-shadow: 0 24px 70px rgba(32, 41, 50, 0.12);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.78fr) minmax(0, 1.22fr);
+  gap: 1rem;
+  align-items: start;
+  margin-top: 2rem;
+}
+
+.contact-panel {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  padding: 1.25rem;
+}
+
+.contact-panel h2 {
+  margin-top: 0;
+}
+
+.persona-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.persona-list article {
+  border-top: 1px solid var(--border);
+  padding-top: 0.85rem;
+}
+
+.persona-list article:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.persona-list span {
+  display: block;
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--accent-strong);
+}
+
+.persona-list p,
+.form-note {
+  color: var(--fg-muted);
+}
+
+.contact-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.contact-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.contact-form .full,
+.contact-form button,
+.form-note {
+  grid-column: 1 / -1;
+}
+
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--fg);
+  font: 500 0.96rem/1.4 var(--sans);
+  padding: 0.72rem 0.78rem;
+}
+
+.contact-form textarea {
+  resize: vertical;
+}
+
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+  outline: 3px solid rgba(15, 154, 162, 0.22);
+  border-color: var(--teal);
+}
+
+.form-note {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 850px) {
+  .contact-hero,
+  .contact-grid,
+  .contact-form {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-hero img {
+    width: 140px;
+    height: 140px;
+  }
+}

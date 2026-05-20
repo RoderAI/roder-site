@@ -1,0 +1,82 @@
+---
+const zones = [
+  {
+    id: "clients",
+    title: "Clients",
+    label: "TUI, CLI, IDE, web, RL runners",
+    detail:
+      "Clients are deliberately thin. They send turn requests, subscribe to events, render state, and keep product-specific UX outside the runtime.",
+    examples: ["TUI", "Desktop", "IDE", "Headless runner"],
+  },
+  {
+    id: "control",
+    title: "Control plane",
+    label: "Embedded app server and protocol",
+    detail:
+      "The app server is the stable boundary between clients and the harness. It owns session identity, subscriptions, approvals, and extension introspection.",
+    examples: ["sessions", "turns", "events", "approvals"],
+  },
+  {
+    id: "core",
+    title: "Roder core runtime",
+    label: "Canonical loop and invariants",
+    detail:
+      "The core owns the parts that must stay consistent across products: turn ordering, cancellation, canonical IR, policy gates, tool routing, and replay semantics.",
+    examples: ["turn manager", "event bus", "tool router", "canonical IR"],
+  },
+  {
+    id: "subsystems",
+    title: "Replaceable subsystems",
+    label: "Inference, context, stores, policy",
+    detail:
+      "Subsystem providers plug into the core through typed extension points. This is where serious customization happens without forking the host loop.",
+    examples: ["inference engine", "context planner", "session store", "policy engine"],
+  },
+  {
+    id: "resources",
+    title: "Host resources",
+    label: "Filesystem, process, network, storage",
+    detail:
+      "Resource brokers are the only way the harness touches the machine. Files, shells, networks, secrets, and storage are mediated through capabilities.",
+    examples: ["filesystem", "shell", "network", "secrets"],
+  },
+];
+---
+
+<section class="interactive-diagram arch-explorer" data-active="core" aria-label="Interactive Roder architecture map">
+  <div class="diagram-heading">
+    <p>Figure 1</p>
+    <h3>Runtime boundaries</h3>
+  </div>
+
+  <div class="arch-shell">
+    <div class="arch-map" role="list" aria-label="Architecture zones">
+      {zones.map((zone) => (
+        <button
+          class={`diagram-node arch-zone arch-${zone.id}`}
+          type="button"
+          data-target={zone.id}
+          aria-pressed={zone.id === "core" ? "true" : "false"}
+          role="listitem"
+        >
+          <span>{zone.title}</span>
+          <small>{zone.label}</small>
+          <em>{zone.examples.join(" / ")}</em>
+        </button>
+      ))}
+    </div>
+
+    <div class="diagram-inspector" aria-live="polite">
+      {zones.map((zone) => (
+        <article class={`diagram-detail ${zone.id === "core" ? "is-active" : ""}`} data-detail={zone.id}>
+          <span class="detail-kicker">Selected boundary</span>
+          <h4>{zone.title}</h4>
+          <p>{zone.detail}</p>
+          <ul class="detail-tags">
+            {zone.examples.map((example) => <li>{example}</li>)}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

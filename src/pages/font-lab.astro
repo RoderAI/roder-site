@@ -1,125 +1,36 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-// Curated: fonts with a tight/closed binocular (two-story) lowercase g.
-// These are the strongest matches if Bricolage's open-hook g is too loose.
-const closedG = [
-  { name: "Karla", weight: 800, family: "'Karla', sans-serif" },
-  { name: "Lato", weight: 900, family: "'Lato', sans-serif" },
-  { name: "Cabin", weight: 700, family: "'Cabin', sans-serif" },
-  { name: "Source Sans 3", weight: 900, family: "'Source Sans 3', sans-serif" },
-  { name: "Public Sans", weight: 900, family: "'Public Sans', sans-serif" },
-  { name: "Nunito Sans", weight: 900, family: "'Nunito Sans', sans-serif" },
-  { name: "Hind", weight: 700, family: "'Hind', sans-serif" },
-  { name: "Quicksand", weight: 700, family: "'Quicksand', sans-serif" },
-  { name: "Bricolage Grotesque", weight: 800, family: "'Bricolage Grotesque', sans-serif", note: "current reference — open tail" },
-];
-
 const candidates = [
-  { name: "Outfit", weight: 900, family: "'Outfit', sans-serif" },
-  { name: "Sora", weight: 800, family: "'Sora', sans-serif" },
-  { name: "Manrope", weight: 800, family: "'Manrope', sans-serif" },
-  { name: "Plus Jakarta Sans", weight: 800, family: "'Plus Jakarta Sans', sans-serif" },
-  { name: "Nunito", weight: 900, family: "'Nunito', sans-serif" },
-  { name: "Mulish", weight: 900, family: "'Mulish', sans-serif" },
-  { name: "Rubik", weight: 900, family: "'Rubik', sans-serif" },
-  { name: "Poppins", weight: 900, family: "'Poppins', sans-serif" },
-  { name: "Lexend", weight: 900, family: "'Lexend', sans-serif" },
-  { name: "DM Sans", weight: 900, family: "'DM Sans', sans-serif" },
-  { name: "Onest", weight: 900, family: "'Onest', sans-serif" },
-  { name: "Bricolage Grotesque", weight: 800, family: "'Bricolage Grotesque', sans-serif" },
-  { name: "Hanken Grotesk", weight: 900, family: "'Hanken Grotesk', sans-serif" },
-  { name: "Urbanist", weight: 900, family: "'Urbanist', sans-serif" },
-  { name: "Inter", weight: 900, family: "'Inter', sans-serif" },
-  { name: "Funnel Display", weight: 800, family: "'Funnel Display', sans-serif" },
-  { name: "Albert Sans", weight: 900, family: "'Albert Sans', sans-serif" },
-  { name: "Be Vietnam Pro", weight: 800, family: "'Be Vietnam Pro', sans-serif" },
-  { name: "Public Sans", weight: 900, family: "'Public Sans', sans-serif" },
-  { name: "Hind", weight: 700, family: "'Hind', sans-serif" },
-  { name: "Quicksand", weight: 700, family: "'Quicksand', sans-serif" },
-  { name: "Comfortaa", weight: 700, family: "'Comfortaa', sans-serif" },
-  { name: "Cabin", weight: 700, family: "'Cabin', sans-serif" },
-  { name: "Nunito Sans", weight: 900, family: "'Nunito Sans', sans-serif" },
+  { name: "IBM Plex Mono", family: '"IBM Plex Mono", monospace', weight: 700 },
+  { name: "JetBrains Mono", family: '"JetBrains Mono", monospace', weight: 700 },
+  { name: "SF Mono", family: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace', weight: 700 },
 ];
-
-const allFonts = [...closedG, ...candidates];
-const seen = new Set<string>();
-const dedupedFontsParam = allFonts
-  .filter((c) => {
-    const key = `${c.name}:${c.weight}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  })
-  .map((c) => `family=${c.name.replace(/ /g, "+")}:wght@${c.weight}`)
-  .join("&");
-const fontsParam = dedupedFontsParam;
-const href = `https://fonts.googleapis.com/css2?${fontsParam}&display=swap`;
 ---
 
-<Layout title="Font lab · pick the wordmark">
-  <link rel="stylesheet" href={href} />
-  <style>
-    .lab { padding: 2rem 0 4rem; }
-    .lab .anchor {
-      display: flex; flex-direction: column; align-items: center; gap: 1rem;
-      padding: 2rem; background: var(--bg-elev); border-radius: 12px; margin-bottom: 2rem;
-    }
-    .lab .anchor img { width: 160px; height: 160px; border-radius: 32px; }
-    .lab .anchor p { color: var(--fg-muted); margin: 0; text-align: center; max-width: 560px; }
-    .grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
-    @media (min-width: 720px) { .grid { grid-template-columns: 1fr 1fr; } }
-    .card {
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
-      padding: 1.4rem 1.6rem;
-    }
-    .card .label { font-family: var(--mono); font-size: 0.78rem; color: var(--fg-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem; }
-    .card .word {
-      font-size: 4.6rem; line-height: 1; letter-spacing: -0.04em; color: var(--fg);
-    }
-    .card .alpha { font-size: 1rem; color: var(--fg-muted); margin-top: 0.6rem; letter-spacing: -0.01em; }
-    .focused {
-      background: linear-gradient(180deg, rgba(126,20,255,0.08), transparent 60%);
-      border-radius: 14px; padding: 1.2rem; margin-bottom: 2.5rem;
-      border: 1px solid rgba(126,20,255,0.25);
-    }
-    .focused h2 { margin-top: 0; font-size: 1.2rem; color: var(--accent); }
-    .focused .grid { gap: 1.2rem; }
-    .focused .card { background: var(--bg-elev); padding: 1.6rem 1.8rem; }
-    .focused .word { font-size: 6rem; }
-    .focused .note { font-family: var(--mono); font-size: 0.72rem; color: var(--fg-dim); margin-top: 0.4rem; }
-    .section-label { font-family: var(--mono); font-size: 0.78rem; color: var(--fg-dim); text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 0.8rem; }
-  </style>
-
-  <section class="container lab">
-    <div class="anchor">
-      <img src="/logo.png" alt="gode logo" />
-      <h1 style="margin:0">Pick the wordmark font</h1>
-      <p>Each card shows "gode" rendered in a candidate display font (heavy weight, roughly tracked).
-        Find the closest cousin to the logo's "g" character. Tell me the name; I'll wire it in as the brand font.</p>
+<Layout title="Roder font lab">
+  <section class="container">
+    <div class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow-line">Wordmark study</div>
+        <h1 class="wordmark">Roder</h1>
+        <p class="tagline">
+          Monospace wordmark candidates for the Roder brand system.
+        </p>
+      </div>
+      <img class="logo" src="/roder-icon.png" alt="Roder icon" />
     </div>
 
-    <section class="focused">
-      <h2>Closed two-story g — Bricolage refinements</h2>
-      <p style="color:var(--fg-muted);margin-top:0">You said Bricolage is close but the bottom of the g should be tighter. These have a closed, fully-looped lower bowl. Bricolage included for direct A/B.</p>
-      <div class="grid">
-        {closedG.map((c) => (
-          <div class="card">
-            <div class="label">{c.name} · {c.weight}</div>
-            <div class="word" style={`font-family:${c.family};font-weight:${c.weight}`}>gode</div>
-            {c.note && <div class="note">{c.note}</div>}
-          </div>
-        ))}
-      </div>
-    </section>
-
-    <p class="section-label">All candidates</p>
-    <div class="grid">
+    <div class="features">
       {candidates.map((c) => (
-        <div class="card">
-          <div class="label">{c.name} · {c.weight}</div>
-          <div class="word" style={`font-family:${c.family};font-weight:${c.weight}`}>gode</div>
-          <div class="alpha" style={`font-family:${c.family};font-weight:${c.weight}`}>godex agent harness</div>
+        <div class="feature-card">
+          <h3>{c.name}</h3>
+          <p style={`font-family:${c.family};font-weight:${c.weight};font-size:2.4rem;color:var(--graphite);margin-top:0.6rem;`}>
+            Roder
+          </p>
+          <p style={`font-family:${c.family};font-weight:${c.weight};`}>
+            Rust-native extensible agent harness
+          </p>
         </div>
       ))}
     </div>

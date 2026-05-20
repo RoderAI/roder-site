@@ -5,33 +5,31 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 <DocsLayout
   title="TUI"
   eyebrow="Surfaces"
-  description="The Bubble Tea interface and its composable view models."
-  prev={{ href: "/docs/goal-mode/", title: "Goal mode" }}
-  next={{ href: "/docs/desktop/", title: "Gode Desktop" }}
+  description="The Ratatui terminal client for the Roder app server."
+  prev={{ href: "/docs/goal-mode/", title: "Plan mode & goals" }}
+  next={{ href: "/docs/desktop/", title: "Desktop clients" }}
 >
   <p>
-    The TUI lives under <code>internal/tui</code> and is built on
-    <a href="https://github.com/charmbracelet/bubbletea">Bubble Tea</a> with
-    <a href="https://github.com/charmbracelet/lipgloss">Lip Gloss</a> for styling. It is
-    designed as a set of composable view models, each of which subscribes to the godex
-    event bus.
+    <code>roder-tui</code> is the reference terminal client. It uses
+    <a href="https://github.com/ratatui-org/ratatui" rel="noopener">Ratatui</a> and
+    <code>crossterm</code>, but it talks to the runtime through the same local app-client
+    path a desktop or automation client can use.
   </p>
 
   <h2>What it shows</h2>
   <ul>
-    <li>Streaming assistant output, with tool calls inlined.</li>
-    <li>Permission prompts for tools that need approval.</li>
-    <li>Todo and goal state updated live as the agent works.</li>
-    <li>An inline session picker for resume and switching.</li>
-    <li>A compact command for shrinking visible context mid-session.</li>
-    <li>Text selection and copy-paste flows tuned for terminals.</li>
+    <li>Streaming assistant output and tool-call timeline.</li>
+    <li>Approval prompts and policy-mode state.</li>
+    <li>Provider, model, session, command, mode, and agent choices through the command palette.</li>
+    <li>Diff previews for file changes with keyboard-driven accept/reject handling.</li>
+    <li>Status segments contributed by built-ins and extensions.</li>
+    <li>Mouse selection, scroll, hover, and clickable timeline interactions as they land.</li>
   </ul>
 
-  <h2>Why view models per panel</h2>
+  <h2>Why it is a client</h2>
   <p>
-    Each panel — chat transcript, todo list, picker, status bar — is its own model, with
-    its own subscriptions to the event bus. That means panels can be added, swapped, or
-    rearranged without entangling the rest of the UI. It also means a future remote front
-    end can subscribe to the same events and render however it wants.
+    The TUI should not be the only owner of runtime state. Keeping it as a client of
+    <code>roder-app-server</code> means terminal, desktop, test harness, and future IDE
+    surfaces can share protocol methods and event semantics.
   </p>
 </DocsLayout>

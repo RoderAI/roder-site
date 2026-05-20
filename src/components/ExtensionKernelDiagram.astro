@@ -1,0 +1,94 @@
+---
+const surfaces = [
+  {
+    id: "registry",
+    group: "Install",
+    title: "Extension registry builder",
+    detail:
+      "Extensions install into a typed registry. The registry records capabilities, manifests, providers, and lifecycle contributors before a run starts.",
+  },
+  {
+    id: "inference",
+    group: "Provider",
+    title: "Inference engines",
+    detail:
+      "Replace the model backend while preserving canonical request IR and canonical inference events for the rest of the harness.",
+  },
+  {
+    id: "context",
+    group: "Provider",
+    title: "Context planners",
+    detail:
+      "Swap retrieval, memory, compaction, prompt planning, and provider-specific shaping without changing turn orchestration.",
+  },
+  {
+    id: "persistence",
+    group: "Provider",
+    title: "Session and checkpoint stores",
+    detail:
+      "Own durable state, checkpoint logs, branch metadata, extension-owned state, migrations, and trace export formats.",
+  },
+  {
+    id: "policy",
+    group: "Provider",
+    title: "Policy engines",
+    detail:
+      "Evaluate approvals, capability rules, enterprise restrictions, audit requirements, and sensitive-action gates.",
+  },
+  {
+    id: "sandbox",
+    group: "Provider",
+    title: "Sandbox backends",
+    detail:
+      "Filesystem, shell, network, secrets, and process execution are mediated by backends with explicit scoped capabilities.",
+  },
+  {
+    id: "telemetry",
+    group: "Contributor",
+    title: "Telemetry + replay",
+    detail:
+      "Event sinks, exporters, and replay hooks observe canonical events without owning the main runtime loop.",
+  },
+  {
+    id: "tools",
+    group: "Contributor",
+    title: "Tool contributors",
+    detail:
+      "Register tools and schemas that the core can route through policy, approval, execution brokers, and canonical event output.",
+  },
+];
+---
+
+<section class="interactive-diagram kernel-diagram" data-active="registry" aria-label="Interactive native extension kernel">
+  <div class="diagram-heading">
+    <p>Figure 3</p>
+    <h3>Native extension surface</h3>
+  </div>
+
+  <div class="kernel-shell">
+    <div class="kernel-map" role="list" aria-label="Extension surfaces">
+      {surfaces.map((surface) => (
+        <button
+          class="diagram-node kernel-node"
+          type="button"
+          data-target={surface.id}
+          aria-pressed={surface.id === "registry" ? "true" : "false"}
+          role="listitem"
+        >
+          <small>{surface.group}</small>
+          <span>{surface.title}</span>
+        </button>
+      ))}
+    </div>
+
+    <div class="diagram-inspector">
+      {surfaces.map((surface) => (
+        <article class={`diagram-detail ${surface.id === "registry" ? "is-active" : ""}`} data-detail={surface.id}>
+          <span class="detail-kicker">{surface.group}</span>
+          <h4>{surface.title}</h4>
+          <p>{surface.detail}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

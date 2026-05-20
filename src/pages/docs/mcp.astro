@@ -5,49 +5,36 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 <DocsLayout
   title="MCP integration"
   eyebrow="Capabilities"
-  description="Attaching Model Context Protocol servers to a session."
-  prev={{ href: "/docs/tools/", title: "Built-in tools" }}
-  next={{ href: "/docs/goal-mode/", title: "Goal mode" }}
+  description="How Model Context Protocol support fits into Roder's tool model."
+  prev={{ href: "/docs/tools/", title: "Tools & policy" }}
+  next={{ href: "/docs/goal-mode/", title: "Plan mode & goals" }}
 >
   <p>
-    gode is an MCP host. You can attach <strong>stdio MCP servers</strong> per session, and
-    the tools they expose are folded into gode's tool registry under
-    <code>mcp.&lt;server-name&gt;.&lt;tool-name&gt;</code>. From the model's perspective they
-    are just more tools.
+    MCP is the language-agnostic extension path for tools that should run outside the
+    Roder process. The legacy implementation already proved the host behavior; the Rust
+    roadmap tracks the parity work for MCP and LSP capabilities.
   </p>
 
-  <h2>Attaching servers via ACP</h2>
-  <p>
-    On <code>session/new</code>, pass <code>mcpServers</code>. <code>command</code> must be
-    an absolute path:
-  </p>
-  <pre><code>{`{"jsonrpc":"2.0","id":2,"method":"session/new","params":{
-  "cwd":"/absolute/path/to/workspace",
-  "mcpServers":[{
-    "name":"tools",
-    "command":"/absolute/path/to/mcp-server",
-    "args":["--stdio"],
-    "env":[{"name":"EXAMPLE","value":"1"}]
-  }]
-}}`}</code></pre>
-
-  <h2>Lifecycle</h2>
+  <h2>Target model</h2>
   <ul>
-    <li>The MCP manager spawns the server process when the session starts.</li>
-    <li>It performs the MCP handshake and registers all returned tools.</li>
-    <li>Tool calls are routed back to the server over the same stdio transport.</li>
-    <li>When the session closes, the server process is terminated cleanly.</li>
+    <li>Attach MCP servers to a session or app-server client.</li>
+    <li>Discover tool schemas through the MCP handshake.</li>
+    <li>Register MCP tools into the same <code>ToolRegistry</code> as native tools.</li>
+    <li>Route calls through Roder policy, approval, event, and result handling.</li>
+    <li>Terminate session-scoped server processes when the session closes.</li>
   </ul>
 
-  <h2>Transport coverage</h2>
+  <h2>Naming</h2>
   <p>
-    gode currently advertises <strong>stdio</strong> MCP servers only. HTTP and SSE
-    transports are not advertised yet — clients should not assume them.
+    MCP tools should be namespaced so provider-visible names do not collide with built-ins
+    or native extension tools.
   </p>
 
-  <div class="callout">
-    <strong>Why isolate tools as MCP servers?</strong> Process isolation, language
-    independence, and independent shipping. Built-in tools win on integration depth; MCP
-    tools win on portability and blast radius.
-  </div>
+  <pre><code>mcp.&lt;server-name&gt;.&lt;tool-name&gt;</code></pre>
+
+  <h2>When to use MCP vs native extensions</h2>
+  <ul>
+    <li>Use MCP when you need process isolation, language independence, or a tool that ships separately.</li>
+    <li>Use a native Roder extension when you need direct Rust integration, tighter lifecycle control, or hot-path performance.</li>
+  </ul>
 </DocsLayout>

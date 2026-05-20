@@ -1,0 +1,279 @@
+.interactive-diagram {
+  --diagram-border: rgba(170, 109, 54, 0.28);
+  --diagram-surface: rgba(255, 250, 242, 0.86);
+  --diagram-active: #0f9aa2;
+  --diagram-rust: #b94e17;
+  width: min(1220px, calc(100vw - 2rem));
+  margin: 1.8rem 0 2.1rem;
+  margin-left: 50%;
+  border: 1px solid var(--diagram-border);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 246, 234, 0.72));
+  box-shadow: 0 22px 80px rgba(32, 41, 50, 0.08);
+  transform: translateX(-50%);
+  overflow: hidden;
+}
+
+.diagram-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  padding: 1rem 1rem 0;
+}
+
+.diagram-heading p {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--diagram-rust);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.diagram-heading h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.arch-shell,
+.flow-shell,
+.kernel-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(250px, 0.8fr);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.diagram-node {
+  appearance: none;
+  border: 1px solid var(--diagram-border);
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.diagram-node:hover,
+.diagram-node[aria-pressed="true"] {
+  border-color: rgba(15, 154, 162, 0.72);
+  background: rgba(246, 255, 255, 0.86);
+  box-shadow: 0 16px 40px rgba(15, 154, 162, 0.13);
+  transform: translateY(-1px);
+}
+
+.diagram-node:focus-visible {
+  outline: 3px solid rgba(15, 154, 162, 0.28);
+  outline-offset: 2px;
+}
+
+.diagram-inspector {
+  position: sticky;
+  top: 5.25rem;
+  align-self: start;
+  min-height: 100%;
+  border: 1px solid rgba(15, 154, 162, 0.24);
+  border-radius: 8px;
+  background: rgba(246, 255, 255, 0.72);
+  padding: 1rem;
+}
+
+.diagram-detail { display: none; }
+.diagram-detail.is-active { display: block; }
+
+.detail-kicker {
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--diagram-rust);
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+
+.diagram-detail h4 {
+  margin: 0 0 0.55rem;
+  font-size: 1.25rem;
+}
+
+.diagram-detail p {
+  margin: 0;
+  color: var(--fg-muted);
+}
+
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0;
+  margin: 1rem 0 0;
+  list-style: none;
+}
+
+.detail-tags li {
+  padding: 0.3rem 0.45rem;
+  border: 1px solid rgba(15, 154, 162, 0.22);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--fg-muted);
+}
+
+.arch-map {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.55rem;
+  align-items: stretch;
+}
+
+.arch-zone {
+  min-height: 190px;
+  display: grid;
+  align-content: start;
+  gap: 0.55rem;
+  padding: 0.85rem;
+  position: relative;
+}
+
+.arch-zone:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: -0.48rem;
+  top: 50%;
+  width: 0.42rem;
+  height: 2px;
+  background: rgba(15, 154, 162, 0.45);
+}
+
+.arch-zone span,
+.flow-step strong,
+.kernel-node span {
+  font-family: var(--mono);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.arch-zone small,
+.flow-step small,
+.kernel-node small {
+  color: var(--fg-muted);
+  line-height: 1.35;
+}
+
+.arch-zone em {
+  margin-top: auto;
+  color: var(--diagram-rust);
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-style: normal;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.flow-lane {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.flow-step {
+  min-height: 128px;
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  padding: 0.85rem;
+  position: relative;
+}
+
+.flow-step::after {
+  content: "";
+  position: absolute;
+  right: -0.5rem;
+  top: 50%;
+  width: 0.7rem;
+  height: 2px;
+  background: rgba(15, 154, 162, 0.32);
+}
+
+.flow-step:nth-child(4n)::after,
+.flow-step:last-child::after {
+  display: none;
+}
+
+.step-number {
+  width: max-content;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--diagram-rust);
+  font-weight: 700;
+}
+
+.kernel-map {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.kernel-node {
+  min-height: 112px;
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+  padding: 0.85rem;
+}
+
+.kernel-node:first-child {
+  grid-column: 1 / -1;
+  background:
+    linear-gradient(90deg, rgba(246, 255, 255, 0.9), rgba(255, 250, 242, 0.76)),
+    rgba(255, 255, 255, 0.68);
+}
+
+@media (max-width: 980px) {
+  .arch-map,
+  .flow-lane {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .arch-zone {
+    min-height: 150px;
+  }
+
+  .arch-zone::after,
+  .flow-step::after {
+    display: none;
+  }
+}
+
+@media (max-width: 850px) {
+  .arch-shell,
+  .flow-shell,
+  .kernel-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .diagram-heading {
+    display: grid;
+  }
+
+  .arch-map,
+  .flow-lane,
+  .kernel-map {
+    grid-template-columns: 1fr;
+  }
+
+  .arch-zone,
+  .flow-step,
+  .kernel-node {
+    min-height: auto;
+  }
+}

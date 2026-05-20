@@ -1,0 +1,96 @@
+---
+const steps = [
+  {
+    id: "task",
+    title: "User / task",
+    meta: "prompt, goal, RL task",
+    detail:
+      "A request enters as an interactive prompt, automated task, benchmark case, or reinforcement-learning environment step.",
+  },
+  {
+    id: "server",
+    title: "App server",
+    meta: "local control plane",
+    detail:
+      "The server authenticates the client, opens the session, starts the turn, and exposes the same stream to every UI or harness.",
+  },
+  {
+    id: "session",
+    title: "Session + turn manager",
+    meta: "state, lifecycle, cancellation",
+    detail:
+      "The runtime creates a durable turn boundary, wires cancellation, and records the sequence of events needed for resume and replay.",
+  },
+  {
+    id: "context",
+    title: "Context planner",
+    meta: "budgeting, retrieval, compaction",
+    detail:
+      "Context providers submit typed blocks; the planner chooses the final budgeted request for the active model capability profile.",
+  },
+  {
+    id: "inference",
+    title: "Inference engine",
+    meta: "Responses, Chat, Anthropic, local",
+    detail:
+      "An engine translates canonical Roder request IR into a provider wire dialect and streams canonical inference events back.",
+  },
+  {
+    id: "tools",
+    title: "Tool router + brokers",
+    meta: "filesystem, shell, network, approvals",
+    detail:
+      "Tool calls are routed through scoped handles, approval policy, sandbox backends, and event sinks before they touch the host.",
+  },
+  {
+    id: "store",
+    title: "Session / checkpoint store",
+    meta: "resume, fork, replay, traces",
+    detail:
+      "Turn items, runtime events, checkpoints, branch metadata, and exported traces persist through replaceable store providers.",
+  },
+  {
+    id: "output",
+    title: "Client event stream",
+    meta: "UI updates, traces, completion",
+    detail:
+      "The client receives typed events rather than private runtime objects, so every surface can render the same run consistently.",
+  },
+];
+---
+
+<section class="interactive-diagram flow-diagram" data-active="session" aria-label="Interactive Roder turn lifecycle">
+  <div class="diagram-heading">
+    <p>Figure 2</p>
+    <h3>Turn lifecycle and data flow</h3>
+  </div>
+
+  <div class="flow-shell">
+    <div class="flow-lane" role="list" aria-label="Turn lifecycle steps">
+      {steps.map((step, index) => (
+        <button
+          class="diagram-node flow-step"
+          type="button"
+          data-target={step.id}
+          aria-pressed={step.id === "session" ? "true" : "false"}
+          role="listitem"
+          style={`--step-index:${index}`}
+        >
+          <span class="step-number">{String(index + 1).padStart(2, "0")}</span>
+          <strong>{step.title}</strong>
+          <small>{step.meta}</small>
+        </button>
+      ))}
+    </div>
+
+    <div class="diagram-inspector">
+      {steps.map((step) => (
+        <article class={`diagram-detail ${step.id === "session" ? "is-active" : ""}`} data-detail={step.id}>
+          <span class="detail-kicker">Active stage</span>
+          <h4>{step.title}</h4>
+          <p>{step.detail}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

@@ -3,54 +3,39 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 ---
 
 <DocsLayout
-  title="Overview"
-  eyebrow="Getting started"
-  description="What gode is, what godex is, and how the pieces fit together."
+  title="Roder docs"
+  eyebrow="Overview"
+  description="What Roder is and how the Rust workspace is organized."
   next={{ href: "/docs/install/", title: "Install & run" }}
 >
   <p>
-    <strong>gode</strong> (Go Code) is a Go-native TUI coding agent and the event-driven harness
-    that powers it. The harness is called <strong>godex</strong>, and it owns the moving parts
-    of a coding agent: sessions, tools, workspace state, MCP connections, context
-    management, provider adapters, and an event bus that everything else subscribes to.
+    <strong>Roder</strong> is a Rust-native, extension-first agent harness. It is designed
+    for teams that need a reusable runtime for coding agents rather than another sealed
+    chatbot application.
   </p>
 
   <p>
-    The intent is a clean, extensible base that ML labs and tool builders can use to train,
-    evaluate, and run coding agents — without re-implementing the surrounding infrastructure
-    every time.
+    The repository is currently checked out at <code>~/w/gode</code>. The Rust rewrite uses
+    the <code>roder</code> binary and <code>roder-*</code> crates; the older Go packages are
+    still present as a reference while behavior is ported.
   </p>
 
-  <div class="callout">
-    <strong>Alpha.</strong> Packages, commands, configuration, event formats, and integration
-    points may move, break, or disappear without notice.
-  </div>
-
-  <h2>Repository shape</h2>
+  <h2>Repository map</h2>
   <ul>
-    <li><code>cmd/gode</code> — CLI entrypoint (TUI, ACP, app-server, resume, version).</li>
-    <li><code>internal/godex</code> — event bus, JSONL journal, runner, provider interface, MCP manager, tool registry.</li>
-    <li><code>internal/godex/appserver</code> — Codex-style app-server protocol, request handling, transports for desktop control.</li>
-    <li><code>internal/godex/tools/builtin</code> — broad initial coding tool set.</li>
-    <li><code>internal/tui</code> — Bubble Tea UI with composable Lip Gloss components and view models.</li>
+    <li><code>crates/roder-api</code> — extension traits, canonical events, tools, inference, sessions, policy, and shared types.</li>
+    <li><code>crates/roder-core</code> — runtime loop, event bus, policy gate, tool execution, cancellation, and provider orchestration.</li>
+    <li><code>crates/roder-extension-host</code> — default distribution wiring for providers, web search, subagents, sessions, tools, and TUI services.</li>
+    <li><code>crates/roder-app-server</code> and <code>crates/roder-protocol</code> — local JSON-RPC control plane and typed protocol shapes.</li>
+    <li><code>crates/roder-cli</code> and <code>crates/roder-tui</code> — command entrypoint and reference terminal client.</li>
+    <li><code>crates/roder-ext-*</code> — provider, storage, search, subagent, plan-mode, memory, and notification extensions.</li>
   </ul>
-
-  <h2>Three ways to drive it</h2>
-  <ol>
-    <li><strong>TUI</strong> — interactive Bubble Tea interface for humans.</li>
-    <li><strong>ACP</strong> — JSON-RPC over stdio for any Agent Client Protocol client.</li>
-    <li><strong>App server</strong> — Codex-style JSON-RPC over stdio or WebSocket for desktop integrations.</li>
-  </ol>
-
-  <p>
-    All three share the same <code>godex</code> core. The event bus is the seam: every UI,
-    transport, and observer is just another subscriber.
-  </p>
 
   <h2>Read next</h2>
   <ul>
-    <li><a href="/docs/architecture/">godex harness</a> — how the core is laid out.</li>
-    <li><a href="/docs/event-bus/">Event bus &amp; journal</a> — the shared spine.</li>
-    <li><a href="/docs/tools/">Built-in tools</a> — what the agent can actually do.</li>
+    <li><a href="/docs/install/">Install &amp; run</a> — build the workspace and start the TUI or app server.</li>
+    <li><a href="/mission/">Mission whitepaper</a> — the revised technical mission paper as a web page.</li>
+    <li><a href="/contact/">Contact the authors</a> — RL tooling, embedded harnesses, product work, and OSS sponsorship.</li>
+    <li><a href="/docs/architecture/">Runtime architecture</a> — how a turn moves through the Rust core.</li>
+    <li><a href="/docs/extensibility/">Extension model</a> — what can be installed without forking the core.</li>
   </ul>
 </DocsLayout>
