@@ -106,6 +106,71 @@
   padding: 1rem;
 }
 
+.leaderboard-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+  gap: 1.2rem;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  padding: 1.2rem;
+  margin: 2rem 0;
+}
+
+.leaderboard-panel h2 {
+  margin-top: 0;
+}
+
+.leaderboard-panel p {
+  color: var(--fg-muted);
+}
+
+.leaderboard-caveat {
+  border-left: 3px solid var(--accent);
+  padding-left: 0.9rem;
+}
+
+.leaderboard-rungs {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.leaderboard-rungs > div {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 250, 242, 0.76);
+  padding: 0.85rem;
+}
+
+.leaderboard-rungs span {
+  color: var(--fg-muted);
+  display: block;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.leaderboard-rungs strong {
+  color: var(--graphite);
+  display: block;
+  font-family: var(--mono);
+  font-size: 1.7rem;
+  line-height: 1.1;
+  margin: 0.2rem 0;
+}
+
+.leaderboard-rungs p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.leaderboard-rungs .roder-rung {
+  border-color: rgba(11, 154, 165, 0.48);
+  box-shadow: inset 0 0 0 1px rgba(11, 154, 165, 0.18);
+}
+
 .trend-chart {
   width: 100%;
   height: auto;
@@ -229,7 +294,8 @@
 
 @media (max-width: 780px) {
   .eval-hero-grid,
-  .eval-metrics {
+  .eval-metrics,
+  .leaderboard-panel {
     grid-template-columns: 1fr;
   }
 
