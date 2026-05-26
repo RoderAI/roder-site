@@ -1,0 +1,58 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Eval harness"
+  eyebrow="Getting started"
+  description="How Roder is exercised in Harbor and Terminal-Bench runs."
+  prev={{ href: "/docs/use-cases/", title: "Use cases" }}
+  next={{ href: "/docs/architecture/", title: "Runtime architecture" }}
+>
+  <p>
+    The Harbor harness runs Roder against Terminal-Bench tasks with a prebuilt Linux
+    binary, isolated config/auth directories, JSON event capture, and structured run
+    summaries. It is a first-class consumer of the runtime, not a separate benchmark-only
+    agent.
+    Current pass/fail results live on the <a href="/evals/">eval scoreboard</a>.
+  </p>
+
+  <h2>Run shape</h2>
+  <ul>
+    <li>Harbor launches <code>roder exec --json --profile eval</code> inside each task container.</li>
+    <li>The adapter records <code>roder-events.jsonl</code>, final assistant text, stderr diagnostics, and <code>roder-run-summary.json</code>.</li>
+    <li>Smoke and full-run configs preserve Docker task images by default so offline image preflight and targeted reruns can reuse them.</li>
+    <li>Analyzer scripts separate harness/setup/provider failures from ordinary reward-0 scored failures.</li>
+  </ul>
+
+  <h2>Deadline finalization</h2>
+  <p>
+    Eval runs can set a turn deadline. Roder reserves a finalization window, prompts the
+    model to stop opening new work, and disables tools for the final answer pass. When a
+    task ledger is required, the runtime asks for scoreable output checkpoints and ledger
+    completion before finalizing.
+  </p>
+
+  <h2>Command behavior</h2>
+  <p>
+    <code>exec_command</code> and <code>shell</code> use the turn deadline to cap effective
+    process timeouts. Command output is formatted consistently, UTF-8 truncation is safe,
+    and timeout metadata is returned with the tool result so eval analysis can classify
+    the failure.
+  </p>
+
+  <h2>Plan-first reruns</h2>
+  <p>
+    The Harbor adapter can run a planning turn first, store <code>roder-plan.md</code> and
+    its event/stderr artifacts, then resume the same thread for the implementation turn.
+    This mode is targeted at tasks where planning, artifact hygiene, or policy framing is
+    likely to matter; it is not the default for every full run because it adds wall time.
+  </p>
+
+  <h2>Current benchmark signal</h2>
+  <p>
+    The latest documented strict-medium Terminal-Bench run was Harbor-clean across 89
+    trials and improved from 47 to 50 passes after deadline and reliability work. The
+    plan-first xhigh rerun converted four previously failing tasks in a 28-task subset.
+  </p>
+</DocsLayout>

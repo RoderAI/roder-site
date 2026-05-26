@@ -4,10 +4,10 @@ import Layout from "../layouts/Layout.astro";
 const features = [
   { href: "/docs/architecture/", title: "Typed runtime", body: "A Rust core that owns turn lifecycle, cancellation, events, tools, policy, and replay invariants." },
   { href: "/docs/extensibility/", title: "Native extensions", body: "Install inference engines, session stores, memory, tools, policy contributors, event sinks, and UI surfaces through one registry." },
-  { href: "/docs/providers/", title: "Provider neutral", body: "OpenAI Responses, Anthropic, Gemini, chat-completions-style engines, and mock providers translate into canonical Roder types." },
-  { href: "/docs/app-server/", title: "App-server first", body: "The TUI and desktop clients speak to the same local control plane used by automation and external tools." },
-  { href: "/docs/tools/", title: "Capability scoped", body: "Tool execution is routed through policy modes, explicit tool specs, approval events, and scoped runtime handles." },
-  { href: "/docs/event-bus/", title: "Replayable events", body: "Every meaningful transition is a typed event suitable for UI rendering, journals, telemetry, evals, and RL traces." },
+  { href: "/docs/providers/", title: "Provider neutral", body: "OpenAI Responses, Anthropic, Gemini, Cursor planning, chat-completions-style engines, and mock providers map into canonical Roder types." },
+  { href: "/docs/app-server/", title: "App-server first", body: "The TUI, desktop clients, automation, and planned remote agent nodes speak to the same control plane." },
+  { href: "/docs/tools/", title: "Capability scoped", body: "Tool execution is routed through policy modes, explicit tool specs, approval events, scoped runtime handles, and deadline-aware command limits." },
+  { href: "/evals/", title: "Eval scoreboard", body: "Harbor and Terminal-Bench runs show Roder improving over time with full-suite scores, targeted reruns, and structured artifacts." },
 ];
 ---
 
@@ -24,6 +24,7 @@ const features = [
         <div class="cta-row">
           <a class="btn btn-primary" href="/docs/">Read the docs</a>
           <a class="btn btn-primary" href="/contact/">Work with the authors</a>
+          <a class="btn btn-secondary" href="/evals/">Track evals</a>
           <a class="btn btn-secondary" href="/docs/install/">Run it locally</a>
           <a class="btn btn-secondary" href="/mission/">Mission paper</a>
         </div>
@@ -33,7 +34,7 @@ const features = [
 
     <div class="feature-strip" aria-label="Roder architecture summary">
       <div class="metric"><strong>Rust</strong><span>typed core and native crates</span></div>
-      <div class="metric"><strong>Events</strong><span>replayable runtime stream</span></div>
+      <div class="metric"><strong>Events</strong><span>replayable runtime and eval stream</span></div>
       <div class="metric"><strong>Extensions</strong><span>providers, tools, stores, sinks</span></div>
       <div class="metric"><strong>Control</strong><span>TUI, app server, desktop clients</span></div>
     </div>

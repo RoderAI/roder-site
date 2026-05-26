@@ -54,8 +54,9 @@ cargo run -p roder-cli -- --yolo</code></pre>
 cargo run -p roder-cli -- app-server --mode plan</code></pre>
 
   <div class="callout">
-    <strong>Status note.</strong> The Rust app server currently supports stdio transport.
-    WebSocket transport exists in the older Go implementation and is part of the parity
-    target, but the Rust CLI rejects non-stdio listen addresses today.
+    <strong>Remote mode.</strong> Use <code>roder app-server --remote</code> for the
+    authenticated WebSocket transport when pairing trusted local-network clients. The
+    agent-node roadmap adds a stricter Roder-to-Roder mode with mandatory encrypted
+    transport for non-loopback control.
   </div>
 </DocsLayout>
