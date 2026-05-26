@@ -1,151 +1,34 @@
----
-import Layout from "../layouts/Layout.astro";
-import "../styles/contact.css";
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>Talk to the Roder devs</title>
+    <script async src="https://tally.so/widgets/embed.js"></script>
+    <style type="text/css">
+      html {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+      }
 
-const contactEmail = "hello@roder.cc";
----
-
-<Layout
-  title="Contact the Roder authors"
-  description="Talk to the Roder authors about RL tooling, embedded harnesses, startup agent products, contract work, or OSS sponsorship."
->
-  <section class="container contact-page">
-    <div class="contact-hero">
-      <div>
-        <div class="eyebrow-line">Contract work / OSS sponsorship / embedded harnesses</div>
-        <h1>Work with the Roder authors</h1>
-        <p>
-          Roder is built for teams that need a serious agent harness they can adapt, embed,
-          and extend. The authors work directly with AI labs and startups that need Roder
-          shaped around real infrastructure, research, or product constraints.
-        </p>
-      </div>
-      <img src="/roder-icon.png" alt="Roder icon" />
-    </div>
-
-    <div class="contact-grid">
-      <section class="contact-panel">
-        <h2>Good fit</h2>
-        <div class="persona-list">
-          <article>
-            <span>AI labs</span>
-            <p>
-              RL tooling, eval harnesses, trajectory capture, replay, sandboxed execution,
-              provider abstraction, and harnesses embedded into fine-tuning infrastructure.
-            </p>
-          </article>
-          <article>
-            <span>Agent startups</span>
-            <p>
-              Product foundations built on a generic, modifiable harness instead of a
-              sealed agent loop that becomes hard to customize.
-            </p>
-          </article>
-          <article>
-            <span>Platform teams</span>
-            <p>
-              Extension design, control-plane integration, session stores, policy layers,
-              context systems, model backends, and deployment-specific runtime work.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section class="contact-panel">
-        <h2>Reach out</h2>
-        <form
-          class="contact-form"
-          id="contact-form"
-          action={`mailto:${contactEmail}`}
-          method="post"
-          enctype="text/plain"
-        >
-          <label>
-            Name
-            <input name="name" autocomplete="name" required />
-          </label>
-
-          <label>
-            Work email
-            <input name="email" type="email" autocomplete="email" required />
-          </label>
-
-          <label>
-            Organization
-            <input name="organization" autocomplete="organization" required />
-          </label>
-
-          <label>
-            What best describes the work?
-            <select name="project_type" required>
-              <option value="">Choose one</option>
-              <option>AI lab / RL infrastructure</option>
-              <option>Startup building an agent product</option>
-              <option>Internal platform or developer tooling</option>
-              <option>OSS sponsorship or roadmap funding</option>
-              <option>Other Roder integration</option>
-            </select>
-          </label>
-
-          <label>
-            Engagement shape
-            <select name="engagement" required>
-              <option value="">Choose one</option>
-              <option>Contract implementation</option>
-              <option>OSS sponsorship</option>
-              <option>Advisory / architecture review</option>
-              <option>Not sure yet</option>
-            </select>
-          </label>
-
-          <label>
-            Timeline
-            <input name="timeline" placeholder="Example: prototype this quarter" />
-          </label>
-
-          <label class="full">
-            What do you need Roder to do?
-            <textarea
-              name="needs"
-              rows="6"
-              placeholder="Tell us about the harness, RL loop, product surface, model provider, sandbox, persistence, or extension work you need."
-              required
-            ></textarea>
-          </label>
-
-          <button class="btn btn-primary" type="submit">Prepare email</button>
-          <p class="form-note">
-            This static form opens your email client with a structured inquiry to
-            <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
-          </p>
-        </form>
-      </section>
-    </div>
-  </section>
-
-  <script define:vars={{ contactEmail }}>
-    const form = document.getElementById("contact-form");
-
-    form?.addEventListener("submit", (event) => {
-      event.preventDefault();
-      const data = new FormData(form);
-      const value = (name) => String(data.get(name) || "").trim();
-      const subject = `Roder inquiry from ${value("organization") || value("name")}`;
-      const body = [
-        "Roder inquiry",
-        "",
-        `Name: ${value("name")}`,
-        `Email: ${value("email")}`,
-        `Organization: ${value("organization")}`,
-        `Project type: ${value("project_type")}`,
-        `Engagement: ${value("engagement")}`,
-        `Timeline: ${value("timeline") || "Not specified"}`,
-        "",
-        "What we need Roder to do:",
-        value("needs"),
-      ].join("\n");
-
-      window.location.href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    });
-  </script>
-</Layout>
+      iframe {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe
+      data-tally-src="https://tally.so/r/gDk8XD?transparentBackground=1"
+      width="100%"
+      height="100%"
+      frameborder="0"
+      marginheight="0"
+      marginwidth="0"
+      title="Talk to the Roder devs"
+    ></iframe>
+  </body>
+</html>
