@@ -20,6 +20,25 @@ export interface EvalRun {
   notes: string[];
 }
 
+export interface LeaderboardContext {
+  sourceUrl: string;
+  sourceLabel: string;
+  snapshotDate: string;
+  totalEntries: number;
+  theoreticalRank: number;
+  upperNeighbor: {
+    rank: number;
+    name: string;
+    scorePercent: number;
+  };
+  lowerNeighbor: {
+    rank: number;
+    name: string;
+    scorePercent: number;
+  };
+  caveat: string;
+}
+
 export const evalRuns: EvalRun[] = [
   {
     id: "tbench-full-gpt55-medium",
@@ -164,6 +183,26 @@ export const evalRuns: EvalRun[] = [
 ];
 
 export const evalDashboardUpdatedAt = "2026-05-26T21:19:53+01:00";
+
+export const leaderboardContext: LeaderboardContext = {
+  sourceUrl: "https://www.tbench.ai/leaderboard/terminal-bench/2.0",
+  sourceLabel: "Terminal-Bench 2.0 leaderboard",
+  snapshotDate: "2026-05-26",
+  totalEntries: 143,
+  theoreticalRank: 56,
+  upperNeighbor: {
+    rank: 55,
+    name: "Terminus 2 with Gemini 3 Pro",
+    scorePercent: 56.9,
+  },
+  lowerNeighbor: {
+    rank: 56,
+    name: "Letta Code with Gemini 3 Pro",
+    scorePercent: 56.0,
+  },
+  caveat:
+    "These Roder evals are not a full submittable Terminal-Bench run. They are published to show the in-development trajectory of Roder. We will run and publish a full submittable benchmark separately when the harness is ready.",
+};
 
 export const fullSuiteRuns = evalRuns.filter((run) => run.kind === "full-suite");
 export const latestFullSuiteRun = fullSuiteRuns.at(-1)!;

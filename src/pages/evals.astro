@@ -4,6 +4,7 @@ import {
   evalDashboardUpdatedAt,
   evalRuns,
   fullSuiteRuns,
+  leaderboardContext,
   latestFullSuiteRun,
 } from "../data/evalResults";
 import "../styles/evals.css";
@@ -15,14 +16,16 @@ const formatDate = (value: string) =>
 const firstFullSuiteRun = fullSuiteRuns[0];
 const passLift = latestFullSuiteRun.passes - firstFullSuiteRun.passes;
 const softTimeoutReduction = (firstFullSuiteRun.softTimeouts ?? 0) - (latestFullSuiteRun.softTimeouts ?? 0);
+const latestFullSuitePercent = scorePercent(latestFullSuiteRun.passes, latestFullSuiteRun.trials);
 const chartWidth = 720;
 const chartHeight = 260;
 const chartPadding = 44;
-const maxPasses = 89;
+const maxScorePercent = 100;
 const trendPoints = fullSuiteRuns.map((run, index) => {
+  const percent = scorePercent(run.passes, run.trials);
   const x = chartPadding + (index * (chartWidth - chartPadding * 2)) / Math.max(fullSuiteRuns.length - 1, 1);
-  const y = chartHeight - chartPadding - (run.passes / maxPasses) * (chartHeight - chartPadding * 2);
-  return { run, x, y };
+  const y = chartHeight - chartPadding - (percent / maxScorePercent) * (chartHeight - chartPadding * 2);
+  return { run, percent, x, y };
 });
 const trendPolyline = trendPoints.map((point) => `${point.x},${point.y}`).join(" ");
 const fullSuiteRows = fullSuiteRuns.map((run, index) => ({
@@ -44,15 +47,16 @@ const fullSuiteRows = fullSuiteRuns.map((run, index) => ({
           This page tracks the benchmark runs we use to measure whether Roder is becoming
           more reliable and more capable. Full-suite scores are shown separately from
           targeted reruns and provider-validation subsets so the trend stays honest.
+          These are development trajectory results, not final benchmark submissions.
         </p>
         <div class="eval-updated">Last updated {formatDate(evalDashboardUpdatedAt)}</div>
       </div>
       <aside class="score-panel" aria-label="Latest full suite score">
         <div class="score-label">Latest full-suite score</div>
-        <div class="score-value">{latestFullSuiteRun.passes}<small>/{latestFullSuiteRun.trials}</small></div>
+        <div class="score-value">{latestFullSuitePercent}<small>%</small></div>
         <p class="score-meta">
-          {scorePercent(latestFullSuiteRun.passes, latestFullSuiteRun.trials)}% pass rate,
-          {latestFullSuiteRun.harborErrors} Harbor errors.
+          {latestFullSuiteRun.passes} passing tasks across {latestFullSuiteRun.trials} trials,
+          with {latestFullSuiteRun.harborErrors} Harbor errors.
         </p>
       </aside>
     </div>
@@ -61,19 +65,52 @@ const fullSuiteRows = fullSuiteRuns.map((run, index) => ({
       <div class="eval-metric"><strong>+{passLift}</strong><span>full-suite passes since baseline</span></div>
       <div class="eval-metric"><strong>{softTimeoutReduction}</strong><span>fewer soft timeouts vs first run</span></div>
       <div class="eval-metric"><strong>{latestFullSuiteRun.harborErrors}</strong><span>Harbor errors in latest full run</span></div>
-      <div class="eval-metric"><strong>{scorePercent(latestFullSuiteRun.passes, latestFullSuiteRun.trials)}%</strong><span>latest full-suite pass rate</span></div>
+      <div class="eval-metric"><strong>{latestFullSuitePercent}%</strong><span>latest full-suite pass rate</span></div>
     </div>
+
+    <section class="leaderboard-panel" aria-labelledby="leaderboard-context">
+      <div>
+        <h2 id="leaderboard-context">Theoretical leaderboard context</h2>
+        <p>
+          If the latest in-development full-suite result were compared directly against the
+          current <a href={leaderboardContext.sourceUrl} rel="noopener">{leaderboardContext.sourceLabel}</a>,
+          its {latestFullSuitePercent}% pass rate would theoretically place around
+          <strong> #{leaderboardContext.theoreticalRank}</strong> of {leaderboardContext.totalEntries}
+          entries.
+        </p>
+        <p class="leaderboard-caveat">
+          {leaderboardContext.caveat}
+        </p>
+      </div>
+      <div class="leaderboard-rungs" aria-label="Nearby leaderboard scores">
+        <div>
+          <span>#{leaderboardContext.upperNeighbor.rank}</span>
+          <strong>{leaderboardContext.upperNeighbor.scorePercent}%</strong>
+          <p>{leaderboardContext.upperNeighbor.name}</p>
+        </div>
+        <div class="roder-rung">
+          <span>Roder dev trajectory</span>
+          <strong>{latestFullSuitePercent}%</strong>
+          <p>Theoretical #{leaderboardContext.theoreticalRank}</p>
+        </div>
+        <div>
+          <span>#{leaderboardContext.lowerNeighbor.rank}</span>
+          <strong>{leaderboardContext.lowerNeighbor.scorePercent}%</strong>
+          <p>{leaderboardContext.lowerNeighbor.name}</p>
+        </div>
+      </div>
+    </section>
 
     <section class="trend-card score-panel" aria-labelledby="full-suite-trend">
       <h2 id="full-suite-trend">Full-suite trend</h2>
-      <svg class="trend-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label="Roder full-suite passes increased from 43 to 50">
+      <svg class="trend-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label="Roder full-suite pass rate increased from 48.3 percent to 56.2 percent">
         <line class="trend-axis" x1={chartPadding} y1={chartHeight - chartPadding} x2={chartWidth - chartPadding} y2={chartHeight - chartPadding} />
         <line class="trend-axis" x1={chartPadding} y1={chartPadding} x2={chartPadding} y2={chartHeight - chartPadding} />
         <polyline class="trend-line" points={trendPolyline} />
-        {trendPoints.map(({ run, x, y }) => (
+        {trendPoints.map(({ run, percent, x, y }) => (
           <g>
             <circle class="trend-point" cx={x} cy={y} r="7" />
-            <text class="trend-label" x={x} y={y - 16} text-anchor="middle">{run.passes}/{run.trials}</text>
+            <text class="trend-label" x={x} y={y - 16} text-anchor="middle">{percent}%</text>
             <text class="trend-label" x={x} y={chartHeight - 16} text-anchor="middle">{formatDate(run.startedAt)}</text>
           </g>
         ))}
@@ -88,9 +125,9 @@ const fullSuiteRows = fullSuiteRuns.map((run, index) => ({
             <h3>{run.title}</h3>
             <span class="eval-badge">{run.kind}</span>
           </div>
-          <div class="eval-card-score">{run.passes}/{run.trials} passes</div>
+          <div class="eval-card-score">{scorePercent(run.passes, run.trials)}%</div>
           <div class="eval-card-meta">
-            {scorePercent(run.passes, run.trials)}% · {run.model} · {run.reasoning} · {formatDate(run.startedAt)}
+            {run.passes} passing tasks · {run.trials} trials · {run.model} · {run.reasoning} · {formatDate(run.startedAt)}
           </div>
           <ul class="eval-note-list">
             {run.notes.map((note) => <li class="eval-note">{note}</li>)}
@@ -119,7 +156,7 @@ const fullSuiteRows = fullSuiteRuns.map((run, index) => ({
                 <strong>{run.title}</strong><br />
                 <span class="eval-card-meta">{run.reportPath}</span>
               </td>
-              <td>{run.passes}/{run.trials} ({scorePercent(run.passes, run.trials)}%)</td>
+              <td>{scorePercent(run.passes, run.trials)}%</td>
               <td>{run.lift === 0 ? "baseline" : `+${run.lift}`}</td>
               <td>{run.softTimeouts ?? "n/a"} total, {run.softTimeoutFails ?? "n/a"} failed</td>
               <td>{run.providerPolicyBlocks ?? "n/a"}</td>
