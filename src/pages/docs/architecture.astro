@@ -6,7 +6,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   title="Runtime architecture"
   eyebrow="Architecture"
   description="How Roder's Rust runtime, registry, tools, providers, and event bus fit together."
-  prev={{ href: "/docs/use-cases/", title: "Use cases" }}
+  prev={{ href: "/docs/evals/", title: "Eval harness" }}
   next={{ href: "/docs/extensibility/", title: "Extension model" }}
 >
   <p>
@@ -36,6 +36,15 @@ roder-cli   -> core + selected extensions</code></pre>
     <li>Tool results are appended to the turn until the provider reaches end-of-turn.</li>
     <li>The final transcript and typed events are available to stores, sinks, clients, and replay tooling.</li>
   </ol>
+
+  <h2>Eval deadline path</h2>
+  <p>
+    Eval-profile turns can carry an internal deadline. Near the reserve window, the
+    runtime asks the model to checkpoint scoreable outputs, update the task ledger when
+    required, then finalize without starting more tools. Command tools see the remaining
+    deadline and clamp long process timeouts so failures become tool results instead of
+    opaque external interrupts.
+  </p>
 
   <h2>Core crates</h2>
   <ul>

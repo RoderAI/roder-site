@@ -24,6 +24,19 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><code>echo</code> for deterministic tests and simple harness checks.</li>
   </ul>
 
+  <h2>Process tools</h2>
+  <ul>
+    <li><code>exec_command</code> starts an interactive command session and returns either output or a session id.</li>
+    <li><code>write_stdin</code> sends input to an existing command session and polls recent output.</li>
+    <li><code>shell</code> runs a single shell command and returns aggregated output.</li>
+  </ul>
+
+  <p>
+    Process tools honor the configured command shell and the current turn deadline. In
+    eval-profile runs, long process timeouts are capped before the finalization reserve so
+    the model can still write a final answer or scoreable output.
+  </p>
+
   <h2>Extension tools</h2>
   <ul>
     <li><code>web_search</code> from the web-search router extension.</li>

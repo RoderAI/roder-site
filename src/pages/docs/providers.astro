@@ -25,6 +25,15 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><code>roder-codex-auth</code> and host wiring - Codex OAuth where enabled.</li>
   </ul>
 
+  <h2>Provider roadmap</h2>
+  <p>
+    Cursor Composer is now tracked as an in-progress native provider plan. The intended
+    shape is a <code>cursor</code> provider backed by Cursor AgentService with API-key
+    exchange, <code>composer-2.5</code> model support, streamed text, redacted credentials,
+    and Cursor-native tool-call mapping into Roder's canonical tool execution. It is not
+    documented as part of the default provider set until the Rust extension lands.
+  </p>
+
   <h2>Selecting defaults</h2>
   <pre><code># ~/.roder/config.toml
 provider = "openai"
@@ -44,6 +53,6 @@ RODER_PROVIDER=mock cargo run -p roder-cli</code></pre>
 
   <div class="callout">
     <strong>Provider-specific APIs stay outside the core.</strong> Responses, Messages,
-    Gemini, and chat-completions shapes are adapter details, not runtime types.
+    Gemini, Cursor AgentService, and chat-completions shapes are adapter details, not runtime types.
   </div>
 </DocsLayout>

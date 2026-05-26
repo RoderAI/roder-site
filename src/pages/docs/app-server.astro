@@ -197,9 +197,17 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   "method": "turn/start",
   "params": {
     "threadId": "THREAD_ID",
-    "prompt": "summarize this repository and list the main crates"
+    "prompt": "summarize this repository and list the main crates",
+    "taskLedgerRequired": false
   }
 }`}</code></pre>
+
+  <p>
+    Eval and automation clients can set <code>taskLedgerRequired</code> on
+    <code>turn/start</code>. The runtime then treats the task ledger as part of
+    finalization and asks the model to checkpoint scoreable outputs before the deadline
+    reserve closes.
+  </p>
 
   <pre><code>{`{
   "jsonrpc": "2.0",
@@ -310,7 +318,8 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <p>
     <code>command/exec</code> runs a local process after policy evaluation. It supports a
     command vector, optional absolute <code>cwd</code>, environment overrides, timeout, and
-    output caps. By default commands time out after 30 seconds.
+    output caps. By default commands time out after 30 seconds. In eval-profile turns
+    with a deadline, command timeouts are clamped to leave a finalization reserve.
   </p>
 
   <pre><code>{`{
@@ -329,6 +338,12 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     To receive command output as notifications, set <code>streamStdoutStderr</code> and a
     <code>processId</code>. The response then contains empty stdout/stderr and the server
     emits <code>command/exec/output_delta</code> notifications with base64 chunks.
+  </p>
+
+  <p>
+    Tool-facing <code>exec_command</code> and <code>shell</code> results also expose effective
+    timeout and timeout status so clients and eval analyzers can distinguish process
+    timeout, policy denial, provider failure, and ordinary non-zero exit.
   </p>
 
   <h2>Tools, commands, agents, and background tasks</h2>
@@ -435,5 +450,12 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <strong>Use absolute paths.</strong> Filesystem methods and command working
     directories intentionally require absolute paths. Resolve workspace-relative UI
     paths on the client side before calling the app server.
+  </div>
+
+  <div class="callout">
+    <strong>Remote agent-node roadmap.</strong> The existing remote WebSocket mode is for
+    authenticated local-network or trusted-tunnel clients. The agent-node plan keeps this
+    same JSON-RPC surface but adds Roder-to-Roder control with encrypted transport,
+    controller identity, reconnect behavior, and remote runtime ownership.
   </div>
 </DocsLayout>
