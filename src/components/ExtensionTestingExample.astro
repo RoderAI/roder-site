@@ -1,0 +1,23 @@
+<h2>Testing an extension</h2>
+<p>
+  Extension tests should prove both sides of the contract: the manifest says what the
+  extension installs, and the installed implementation behaves through the shared traits.
+</p>
+
+<pre><code>{`#[test]
+fn issue_lookup_manifest_matches_installed_tool_provider() {
+    let mut builder = ExtensionRegistryBuilder::new();
+    builder.install(IssueLookupExtension::for_test()).unwrap();
+
+    let registry = builder.build().unwrap();
+    assert!(registry.provided_services().contains(
+        &ProvidedService::ToolProvider("acme-issues".to_string())
+    ));
+
+    let mut tools = ToolRegistry::default();
+    for contributor in &registry.tools {
+        contributor.contribute(&mut tools).unwrap();
+    }
+
+    assert!(tools.get("search_issues").is_some());
+}`}</code></pre>

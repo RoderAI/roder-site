@@ -1,4 +1,5 @@
 ---
+import ExtensionTestingExample from "../../components/ExtensionTestingExample.astro";
 import DocsLayout from "../../layouts/DocsLayout.astro";
 ---
 
@@ -25,6 +26,63 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     }
 }`}</code></pre>
 
+  <h2>Architecture in one pass</h2>
+  <p>
+    Roder treats extensions as typed contributors to a runtime registry. The extension
+    does not get handed the turn loop. Instead, it declares what it provides, registers
+    implementations behind <code>roder-api</code> traits, and lets the core decide when those
+    implementations are used.
+  </p>
+
+  <ol>
+    <li>The distribution creates an <code>ExtensionRegistryBuilder</code>.</li>
+    <li>Each extension returns an <code>ExtensionManifest</code> with identity, API version, provided services, and requested capabilities.</li>
+    <li>The extension installs one or more service objects into the builder.</li>
+    <li>The builder validates manifests, duplicate services, API compatibility, installed-service matches, tool registration, and capability status.</li>
+    <li>The runtime receives an immutable <code>ExtensionRegistry</code> and consumes services through typed contracts.</li>
+    <li>Clients discover installed extensions through <code>extensions/list</code>, which reports manifests and capability statuses.</li>
+  </ol>
+
+  <pre><code>{`let mut builder = ExtensionRegistryBuilder::new();
+
+builder.install(MockProviderExtension)?;
+builder.install(OpenAiResponsesExtension::new(openai_key))?;
+builder.install(MemoryExtension::new(roder_home.join("memory")))?;
+builder.install(BuiltinCodingToolsExtension { workspace, path_scope, command_shell })?;
+
+// Optional host decisions before build:
+builder.grant_capability("roder-ext-memory", CapabilityGrant::new("fs.readwrite.roder-home"));
+// builder.deny_capability("some-ext", CapabilityDenial::new("network.web", "offline profile"));
+
+let registry = builder.build()?; // validate, then freeze
+let runtime = Runtime::new(registry, runtime_config);`}</code></pre>
+
+  <h2>Manifest contract</h2>
+  <p>
+    The manifest is the public identity of an extension. It is what app-server clients,
+    desktop clients, and debugging tools can show before they know implementation details.
+    It also acts as a consistency check: if the manifest declares
+    <code>ToolProvider("web-search")</code>, the extension must actually install a tool
+    contributor whose <code>id()</code> is <code>web-search</code>.
+  </p>
+
+  <pre><code>{`ExtensionManifest {
+    id: "roder-ext-web-search".to_string(),
+    name: "Web Search Router".to_string(),
+    version: Version::new(0, 1, 0),
+    api_version: "0.1.0".to_string(),
+    description: Some("Canonical web_search router".to_string()),
+    provides: vec![ProvidedService::ToolProvider("web-search".to_string())],
+    required_capabilities: vec![CapabilityRequest::new("network.web")],
+}`}</code></pre>
+
+  <p>
+    Capability requests are deliberately visible. A host can mark a requested capability
+    as granted, leave it in requested state, or deny it. Denying a required capability
+    fails registry construction, which gives distributions a simple way to build strict
+    profiles such as offline, eval, enterprise, or hosted-runner-only.
+  </p>
+
   <h2>What can be provided</h2>
   <ul>
     <li>Inference engines and provider wire dialects.</li>
@@ -36,12 +94,373 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li>TUI status segments and command-palette sources.</li>
   </ul>
 
+  <h2>Service categories</h2>
+  <p>
+    The service type determines where the extension joins the system:
+  </p>
+
+  <ul>
+    <li><strong>Inference:</strong> <code>InferenceEngine</code> translates a model API into canonical Roder inference events.</li>
+    <li><strong>Context:</strong> <code>ContextProvider</code> and <code>ContextPlanner</code> add retrieved context, memory, code index results, or prompt-shaping decisions before model calls.</li>
+    <li><strong>State:</strong> <code>ThreadStore</code>, <code>CheckpointStore</code>, <code>MemoryStore</code>, and <code>EmbeddingProvider</code> own persistence and retrieval backends.</li>
+    <li><strong>Actions:</strong> <code>ToolProvider</code>, <code>TaskExecutor</code>, <code>SubagentDispatcher</code>, and <code>RemoteRunnerProvider</code> add capabilities the agent can invoke.</li>
+    <li><strong>Policy and observation:</strong> <code>PolicyContributor</code>, <code>EventSink</code>, and <code>NotificationSink</code> review, record, or notify without owning the turn loop.</li>
+    <li><strong>Surfaces:</strong> <code>StatusSegment</code>, <code>PaletteSource</code>, and <code>InteractiveRegionHandler</code> extend the TUI or other clients without changing runtime semantics.</li>
+  </ul>
+
+  <h2>Runtime consumption</h2>
+  <p>
+    After <code>build()</code>, the registry is immutable. Runtime systems select services by
+    interface and id, then call only the trait methods exposed by <code>roder-api</code>. That
+    keeps extension code outside lifecycle ownership: cancellation, event ordering,
+    approvals, transcript writes, and client notifications still stay in the core.
+  </p>
+
+  <pre><code>{`async fn run_turn(runtime: &Runtime, request: TurnRequest) -> anyhow::Result<()> {
+    let registry = runtime.registry();
+
+    let engine = registry
+        .inference_engine(&request.provider_id)
+        .or_else(|| registry.default_inference_engine())
+        .context("no inference engine configured")?;
+
+    let mut prompt_context = Vec::new();
+    for provider in &registry.context_providers {
+        prompt_context.extend(provider.load_context(&request.context_query).await?);
+    }
+
+    let mut tools = ToolRegistry::default();
+    for contributor in &registry.tools {
+        contributor.contribute(&mut tools)?;
+    }
+
+    let events = engine.stream_turn(
+        InferenceTurnContext::new(runtime, &request),
+        AgentInferenceRequest {
+            messages: request.messages,
+            context: prompt_context,
+            tools: tools.specs(),
+            model: request.model,
+        },
+    ).await?;
+
+    runtime.drive_provider_events(events, tools).await
+}`}</code></pre>
+
+  <p>
+    The important point is directional: extensions provide objects, and the runtime
+    orchestrates those objects. A tool provider can define tools, but the runtime decides
+    when a tool call is approved, how it is cancelled, and how its result is appended to
+    the thread. An inference provider can stream model output, but it does not own the
+    agent loop.
+  </p>
+
+  <h2>Client discovery</h2>
+  <p>
+    App-server clients do not need Rust access to understand what is installed. They call
+    <code>extensions/list</code> and receive the exact manifests from the registry plus the
+    computed capability statuses.
+  </p>
+
+  <pre><code>{`{
+  "extensions": [
+    {
+      "id": "roder-ext-builtin-coding-tools",
+      "name": "Built-in coding tools",
+      "version": "0.1.0",
+      "api_version": "0.1.0",
+      "description": "Workspace file, search, patch, edit, and shell tools",
+      "provides": [
+        { "ToolProvider": "builtin-coding-tools" }
+      ],
+      "required_capabilities": [
+        { "id": "fs.read.workspace" },
+        { "id": "fs.write.workspace" },
+        { "id": "process.spawn.shell" }
+      ]
+    }
+  ],
+  "capability_statuses": {
+    "roder-ext-builtin-coding-tools": [
+      { "id": "fs.read.workspace", "decision": "requested" },
+      { "id": "process.spawn.shell", "decision": "requested" }
+    ]
+  }
+}`}</code></pre>
+
+  <p>
+    This is why the manifest is kept deliberately boring and serializable. Desktop,
+    app-server, eval harnesses, hosted runners, and custom distributions can all inspect
+    the same contract without linking against each extension crate.
+  </p>
+
+  <h2>Capability profiles</h2>
+  <p>
+    Capabilities are not a hidden permission model buried inside each extension. They are
+    registry-level data that a distribution can evaluate before startup. The same extension
+    can be installed in a developer profile, denied in an eval profile, or granted in a
+    managed enterprise profile.
+  </p>
+
+  <pre><code>{`fn apply_profile(builder: &mut ExtensionRegistryBuilder, profile: RuntimeProfile) {
+    match profile {
+        RuntimeProfile::Developer => {
+            builder.grant_capability("roder-ext-builtin-coding-tools", CapabilityGrant::new("fs.read.workspace"));
+            builder.grant_capability("roder-ext-builtin-coding-tools", CapabilityGrant::new("fs.write.workspace"));
+            builder.grant_capability("roder-ext-builtin-coding-tools", CapabilityGrant::new("process.spawn.shell"));
+        }
+        RuntimeProfile::EvalSandbox => {
+            builder.deny_capability(
+                "roder-ext-web-search",
+                CapabilityDenial::new("network.web", "benchmark runs must be offline"),
+            );
+            builder.deny_capability(
+                "roder-ext-builtin-coding-tools",
+                CapabilityDenial::new("process.spawn.shell", "shell disabled for this harness"),
+            );
+        }
+    }
+}`}</code></pre>
+
+  <p>
+    Denying a required capability is fail-fast: the registry will not build. That is
+    intentional. It prevents a distribution from accidentally advertising an extension
+    whose core assumptions have been disabled.
+  </p>
+
+  <h2>Example: a tool provider</h2>
+  <p>
+    A tool extension installs a <code>ToolContributor</code>. The contributor registers one
+    or more <code>ToolExecutor</code> values into a <code>ToolRegistry</code>. The runtime still
+    owns policy checks, approval events, execution context, tool-result routing, and the
+    transcript.
+  </p>
+
+  <pre><code>{`struct IssueLookupExtension {
+    api_token: String,
+}
+
+impl RoderExtension for IssueLookupExtension {
+    fn manifest(&self) -> ExtensionManifest {
+        ExtensionManifest {
+            id: "acme-issue-lookup".to_string(),
+            name: "Acme issue lookup".to_string(),
+            version: Version::new(0, 1, 0),
+            api_version: "0.1.0".to_string(),
+            description: Some("Search internal issue tracker".to_string()),
+            provides: vec![ProvidedService::ToolProvider("acme-issues".to_string())],
+            required_capabilities: vec![
+                CapabilityRequest::new("network.issues.acme.internal"),
+                CapabilityRequest::new("secret.read.ACME_ISSUE_TOKEN"),
+            ],
+        }
+    }
+
+    fn install(&self, registry: &mut ExtensionRegistryBuilder) -> anyhow::Result<()> {
+        registry.tool_contributor(Arc::new(IssueToolContributor {
+            tool: Arc::new(SearchIssuesTool::new(self.api_token.clone())),
+        }));
+        Ok(())
+    }
+}
+
+impl ToolContributor for IssueToolContributor {
+    fn id(&self) -> ToolProviderId {
+        "acme-issues".to_string()
+    }
+
+    fn contribute(&self, registry: &mut ToolRegistry) -> anyhow::Result<()> {
+        registry.register(self.tool.clone())
+    }
+}
+
+#[async_trait]
+impl ToolExecutor for SearchIssuesTool {
+    fn spec(&self) -> ToolSpec {
+        ToolSpec {
+            name: "search_issues".to_string(),
+            description: "Search Acme issue tracker by query.".to_string(),
+            parameters: json!({
+                "type": "object",
+                "properties": { "query": { "type": "string" } },
+                "required": ["query"],
+                "additionalProperties": false
+            }),
+        }
+    }
+
+    async fn execute(&self, ctx: ToolExecutionContext, call: ToolCall) -> anyhow::Result<ToolResult> {
+        // ctx contains thread/turn ids, policy mode, command shell, deadline, and scoped handles.
+        // The tool does not bypass policy; it only runs after the runtime allows this call.
+        let args: SearchArgs = serde_json::from_value(call.arguments.clone())?;
+        let matches = self.client.search(args.query).await?;
+
+        Ok(ToolResult {
+            id: call.id,
+            name: call.name,
+            text: render_issue_summary(&matches),
+            data: serde_json::to_value(matches)?,
+            is_error: false,
+        })
+    }
+}`}</code></pre>
+
+  <h2>Example: an inference provider</h2>
+  <p>
+    Provider extensions implement <code>InferenceEngine</code>. They map provider-specific
+    request and streaming formats into canonical Roder events such as message deltas,
+    tool calls, reasoning, provider metadata, usage, and completion. The core keeps the
+    transcript, tool loop, retry/deadline policy, and app-server notifications provider-neutral.
+  </p>
+
+  <pre><code>{`struct AcmeModelExtension {
+    client: AcmeModelClient,
+}
+
+impl RoderExtension for AcmeModelExtension {
+    fn manifest(&self) -> ExtensionManifest {
+        ExtensionManifest {
+            id: "acme-models".to_string(),
+            name: "Acme Models".to_string(),
+            version: Version::new(0, 1, 0),
+            api_version: "0.1.0".to_string(),
+            description: Some("Acme hosted coding models".to_string()),
+            provides: vec![ProvidedService::InferenceEngine("acme".to_string())],
+            required_capabilities: vec![
+                CapabilityRequest::new("network.api.acme.ai"),
+                CapabilityRequest::new("secret.read.ACME_API_KEY"),
+            ],
+        }
+    }
+
+    fn install(&self, registry: &mut ExtensionRegistryBuilder) -> anyhow::Result<()> {
+        registry.inference_engine(Arc::new(AcmeInferenceEngine {
+            client: self.client.clone(),
+        }));
+        Ok(())
+    }
+}
+
+#[async_trait]
+impl InferenceEngine for AcmeInferenceEngine {
+    fn id(&self) -> InferenceEngineId {
+        "acme".to_string()
+    }
+
+    fn metadata(&self) -> InferenceProviderMetadata {
+        InferenceProviderMetadata {
+            name: "Acme".to_string(),
+            auth_type: ProviderAuthType::ApiKey,
+            auth_label: Some("ACME_API_KEY".to_string()),
+            auth_configured: Some(self.client.has_key()),
+            recommended: false,
+            sort_order: 80,
+            description: Some("Acme hosted model API".to_string()),
+        }
+    }
+
+    async fn stream_turn(
+        &self,
+        ctx: InferenceTurnContext,
+        request: AgentInferenceRequest,
+    ) -> anyhow::Result<InferenceEventStream> {
+        let wire_request = to_acme_request(request)?;
+        let wire_stream = self.client.stream(wire_request).await?;
+
+        Ok(Box::pin(wire_stream.map(|event| {
+            // Translate provider wire events into Roder events.
+            match event? {
+                AcmeEvent::Text(delta) => Ok(InferenceEvent::MessageDelta(delta.into())),
+                AcmeEvent::ToolCall(call) => Ok(InferenceEvent::ToolCall(call.into())),
+                AcmeEvent::Usage(usage) => Ok(InferenceEvent::Usage(usage.into())),
+                AcmeEvent::Done => Ok(InferenceEvent::Completed),
+            }
+        })))
+    }
+}`}</code></pre>
+
+  <h2>Example: one extension, multiple services</h2>
+  <p>
+    An extension can install more than one service when the behavior is naturally coupled.
+    The memory extension does this: it contributes a SQLite memory store, a context
+    provider that retrieves memories into turns, and tools that let the agent manage memory.
+  </p>
+
+  <pre><code>{`impl RoderExtension for MemoryExtension {
+    fn manifest(&self) -> ExtensionManifest {
+        ExtensionManifest {
+            id: "roder-ext-memory".to_string(),
+            name: "Local Memory".to_string(),
+            version: Version::new(0, 1, 0),
+            api_version: "0.1.0".to_string(),
+            description: Some("SQLite-backed project and global memory store".to_string()),
+            provides: vec![
+                ProvidedService::MemoryStore("sqlite-memory".to_string()),
+                ProvidedService::ContextProvider("memory-context".to_string()),
+                ProvidedService::ToolProvider("memory-tools".to_string()),
+            ],
+            required_capabilities: vec![CapabilityRequest::new("fs.readwrite.roder-home")],
+        }
+    }
+
+    fn install(&self, registry: &mut ExtensionRegistryBuilder) -> anyhow::Result<()> {
+        let factory = Arc::new(SqliteMemoryStoreFactory::new(self.base_path.clone()));
+        let store = factory.create();
+
+        registry.memory_store_factory(factory);
+        registry.context_provider(Arc::new(MemoryContextProvider::new(store.clone())));
+        registry.tool_contributor(Arc::new(MemoryToolContributor::new(store)));
+        Ok(())
+    }
+}`}</code></pre>
+
+  <h2>Validation rules</h2>
+  <p>
+    Registry build is intentionally strict because the app server and clients rely on
+    extension metadata being true. The builder checks:
+  </p>
+
+  <ul>
+    <li>Extension ids are non-empty and unique.</li>
+    <li>Manifest <code>api_version</code> matches the supported extension API range.</li>
+    <li>No two manifests declare the same <code>ProvidedService</code>.</li>
+    <li>Every declared service has a matching installed implementation.</li>
+    <li>No two installed implementations expose the same service id.</li>
+    <li>Tool contributors can register their tools without duplicate names or invalid specs.</li>
+    <li>Required capabilities are not denied by the host profile.</li>
+  </ul>
+
   <h2>Default distribution</h2>
   <p>
     <code>roder-extension-host</code> composes the default CLI registry from config. That
     includes provider extensions, JSONL session storage, local memory, built-in tools,
     subagents, web search, plan mode, and TUI integrations.
   </p>
+
+  <pre><code>{`pub fn build_default_registry(config: DefaultRegistryConfig) -> anyhow::Result<ExtensionRegistry> {
+    let mut builder = ExtensionRegistryBuilder::new();
+
+    builder.install(FakeProviderExtension)?;
+    builder.install(CodexOAuthProviderExtension)?;
+
+    if let Some(openai_key) = config.openai_api_key {
+        builder.install(OpenAiResponsesExtension::new(openai_key))?;
+    }
+    if let Some(gemini_key) = config.gemini_api_key {
+        builder.install(GeminiExtension::new(gemini_key))?;
+    }
+
+    builder.install(roder_ext_plan_mode::PlanModeExtension::new(config.policy_mode))?;
+    builder.install(roder_ext_task_ledger::TaskLedgerExtension)?;
+    builder.install(UnixLocalRunnerExtension)?;
+    builder.install(DockerRunnerExtension)?;
+    builder.install(DefaultTuiExtension)?;
+    builder.install(BuiltinCodingToolsExtension { workspace, path_scope, command_shell })?;
+    builder.install(JsonlThreadStoreExtension::new(thread_dir))?;
+    builder.install(MemoryExtension::new(roder_home.join("memory")))?;
+
+    builder.build()
+}`}</code></pre>
 
   <h2>Why this shape</h2>
   <p>
@@ -54,4 +473,16 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <strong>Extension boundary.</strong> Extensions add behavior. They should not own core
     lifecycle ordering, cancellation, event identity, or capability enforcement.
   </div>
+
+  <h2>Design rules for extension authors</h2>
+  <ul>
+    <li>Keep provider wire formats inside provider extensions; expose canonical Roder events to the core.</li>
+    <li>Prefer one extension per deployable concern, but allow multiple services when they share state.</li>
+    <li>Declare every sensitive access as a capability request so clients can explain what is installed.</li>
+    <li>Use scoped runtime handles from <code>ToolExecutionContext</code> instead of reaching around policy or workspace boundaries.</li>
+    <li>Emit or handle typed events for anything that must be replayed, audited, evaluated, or rendered by clients.</li>
+    <li>Keep app-server and TUI code as consumers of the registry, not as places where extension-specific logic accumulates.</li>
+  </ul>
+
+  <ExtensionTestingExample />
 </DocsLayout>
