@@ -90,6 +90,12 @@ import DocsLayout from "../layouts/DocsLayout.astro";
         <td><code>fs.read.workspace</code>, <code>fs.write.workspace</code>, <code>process.spawn.shell</code></td>
       </tr>
       <tr>
+        <td><code>roder-ext-zerolang</code></td>
+        <td><code>ToolProvider(zerolang)</code></td>
+        <td>Zero compiler diagnostics, graph inspection, and checked ProgramGraph edit tools.</td>
+        <td><code>fs.read.workspace</code>, <code>fs.write.workspace</code>, <code>process.spawn.shell</code></td>
+      </tr>
+      <tr>
         <td><code>roder-ext-default-tui</code></td>
         <td><code>StatusSegment(...)</code>, <code>PaletteSource(...)</code></td>
         <td>Built-in TUI status line and command-palette surfaces.</td>
@@ -135,6 +141,12 @@ import DocsLayout from "../layouts/DocsLayout.astro";
         <td><code>InferenceEngine(gemini)</code></td>
         <td>When Gemini credentials are configured.</td>
         <td><code>network.api.googleai</code>, <code>secret.read.GEMINI_API_KEY</code></td>
+      </tr>
+      <tr>
+        <td><code>roder-ext-cursor</code></td>
+        <td><code>InferenceEngine(cursor)</code></td>
+        <td>Installed by default; live turns require a Cursor User API Key.</td>
+        <td><code>network.agentn.global.api5.cursor.sh</code>, <code>network.api2.cursor.sh</code></td>
       </tr>
       <tr>
         <td><code>roder-ext-xai</code></td>

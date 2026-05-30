@@ -21,18 +21,22 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><code>roder-ext-openai-chat-completions</code> - chat-completions-compatible endpoints.</li>
     <li><code>roder-ext-anthropic</code> - Anthropic Messages-style inference.</li>
     <li><code>roder-ext-gemini</code> - Gemini through the configured Google-compatible path.</li>
+    <li><code>roder-ext-cursor</code> - Cursor Composer and proxied frontier models through Cursor AgentService.</li>
     <li><code>roder-core::fake_provider</code> - deterministic mock behavior for tests and offline work.</li>
     <li><code>roder-codex-auth</code> and host wiring - Codex OAuth where enabled.</li>
   </ul>
 
-  <h2>Provider roadmap</h2>
+  <h2>Cursor AgentService</h2>
   <p>
-    Cursor Composer is now tracked as an in-progress native provider plan. The intended
-    shape is a <code>cursor</code> provider backed by Cursor AgentService with API-key
-    exchange, <code>composer-2.5</code> model support, streamed text, redacted credentials,
-    and Cursor-native tool-call mapping into Roder's canonical tool execution. It is not
-    documented as part of the default provider set until the Rust extension lands.
+    Cursor is now a native provider id. Roder exchanges a Cursor User API Key, calls the
+    HTTP/2 AgentService path directly, streams text and thinking metadata, and maps
+    Cursor-native read, edit, shell, grep, and glob requests into canonical Roder tools.
+    Agentic Cursor turns still execute through Roder policy and tool routing rather than
+    bypassing the runtime.
   </p>
+
+  <pre><code>export CURSOR_API_KEY="..."
+RODER_PROVIDER=cursor RODER_MODEL=cursor/composer-2.5 cargo run -p roder-cli</code></pre>
 
   <h2>Selecting defaults</h2>
   <pre><code># ~/.roder/config.toml
