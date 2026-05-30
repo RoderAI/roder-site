@@ -1,0 +1,81 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Dynamic workflows"
+  eyebrow="Capabilities"
+  description="Approval-gated orchestration scripts for multi-agent Roder work."
+  prev={{ href: "/docs/tools/", title: "Tools & policy" }}
+  next={{ href: "/docs/zerolang/", title: "Zerolang graph edits" }}
+>
+  <p>
+    Dynamic workflows let Roder coordinate larger jobs without stuffing every child-agent
+    detail into the lead conversation. A workflow is a generated, built-in, user, workspace,
+    or extension-provided script that drafts phases, estimates child-agent cost, requests
+    approval, and then runs bounded agents through the normal runtime.
+  </p>
+
+  <div class="callout">
+    <strong>Plural namespace.</strong> Dynamic workflow runs use <code>workflows/*</code>.
+    The older singular <code>workflow/*</code> methods still describe imported workflow
+    files and should not be treated as the same protocol surface.
+  </div>
+
+  <h2>How workflows start</h2>
+  <ul>
+    <li>A substantive prompt that includes <code>workflow</code> can trigger a planning hint in the TUI.</li>
+    <li>Saved <code>.workflow.js</code> files can live in <code>.agents/workflows/</code> or <code>~/.roder/workflows/</code>.</li>
+    <li>The built-in <code>/deep-research</code> command runs through the same dynamic workflow runner.</li>
+    <li>Clients can call <code>workflows/plan</code> and then <code>workflows/approve</code>.</li>
+    <li><code>/effort ultracode</code> can opt into automatic workflow planning when configured.</li>
+  </ul>
+
+  <h2>Approval and safety</h2>
+  <p>
+    First runs show the planned phases, child-agent estimate, scope, limits, and script
+    preview before execution. Approval decisions are <code>runOnce</code>,
+    <code>alwaysForScriptAndWorkspace</code>, or <code>deny</code>.
+  </p>
+
+  <p>
+    Workflow scripts run inside a constrained JavaScript host. They can use workflow
+    APIs such as <code>ctx.agents</code>, <code>ctx.phase</code>, <code>ctx.checkpoint</code>,
+    and <code>ctx.report</code>, but direct filesystem, shell, network, secret, module, and
+    MCP access stays outside the script. Child agents perform actual work through the
+    same Roder policy and tool gates as any other turn.
+  </p>
+
+  <h2>Runtime controls</h2>
+  <p>
+    The TUI command <code>/workflows</code> and the app-server protocol expose list,
+    inspect, pause, resume, stop, restart-agent, save, and script-management operations.
+    Run summaries carry status, phase counts, child-agent counts, failures, concurrency
+    peak, elapsed time, token usage when available, and report previews.
+  </p>
+
+  <pre><code>{`{"jsonrpc":"2.0","id":1,"method":"workflows/plan","params":{"threadId":"THREAD_ID","prompt":"workflow: audit auth changes"}}
+{"jsonrpc":"2.0","id":2,"method":"workflows/approve","params":{"runId":"RUN_ID","decision":"runOnce"}}
+{"jsonrpc":"2.0","id":3,"method":"workflows/list","params":{"limit":10}}
+{"jsonrpc":"2.0","id":4,"method":"workflows/get","params":{"runId":"RUN_ID","includeAgents":true}}`}</code></pre>
+
+  <h2>Configuration</h2>
+  <pre><code>{`[dynamic_workflows]
+enabled = true
+trigger_word_enabled = true
+auto_with_ultracode = true
+max_concurrent_agents = 16
+max_agents_per_run = 1000
+workspace_workflows_dir = ".agents/workflows"
+user_workflows_dir = "~/.roder/workflows"
+
+[dynamic_workflows.approval]
+require_approval = true
+allow_always_for_script_and_workspace = true`}</code></pre>
+
+  <p>
+    Live provider and live web-search checks remain explicit. Normal workflow tests and
+    fixtures are offline unless <code>RODER_DYNAMIC_WORKFLOWS_LIVE</code> or
+    <code>RODER_DEEP_RESEARCH_LIVE</code> is set.
+  </p>
+</DocsLayout>

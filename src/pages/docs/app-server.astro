@@ -381,7 +381,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 {"jsonrpc":"2.0","id":71,"method":"team/list","params":{"limit":10}}
 {"jsonrpc":"2.0","id":72,"method":"turn/subagentTraces/list","params":{"threadId":"THREAD_ID","turnId":"TURN_ID"}}`}</code></pre>
 
-  <h2>Plan review, hunks, workflow imports, media, and memory</h2>
+  <h2>Review, workflows, media, and memory</h2>
 
   <p>
     Higher-level product features are also controlled through JSON-RPC methods:
@@ -390,14 +390,18 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <ul>
     <li><strong>Plan review:</strong> <code>plan/review/read</code>, <code>plan/review/comment</code>, <code>plan/review/rewrite</code>, <code>plan/review/approve</code>, and <code>plan/review/reject</code>.</li>
     <li><strong>Hunks:</strong> <code>hunk/list</code>, <code>hunk/read</code>, and <code>hunk/rollback</code>.</li>
+    <li><strong>Git change review:</strong> <code>git/changes/list</code>, <code>git/changes/read</code>, and observed shell/exec changes through <code>workspace/changes/list</code>.</li>
     <li><strong>Workflow imports:</strong> <code>workflow/scan</code>, <code>workflow/preview</code>, <code>workflow/enable</code>, <code>workflow/ignore</code>, <code>workflow/refresh</code>, and <code>workflow/remove</code>.</li>
+    <li><strong>Dynamic workflows:</strong> <code>workflows/plan</code>, <code>workflows/approve</code>, <code>workflows/list</code>, <code>workflows/get</code>, <code>workflows/pause</code>, <code>workflows/resume</code>, <code>workflows/stop</code>, <code>workflows/restartAgent</code>, and workflow script methods.</li>
     <li><strong>Media:</strong> <code>media/list</code>, <code>media/read</code>, <code>media/thumbnail</code>, <code>media/delete</code>, and <code>media/attachToTurn</code>.</li>
     <li><strong>Memory:</strong> <code>memory/list</code>, <code>memory/read</code>, <code>memory/save</code>, <code>memory/update</code>, <code>memory/delete</code>, <code>memory/query</code>, <code>memory/provider/list</code>, <code>memory/provider/set</code>, and <code>memory/recall/preview</code>.</li>
   </ul>
 
   <pre><code>{`{"jsonrpc":"2.0","id":80,"method":"memory/query","params":{"scope":"project","text":"release process","limit":5,"includeGlobal":true}}
 {"jsonrpc":"2.0","id":81,"method":"media/list","params":{"threadId":"THREAD_ID"}}
-{"jsonrpc":"2.0","id":82,"method":"hunk/list","params":{"threadId":"THREAD_ID","turnId":"TURN_ID"}}`}</code></pre>
+{"jsonrpc":"2.0","id":82,"method":"hunk/list","params":{"threadId":"THREAD_ID","turnId":"TURN_ID"}}
+{"jsonrpc":"2.0","id":83,"method":"git/changes/list","params":{"workspace":"/absolute/path/to/workspace"}}
+{"jsonrpc":"2.0","id":84,"method":"workflows/list","params":{"limit":10}}`}</code></pre>
 
   <h2>Marketplaces and plugins</h2>
 
@@ -430,7 +434,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><strong>Filesystem/process/tools:</strong> <code>fs/readFile</code>, <code>fs/readDirectory</code>, <code>command/exec</code>, <code>commands/list</code>, <code>commands/expand</code>, <code>commands/run</code>, <code>tools/call</code>.</li>
     <li><strong>Runners/tasks:</strong> <code>runners/list</code>, <code>runners/select</code>, <code>runners/session</code>, <code>runners/snapshot</code>, <code>runners/delete</code>, <code>runners/ports</code>, <code>tasks/submit</code>, <code>tasks/list</code>, <code>tasks/get</code>, <code>tasks/cancel</code>, <code>tasks/subscribe</code>.</li>
     <li><strong>Teams/subagents:</strong> <code>team/start</code>, <code>team/list</code>, <code>team/read</code>, <code>team/member/start</code>, <code>team/member/message</code>, <code>team/member/interrupt</code>, <code>team/member/focus</code>, <code>team/cleanup</code>, <code>team/pane/focus</code>, <code>team/pane/cleanup</code>, <code>turn/subagentTraces/list</code>, <code>turn/subagentTrace/read</code>.</li>
-    <li><strong>Review/workflow/state:</strong> <code>plan/review/read</code>, <code>plan/review/comment</code>, <code>plan/review/rewrite</code>, <code>plan/review/approve</code>, <code>plan/review/reject</code>, <code>hunk/list</code>, <code>hunk/read</code>, <code>hunk/rollback</code>, <code>workflow/scan</code>, <code>workflow/preview</code>, <code>workflow/enable</code>, <code>workflow/ignore</code>, <code>workflow/refresh</code>, <code>workflow/remove</code>.</li>
+    <li><strong>Review/workflow/state:</strong> <code>plan/review/read</code>, <code>plan/review/comment</code>, <code>plan/review/rewrite</code>, <code>plan/review/approve</code>, <code>plan/review/reject</code>, <code>git/changes/list</code>, <code>git/changes/read</code>, <code>workspace/changes/list</code>, <code>hunk/list</code>, <code>hunk/read</code>, <code>hunk/rollback</code>, <code>workflow/*</code> import methods, and <code>workflows/*</code> dynamic workflow methods.</li>
     <li><strong>Marketplace/media/memory:</strong> <code>marketplaces/list</code>, <code>marketplaces/install_default</code>, <code>marketplaces/add</code>, <code>marketplaces/remove</code>, <code>marketplaces/refresh</code>, <code>marketplaces/search</code>, <code>marketplaces/plugin</code>, <code>plugins/preview_install</code>, <code>plugins/install</code>, <code>plugins/install_all_variants</code>, <code>plugins/list_installed</code>, <code>plugins/disable</code>, <code>plugins/uninstall</code>, <code>media/list</code>, <code>media/read</code>, <code>media/thumbnail</code>, <code>media/delete</code>, <code>media/attachToTurn</code>, <code>memory/list</code>, <code>memory/read</code>, <code>memory/save</code>, <code>memory/update</code>, <code>memory/delete</code>, <code>memory/query</code>, <code>memory/provider/list</code>, <code>memory/provider/set</code>, <code>memory/recall/preview</code>.</li>
   </ul>
 
@@ -441,7 +445,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li>Send <code>initialize</code>, then discover providers, models, tools, commands, and extensions.</li>
     <li>Create or select a thread with <code>thread/start</code>, <code>thread/list</code>, and <code>thread/read</code>.</li>
     <li>Submit work with <code>turn/start</code> or <code>commands/run</code>.</li>
-    <li>Render notifications for turn/item deltas, approvals, plan reviews, hunk updates, memory updates, and task changes.</li>
+    <li>Render notifications for turn/item deltas, approvals, plan reviews, workspace changes, workflows, memory updates, and task changes.</li>
     <li>Resolve approvals and user input through <code>session/resolve_approval</code> and <code>session/resolve_user_input</code>.</li>
     <li>Keep method handling forward-compatible: ignore unknown notification methods and tolerate extra result fields.</li>
   </ol>

@@ -1,0 +1,80 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Zerolang graph edits"
+  eyebrow="Capabilities"
+  description="Checked ProgramGraph editing tools for Zero source tasks."
+  prev={{ href: "/docs/workflows/", title: "Dynamic workflows" }}
+  next={{ href: "/docs/mcp/", title: "MCP integration" }}
+>
+  <p>
+    Roder now ships a first-party Zerolang tool provider for graph-first Zero code
+    changes. The extension shells out to a local <code>zero</code> compiler; Roder does
+    not vendor the compiler or rewrite Zero source text by hand.
+  </p>
+
+  <h2>Tool surface</h2>
+  <ul>
+    <li><code>zerolang_skills_get</code> reads version-matched Zero workflow guidance from the active compiler.</li>
+    <li><code>zerolang_check</code>, <code>zerolang_graph_dump</code>, and <code>zerolang_graph_view</code> inspect code and graph state.</li>
+    <li><code>zerolang_fix_plan</code> prepares graph-aware repair steps.</li>
+    <li><code>zerolang_edit</code> applies checked graph edits with graph hash and node preconditions.</li>
+    <li><code>zerolang_graph_roundtrip</code> verifies graph dump, patch, and semantic check behavior.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>No typo alias.</strong> The edit tool is <code>zerolang_edit</code>; there is no
+    <code>zeolang_edit</code> compatibility alias.
+  </div>
+
+  <h2>Checked edit loop</h2>
+  <p>
+    The intended path is inspect first, then edit with explicit ProgramGraph evidence.
+    <code>zerolang_edit</code> accepts structured operations, builds the compiler patch
+    text internally, checks graph-hash preconditions, and then runs graph and source
+    validation when the edit writes <code>.0</code> source.
+  </p>
+
+  <pre><code>{`{
+  "input": "src/main.0",
+  "graphHash": "graph:74f634ccb5b77646",
+  "operations": [
+    {
+      "op": "set",
+      "node": "#89f1bc7e",
+      "field": "value",
+      "expect": "65",
+      "value": "66"
+    }
+  ]
+}`}</code></pre>
+
+  <p>
+    Use <code>node</code>, not <code>id</code>, and quote semantic values as strings. Derived
+    <code>.program-graph</code> artifacts should normally stay under
+    <code>.zero/roder/</code> and should not be committed unless the user explicitly wants
+    graph artifacts.
+  </p>
+
+  <h2>Configuration</h2>
+  <p>Binary resolution checks <code>RODER_ZERO_BIN</code>, then config, then <code>zero</code> on <code>PATH</code>.</p>
+
+  <pre><code>{`[zerolang]
+binary = "/path/to/zero"
+timeout_seconds = 30
+artifact_dir = ".zero/roder"`}</code></pre>
+
+  <pre><code>roder zerolang doctor
+roder zerolang check examples/hello.0
+roder zerolang graph-dump --out .zero/roder/hello.program-graph examples/hello.0</code></pre>
+
+  <h2>Zero-coder distribution</h2>
+  <p>
+    The <code>zero-coder-edits</code> distribution profile is a headless app-server build
+    for RL Zero coding tasks. Its generated config allowlists only the Zerolang tools, so
+    generic text edit tools such as <code>edit</code>, <code>multi_edit</code>,
+    <code>write_file</code>, and <code>apply_patch</code> are not advertised to the model.
+  </p>
+</DocsLayout>

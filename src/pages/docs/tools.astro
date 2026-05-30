@@ -7,7 +7,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   eyebrow="Capabilities"
   description="The built-in tool surface, tool contributors, and policy modes."
   prev={{ href: "/docs/providers/", title: "Inference providers" }}
-  next={{ href: "/docs/mcp/", title: "MCP integration" }}
+  next={{ href: "/docs/workflows/", title: "Dynamic workflows" }}
 >
   <p>
     Tools are registered through <code>ToolContributor</code> and executed through
@@ -37,10 +37,21 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     the model can still write a final answer or scoreable output.
   </p>
 
+  <h2>Tool allowlists</h2>
+  <p>
+    Distributions can narrow the advertised tool set with <code>[tools].allowlist</code>.
+    The runtime filters tool specs before they are sent to the model, which is useful for
+    headless task-specific builds that should not expose generic editing or shell tools.
+  </p>
+
+  <pre><code>{`[tools]
+allowlist = ["zerolang_skills_get", "zerolang_check", "zerolang_edit"]`}</code></pre>
+
   <h2>Extension tools</h2>
   <ul>
     <li><code>web_search</code> from the web-search router extension.</li>
     <li><code>task</code> from the subagent extension, with optional per-agent namespaced tools.</li>
+    <li><code>zerolang_*</code> graph-inspection and checked-edit tools from the Zerolang extension.</li>
     <li>Provider or product-specific tools installed by custom extensions.</li>
   </ul>
 
