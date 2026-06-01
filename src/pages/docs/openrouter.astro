@@ -1,0 +1,88 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="OpenRouter"
+  eyebrow="Providers"
+  description="Configure Roder's OpenRouter provider and Grok Build model route."
+  prev={{ href: "/docs/providers/", title: "Inference providers" }}
+  next={{ href: "/docs/tools/", title: "Tools & policy" }}
+>
+  <p>
+    Roder exposes OpenRouter as the provider id <code>openrouter</code>. The default
+    built-in model route is <code>x-ai/grok-build-0.1</code>, surfaced in Roder as
+    <code>openrouter/x-ai/grok-build-0.1</code> when selected from provider/model shorthand.
+    The route has a 256k context window, auto-compacts near 230k tokens, and advertises
+    tool use, structured outputs, image input, compaction, and patch-style edits.
+  </p>
+
+  <h2>API key setup</h2>
+  <p>
+    OpenRouter uses API-key auth. Paste a key through the TUI provider prompt,
+    <code>providers/configure</code>, or one of the supported environment variables.
+  </p>
+
+  <pre><code>export OPENROUTER_API_KEY="..."
+export RODER_PROVIDER=openrouter
+export RODER_MODEL=x-ai/grok-build-0.1
+cargo run -p roder-cli</code></pre>
+
+  <pre><code># ~/.roder/config.toml
+provider = "openrouter"
+model = "x-ai/grok-build-0.1"
+
+[providers.openrouter]
+api_key = "..."
+api_key_env = "OPENROUTER_API_KEY"</code></pre>
+
+  <p>
+    Roder also checks <code>RODER_OPENROUTER_API_KEY</code>. OpenRouter-compatible
+    endpoints can be pointed at another base URL with <code>OPENROUTER_BASE_URL</code>,
+    <code>RODER_OPENROUTER_BASE_URL</code>, or <code>providers.openrouter.base_url</code>.
+  </p>
+
+  <h2>Attribution headers</h2>
+  <p>
+    Optional OpenRouter attribution headers are configured outside the app-server
+    <code>providers/configure</code> API. Roder only sends them when values are present.
+  </p>
+
+  <pre><code>[providers.openrouter]
+http_referer = "https://example.com"
+app_title = "Roder"</code></pre>
+
+  <p>
+    Equivalent environment variables are <code>OPENROUTER_HTTP_REFERER</code>,
+    <code>RODER_OPENROUTER_HTTP_REFERER</code>, <code>OPENROUTER_APP_TITLE</code>, and
+    <code>RODER_OPENROUTER_APP_TITLE</code>.
+  </p>
+
+  <h2>Model discovery</h2>
+  <p>
+    Roder returns built-in OpenRouter models immediately, refreshes stale discovery
+    in the background with <code>GET /models</code>, and caches successful results in
+    <code>~/.roder/models-cache.json</code>. Discovery is keyed by provider id and base URL.
+  </p>
+
+  <pre><code>RODER_MODELS_REFRESH=1 cargo run -p roder-cli
+RODER_MODELS_CACHE_TTL_SECONDS=0 cargo run -p roder-cli
+RODER_MODELS_CACHE_PATH=/tmp/roder-models-cache.json cargo run -p roder-cli</code></pre>
+
+  <h2>Request behavior</h2>
+  <p>
+    OpenRouter runs through Roder's Responses-compatible transport at
+    <code>POST /responses</code>. Requests send the OpenRouter model slug exactly,
+    including provider-prefixed ids such as <code>x-ai/grok-build-0.1</code>.
+    Roder does not send OpenAI encrypted reasoning replay fields to OpenRouter by
+    default.
+  </p>
+
+  <pre><code>RODER_OPENROUTER_LIVE=1 OPENROUTER_LIVE_MODEL=x-ai/grok-build-0.1 cargo test -p roder-ext-openrouter --test live_openrouter -- --ignored</code></pre>
+
+  <div class="callout">
+    <strong>Provider/model split.</strong> Direct xAI uses model ids such as
+    <code>grok-build-0.1</code>. OpenRouter uses slugs such as
+    <code>x-ai/grok-build-0.1</code>, and Roder preserves that slug.
+  </div>
+</DocsLayout>

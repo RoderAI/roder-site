@@ -7,7 +7,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   eyebrow="Architecture"
   description="Provider extensions translate model APIs into canonical Roder inference events."
   prev={{ href: "/docs/sessions/", title: "Sessions & state" }}
-  next={{ href: "/docs/tools/", title: "Tools & policy" }}
+  next={{ href: "/docs/openrouter/", title: "OpenRouter" }}
 >
   <p>
     Providers are native extensions that implement <code>InferenceEngine</code>. The runtime
@@ -22,6 +22,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><code>roder-ext-anthropic</code> - Anthropic Messages-style inference.</li>
     <li><code>roder-ext-gemini</code> - Gemini through the configured Google-compatible path.</li>
     <li><code>roder-ext-cursor</code> - Cursor Composer and proxied frontier models through Cursor AgentService.</li>
+    <li><code>roder-ext-openrouter</code> - OpenRouter API-key provider, including the Grok Build catalog entry.</li>
     <li><code>roder-core::fake_provider</code> - deterministic mock behavior for tests and offline work.</li>
     <li><code>roder-codex-auth</code> and host wiring - Codex OAuth where enabled.</li>
   </ul>
@@ -37,6 +38,24 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <pre><code>export CURSOR_API_KEY="..."
 RODER_PROVIDER=cursor RODER_MODEL=cursor/composer-2.5 cargo run -p roder-cli</code></pre>
+
+  <h2>OpenRouter and Grok Build</h2>
+  <p>
+    OpenRouter is a first-class provider id. The built-in catalog includes
+    <code>x-ai/grok-build-0.1</code>, a 256k-context Grok Build route that supports tools,
+    structured outputs, image input, compaction, and patch-style edits. Roder keeps the
+    OpenRouter model slug intact, so clients should keep provider and model fields separate
+    instead of splitting every model id on <code>/</code>. Its reasoning options are
+    <code>none</code>, <code>low</code>, <code>medium</code>, and <code>high</code>.
+  </p>
+
+  <pre><code>export OPENROUTER_API_KEY="..."
+RODER_PROVIDER=openrouter RODER_MODEL=x-ai/grok-build-0.1 cargo run -p roder-cli</code></pre>
+
+  <p>
+    See <a href="/docs/openrouter/">OpenRouter setup</a> for environment variables,
+    optional attribution headers, model discovery, and app-server configuration behavior.
+  </p>
 
   <h2>Selecting defaults</h2>
   <pre><code># ~/.roder/config.toml
@@ -57,6 +76,6 @@ RODER_PROVIDER=mock cargo run -p roder-cli</code></pre>
 
   <div class="callout">
     <strong>Provider-specific APIs stay outside the core.</strong> Responses, Messages,
-    Gemini, Cursor AgentService, and chat-completions shapes are adapter details, not runtime types.
+    Gemini, Cursor AgentService, OpenRouter, and chat-completions shapes are adapter details, not runtime types.
   </div>
 </DocsLayout>
