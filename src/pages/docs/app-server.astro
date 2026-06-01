@@ -295,14 +295,17 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <pre><code>{`{"jsonrpc":"2.0","id":40,"method":"providers/list"}
 {"jsonrpc":"2.0","id":41,"method":"providers/select","params":{"provider":"openai","model":"gpt-5.1","reasoning":null}}
-{"jsonrpc":"2.0","id":42,"method":"settings/get"}
-{"jsonrpc":"2.0","id":43,"method":"settings/set_web_search","params":{"mode":"auto"}}
-{"jsonrpc":"2.0","id":44,"method":"settings/set_default_mode","params":{"mode":"ask"}}`}</code></pre>
+{"jsonrpc":"2.0","id":42,"method":"providers/configure","params":{"provider":"openrouter","api_key":"sk-..."}}
+{"jsonrpc":"2.0","id":43,"method":"settings/get"}
+{"jsonrpc":"2.0","id":44,"method":"settings/set_web_search","params":{"mode":"auto"}}
+{"jsonrpc":"2.0","id":45,"method":"settings/set_default_mode","params":{"mode":"ask"}}`}</code></pre>
 
   <p>
     If user config persistence is enabled by the CLI, provider selections and settings
-    are written back to the user's Roder configuration. Clients should make this clear
-    in UI because these choices outlive the current connection.
+    are written back to the user's Roder configuration. <code>providers/configure</code>
+    persists API keys for API-key providers such as OpenRouter when config persistence is
+    enabled. Clients should make this clear in UI because these choices outlive the
+    current connection.
   </p>
 
   <h2>Filesystem and command methods</h2>
@@ -402,6 +405,12 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 {"jsonrpc":"2.0","id":82,"method":"hunk/list","params":{"threadId":"THREAD_ID","turnId":"TURN_ID"}}
 {"jsonrpc":"2.0","id":83,"method":"git/changes/list","params":{"workspace":"/absolute/path/to/workspace"}}
 {"jsonrpc":"2.0","id":84,"method":"workflows/list","params":{"limit":10}}`}</code></pre>
+
+  <p>
+    Git change review marks untracked binary files with <code>binary: true</code> and
+    <code>additions: 0</code>. Reading one through <code>git/changes/read</code> returns a
+    binary-file patch summary instead of trying to decode bytes as text.
+  </p>
 
   <h2>Marketplaces and plugins</h2>
 

@@ -149,6 +149,12 @@ import DocsLayout from "../layouts/DocsLayout.astro";
         <td><code>network.agentn.global.api5.cursor.sh</code>, <code>network.api2.cursor.sh</code></td>
       </tr>
       <tr>
+        <td><code>roder-ext-openrouter-provider</code></td>
+        <td><code>InferenceEngine(openrouter)</code></td>
+        <td>Installed by default; live turns require an OpenRouter API key. Includes the built-in <code>x-ai/grok-build-0.1</code> Grok Build route.</td>
+        <td><code>network.openrouter.ai</code>, optionally <code>secret.read.OPENROUTER_API_KEY</code></td>
+      </tr>
+      <tr>
         <td><code>roder-ext-xai</code></td>
         <td><code>InferenceEngine(supergrok)</code>; also <code>InferenceEngine(xai)</code> with an API key.</td>
         <td>Installed by default. Direct xAI API-key surface is conditional.</td>
@@ -334,7 +340,7 @@ import DocsLayout from "../layouts/DocsLayout.astro";
 
   <h2>Why the list can differ</h2>
   <ul>
-    <li>Missing API keys suppress OpenAI, Anthropic, Gemini, or direct xAI API-key surfaces.</li>
+    <li>Missing API keys suppress OpenAI, Anthropic, Gemini, OpenRouter live requests, or direct xAI API-key surfaces.</li>
     <li>Notification settings can suppress terminal or desktop notification sinks.</li>
     <li>External web search appears only when enabled and configured.</li>
     <li>Subagents appear only with valid loaded definitions.</li>
