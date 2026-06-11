@@ -7,7 +7,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   eyebrow="Capabilities"
   description="The built-in tool surface, tool contributors, and policy modes."
   prev={{ href: "/docs/openrouter/", title: "OpenRouter" }}
-  next={{ href: "/docs/workflows/", title: "Dynamic workflows" }}
+  next={{ href: "/docs/tool-search/", title: "Provider tool search" }}
 >
   <p>
     Tools are registered through <code>ToolContributor</code> and executed through
@@ -70,5 +70,7 @@ cargo run -p roder-cli -- --yolo</code></pre>
   <div class="callout">
     <strong>Edit-tool selection.</strong> Roder intentionally exposes either patch-style
     editing or direct edit tools for a model request, not both, to keep model behavior predictable.
+    See <a href="/docs/edit-tools/">the edit tools package</a> for the reusable
+    JavaScript package boundary.
   </div>
 </DocsLayout>

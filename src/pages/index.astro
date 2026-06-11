@@ -3,11 +3,11 @@ import Layout from "../layouts/Layout.astro";
 
 const features = [
   { href: "/docs/architecture/", title: "Typed runtime", body: "A Rust core that owns turn lifecycle, cancellation, events, tools, policy, and replay invariants." },
-  { href: "/docs/extensibility/", title: "Native extensions", body: "Install inference engines, session stores, memory, tools, policy contributors, event sinks, and UI surfaces through one registry." },
-  { href: "/docs/providers/", title: "Provider neutral", body: "OpenAI Responses, Anthropic, Gemini, OpenRouter/Grok Build, Cursor AgentService, chat-completions-style engines, and mock providers map into canonical Roder types." },
+  { href: "/docs/extensibility/", title: "Native extensions", body: "Install inference engines, session stores, memory, embeddings, remote runners, policy contributors, event sinks, and UI surfaces through one registry." },
+  { href: "/docs/providers/", title: "Provider neutral", body: "OpenAI Responses, Anthropic, Gemini, OpenRouter/Grok Build, Cursor AgentService, chat-completions-style engines, and embedding providers map into canonical Roder types." },
   { href: "/docs/workflows/", title: "Dynamic workflows", body: "Approval-gated scripts plan phases, spawn child agents, checkpoint progress, and report results through the same app-server protocol." },
   { href: "/docs/zerolang/", title: "Graph-safe Zero edits", body: "A first-party Zerolang provider makes ProgramGraph inspection and checked graph edits available to headless coding distributions." },
-  { href: "/docs/app-server/", title: "App-server first", body: "The TUI, desktop clients, automation, and planned remote agent nodes speak to the same control plane." },
+  { href: "/docs/app-server/", title: "App-server first", body: "The TUI, desktop clients, automation, Chrome, and sandbox-hosted remote nodes speak to the same control plane." },
   { href: "/docs/tools/", title: "Capability scoped", body: "Tool execution is routed through policy modes, explicit tool specs, approval events, scoped runtime handles, and deadline-aware command limits." },
   { href: "/evals/", title: "Eval scoreboard", body: "Harbor and Terminal-Bench runs show Roder improving over time with full-suite scores, targeted reruns, and structured artifacts." },
 ];
@@ -37,7 +37,7 @@ const features = [
     <div class="feature-strip" aria-label="Roder architecture summary">
       <div class="metric"><strong>Rust</strong><span>typed core and native crates</span></div>
       <div class="metric"><strong>Events</strong><span>replayable runtime and eval stream</span></div>
-      <div class="metric"><strong>Extensions</strong><span>providers, tools, stores, sinks</span></div>
+      <div class="metric"><strong>Extensions</strong><span>providers, tools, memories, runners</span></div>
       <div class="metric"><strong>Workflows</strong><span>approved scripts and child agents</span></div>
     </div>
 

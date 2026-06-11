@@ -1,0 +1,39 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Edit tools package"
+  eyebrow="Capabilities"
+  description="The @roderai/edit-tools package for reusing Roder's file-edit behavior in JavaScript agent loops."
+  prev={{ href: "/docs/tool-search/", title: "Provider tool search" }}
+  next={{ href: "/docs/workflows/", title: "Dynamic workflows" }}
+>
+  <p>
+    <code>@roderai/edit-tools</code> is the incremental-adoption package for teams that
+    want Roder-style file edits without embedding the full app-server SDK or binary. It
+    packages the model-facing edit profiles separately from full Roder session control.
+  </p>
+
+  <h2>Profiles</h2>
+  <ul>
+    <li><code>old-new-string</code> for Claude-style exact replacement and multi-edit flows.</li>
+    <li><code>patch</code> for GPT/OpenAI-family patch-native flows.</li>
+    <li><code>full</code> for explicit experiments where a harness wants every edit surface.</li>
+  </ul>
+
+  <p>
+    Normal Roder requests advertise one mutating edit style at a time. Read output should
+    be readable source with line numbers only for orientation; models copy the exact
+    source span into <code>old_string</code> and provide a replacement in
+    <code>new_string</code>. Hash prefixes and synthetic line hashes stay out of the
+    model-facing contract.
+  </p>
+
+  <h2>Release safety</h2>
+  <p>
+    Dry-run packaging uses <code>pnpm pack --dry-run</code>. Real publishing requires
+    explicit approval, package-name confirmation under <code>@roderai</code>, npm
+    provenance or token setup, and <code>RODER_NPM_PUBLISH=1</code>.
+  </p>
+</DocsLayout>

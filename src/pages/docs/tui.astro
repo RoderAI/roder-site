@@ -7,7 +7,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   eyebrow="Surfaces"
   description="The Ratatui terminal client for the Roder app server."
   prev={{ href: "/docs/goal-mode/", title: "Plan mode & goals" }}
-  next={{ href: "/docs/desktop/", title: "Desktop clients" }}
+  next={{ href: "/docs/chrome/", title: "Chrome browser control" }}
 >
   <p>
     <code>roder-tui</code> is the reference terminal client. It uses
@@ -21,9 +21,12 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li>Streaming assistant output and tool-call timeline.</li>
     <li>Approval prompts and policy-mode state.</li>
     <li>Provider, model, session, command, mode, and agent choices through the command palette.</li>
+    <li>Composer mention pickers for workspace files with <code>@</code> and skills with <code>$</code>.</li>
     <li>Diff previews for file changes with keyboard-driven accept/reject handling.</li>
     <li>Dynamic workflow trigger hints, approval previews, and run progress below the composer.</li>
     <li>Shell and exec sessions as one timeline entry, with streamed stdin updates folded into the open detail view.</li>
+    <li>Native terminal progress indicators while turns run, pause for approval, or fail.</li>
+    <li>Roadmap and sidebar panels that inherit the active theme instead of forcing opaque surfaces.</li>
     <li>Status segments contributed by built-ins and extensions.</li>
     <li>Mouse selection, scroll, hover, and clickable timeline interactions as they land.</li>
   </ul>

@@ -1,0 +1,45 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Provider tool search"
+  eyebrow="Capabilities"
+  description="How Roder lets capable model providers search large tool catalogs without advertising every tool up front."
+  prev={{ href: "/docs/tools/", title: "Tools & policy" }}
+  next={{ href: "/docs/edit-tools/", title: "Edit tools package" }}
+>
+  <p>
+    Roder normally sends explicit <code>ToolSpec</code> entries with a turn request. For
+    providers that support native catalog search, Roder can instead defer loading large
+    tool catalogs and let the model ask the provider for relevant tools during the turn.
+  </p>
+
+  <h2>Modes</h2>
+  <ul>
+    <li><code>explicit</code> keeps the default behavior and sends tool schemas directly.</li>
+    <li><code>auto</code> allows provider-native search when the active provider and model support it.</li>
+    <li><code>provider_native</code> requests provider-native search and falls back to explicit tools when configured.</li>
+  </ul>
+
+  <pre><code>{`[tool_search]
+mode = "provider_native"
+max_catalog_items = 200
+include_mcp = true
+include_skills = true
+fallback_to_explicit_tools = true
+provider_variant = "bm25"`}</code></pre>
+
+  <p>
+    The OpenAI Responses adapter maps supported GPT-5.4+ requests to the provider
+    <code>tool_search</code> tool and marks local function tools for deferred loading. Older
+    or unsupported models continue to receive ordinary explicit tool schemas.
+  </p>
+
+  <h2>Why it matters</h2>
+  <p>
+    Provider-native search keeps model context focused when a distribution installs many
+    built-in, MCP, skill, browser, workflow, or domain-specific tools. The runtime still
+    owns execution, policy, approvals, and result routing after the model selects a tool.
+  </p>
+</DocsLayout>
