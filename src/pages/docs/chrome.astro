@@ -1,0 +1,49 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Chrome browser control"
+  eyebrow="Surfaces"
+  description="Pair Roder with a logged-in Chrome session through the Manifest V3 browser extension."
+  prev={{ href: "/docs/tui/", title: "TUI" }}
+  next={{ href: "/docs/desktop/", title: "Desktop clients" }}
+>
+  <p>
+    Roder can inspect, control, debug, and record the user's live Chrome session through
+    a paired Manifest V3 extension. The browser extension connects to
+    <code>roder app-server --remote</code>, then model-facing <code>chrome_*</code> tools and
+    <code>chrome/*</code> app-server methods route through the same runtime policy gate.
+  </p>
+
+  <h2>Pairing</h2>
+  <ol>
+    <li>Build and load the unpacked extension from the sibling Chrome extension workspace.</li>
+    <li>Start <code>roder app-server --remote</code> or open the TUI <code>/chrome</code> panel.</li>
+    <li>Paste the printed WebSocket URL and bearer token into the extension options page.</li>
+  </ol>
+
+  <pre><code>roder app-server --remote --listen ws://127.0.0.1:0
+roder chrome status</code></pre>
+
+  <p>
+    Pairing uses the <code>roder.remote.v1</code> and <code>bearer.&lt;token&gt;</code>
+    WebSocket subprotocols. Without a paired extension, Chrome tools return a clear
+    not-connected error instead of silently falling back to another browser.
+  </p>
+
+  <h2>Current tool surface</h2>
+  <ul>
+    <li>Tabs: list, open, activate, close, and navigate.</li>
+    <li>Page: snapshot, screenshot, click, type, keypress, scroll, select, highlight, and controlled eval.</li>
+    <li>Debugging: console and network metadata reads with redaction.</li>
+    <li>Permissions: per-origin inspect, interact, eval, debugger, download, upload, recording, and always-allow flags.</li>
+    <li>Recording: start and stop JSON action traces.</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Security model.</strong> Cookies, request bodies, response bodies, secret-like
+    form inputs, and raw auth headers are not captured. Page-origin payloads are marked
+    untrusted and treated as data, never instructions.
+  </div>
+</DocsLayout>

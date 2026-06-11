@@ -25,17 +25,30 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <h2>Client surface</h2>
   <p>
-    The app server exposes <code>session/set_mode</code>, <code>session/get</code>, and
-    <code>session/exit_plan</code>. The TUI uses those methods to keep the current mode
+    The app server exposes <code>thread/set_mode</code>, <code>thread/state</code>, and
+    <code>thread/exit_plan</code>. The TUI uses those methods to keep the current mode
     visible and to gate the move from planning to edits.
   </p>
 
-  <pre><code>{`{"jsonrpc":"2.0","id":1,"method":"session/set_mode","params":{"mode":"plan","reason":"design first"}}`}</code></pre>
+  <pre><code>{`{"jsonrpc":"2.0","id":1,"method":"thread/set_mode","params":{"mode":"plan","reason":"design first"}}
+{"jsonrpc":"2.0","id":2,"method":"thread/exit_plan","params":{"requestId":"PLAN_REQUEST_ID","approved":true}}`}</code></pre>
 
   <h2>Goals</h2>
   <p>
     Long-running goal state belongs above individual turns: a client can keep a visible
-    objective, show progress, and persist the plan alongside session state. The important
-    boundary is that goal UI does not bypass the policy gate.
+    objective, show progress, and persist status alongside thread state. The runtime
+    injects active goal instructions into later turns and continues idle active goals
+    until they are completed, paused, blocked, usage-limited, budget-limited, or cleared.
   </p>
+
+  <p>
+    App-server clients manage goals through <code>thread/goal/get</code>,
+    <code>thread/goal/set</code>, and <code>thread/goal/clear</code>. Model-facing tools are
+    deliberately narrower: <code>get_goal</code>, <code>create_goal</code>, and
+    <code>update_goal</code> let the agent inspect, create, complete, or mark a goal blocked,
+    while pause/resume, budget changes, and clearing remain user-controlled.
+  </p>
+
+  <pre><code>{`{"jsonrpc":"2.0","id":3,"method":"thread/goal/set","params":{"threadId":"THREAD_ID","objective":"Ship docs parity","tokenBudget":20000}}
+{"jsonrpc":"2.0","id":4,"method":"thread/goal/get","params":{"threadId":"THREAD_ID"}}`}</code></pre>
 </DocsLayout>

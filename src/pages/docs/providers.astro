@@ -7,7 +7,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   eyebrow="Architecture"
   description="Provider extensions translate model APIs into canonical Roder inference events."
   prev={{ href: "/docs/sessions/", title: "Sessions & state" }}
-  next={{ href: "/docs/openrouter/", title: "OpenRouter" }}
+  next={{ href: "/docs/memories/", title: "Memory & embeddings" }}
 >
   <p>
     Providers are native extensions that implement <code>InferenceEngine</code>. The runtime
@@ -65,6 +65,18 @@ reasoning = "medium"</code></pre>
 
   <pre><code>RODER_PROVIDER=anthropic RODER_MODEL=claude-opus-4-5 cargo run -p roder-cli
 RODER_PROVIDER=mock cargo run -p roder-cli</code></pre>
+
+  <h2>Embedding providers</h2>
+  <p>
+    The memory subsystem uses provider-neutral embedding backends. The first-party
+    remote providers include OpenAI <code>text-embedding-3-large</code>, Google
+    <code>gemini-embedding-2</code>, and ZeroEntropy <code>zembed-1</code>. The shared
+    embedding contract carries query/document intent so retrieval providers can tune
+    memory lookups without leaking provider-specific request shapes into the runtime.
+  </p>
+
+  <pre><code>roder memory providers set google --model gemini-embedding-2
+roder memory providers set zeroentropy --model zembed-1</code></pre>
 
   <h2>Provider contract</h2>
   <ul>

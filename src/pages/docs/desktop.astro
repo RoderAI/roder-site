@@ -6,7 +6,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   title="Desktop clients"
   eyebrow="Surfaces"
   description="How native desktop shells should integrate with the Roder app-server control plane."
-  prev={{ href: "/docs/tui/", title: "TUI" }}
+  prev={{ href: "/docs/chrome/", title: "Chrome browser control" }}
   next={{ href: "/docs/app-server/", title: "App server" }}
 >
   <p>
@@ -32,10 +32,11 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <h2>Remote controller path</h2>
   <p>
-    The planned agent-node mode keeps desktop and TUI clients on the app-server client
-    abstraction. A local controller connects to a remote Roder node, renders the remote
-    runtime's threads and notifications, and leaves sessions, tools, commands, provider
-    auth, and artifacts owned by the remote machine.
+    Remote mode keeps desktop and TUI clients on the app-server client abstraction. A
+    local controller can connect to a remote Roder node, render the remote runtime's
+    threads and notifications, and leave sessions, tools, commands, provider auth, and
+    artifacts owned by the remote machine. Sprites-hosted nodes use the same remote
+    app-server transport.
   </p>
 
   <div class="callout">

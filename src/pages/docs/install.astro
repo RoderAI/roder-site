@@ -33,8 +33,8 @@ RODER_PROVIDER=mock cargo run -p roder-cli</code></pre>
   <p>
     Provider API keys can be set through config or the provider-specific environment keys.
     The default distribution resolves OpenAI, Anthropic, Gemini, OpenRouter, Codex OAuth,
-    web search, subagent, JSONL session, memory, and built-in tool extensions from that
-    configuration.
+    web search, subagent, JSONL session, memory, embedding, and built-in tool extensions
+    from that configuration.
   </p>
 
   <h2>Policy modes</h2>
@@ -58,7 +58,8 @@ cargo run -p roder-cli -- app-server --mode plan</code></pre>
   <div class="callout">
     <strong>Remote mode.</strong> Use <code>roder app-server --remote</code> for the
     authenticated WebSocket transport when pairing trusted local-network clients. The
-    agent-node roadmap adds a stricter Roder-to-Roder mode with mandatory encrypted
-    transport for non-loopback control.
+    <code>remote-app-server</code> distribution profile builds a headless binary for
+    sandbox-hosted nodes; Sprites runners can download that binary and run it as a
+    managed remote app-server service.
   </div>
 </DocsLayout>

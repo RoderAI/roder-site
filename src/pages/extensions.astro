@@ -199,6 +199,18 @@ import DocsLayout from "../layouts/DocsLayout.astro";
         <td>OpenAI embedding provider for memories.</td>
         <td><code>network.openai</code>, <code>secrets.openai-api-key</code></td>
       </tr>
+      <tr>
+        <td><code>roder-ext-google-embeddings</code></td>
+        <td><code>EmbeddingProvider(google)</code></td>
+        <td>Google Gemini Embedding 2 provider for memory retrieval.</td>
+        <td><code>network.generativelanguage.googleapis.com</code>, <code>secret.read.GEMINI_API_KEY</code></td>
+      </tr>
+      <tr>
+        <td><code>roder-ext-zeroentropy-embeddings</code></td>
+        <td><code>EmbeddingProvider(zeroentropy)</code></td>
+        <td>ZeroEntropy <code>zembed-1</code> provider with query/document retrieval intent.</td>
+        <td><code>network.api.zeroentropy.dev</code>, <code>secret.read.ZEROENTROPY_API_KEY</code></td>
+      </tr>
     </tbody>
   </table>
 
@@ -316,6 +328,7 @@ import DocsLayout from "../layouts/DocsLayout.astro";
       <tr><td><code>roder-ext-runner-modal</code></td><td><code>RemoteRunnerProvider(modal)</code></td><td>Hosted Modal runner.</td><td><code>network.http</code>, <code>secret.read.MODAL_TOKEN_SECRET</code></td></tr>
       <tr><td><code>roder-ext-runner-runloop</code></td><td><code>RemoteRunnerProvider(runloop)</code></td><td>Hosted Runloop runner.</td><td><code>network.http</code>, <code>secret.read.RUNLOOP_API_KEY</code></td></tr>
       <tr><td><code>roder-ext-runner-vercel</code></td><td><code>RemoteRunnerProvider(vercel)</code></td><td>Hosted Vercel runner.</td><td><code>network.http</code>, <code>secret.read.VERCEL_TOKEN</code></td></tr>
+      <tr><td><code>roder-ext-runner-sprites</code></td><td><code>RemoteRunnerProvider(sprites)</code></td><td>Fly Sprites runner with optional managed remote app-server service.</td><td><code>network.api.sprites.dev</code>, <code>secret.read.RODER_SPRITES_TOKEN</code></td></tr>
     </tbody>
   </table>
 
@@ -340,7 +353,7 @@ import DocsLayout from "../layouts/DocsLayout.astro";
 
   <h2>Why the list can differ</h2>
   <ul>
-    <li>Missing API keys suppress OpenAI, Anthropic, Gemini, OpenRouter live requests, or direct xAI API-key surfaces.</li>
+    <li>Missing API keys suppress OpenAI, Anthropic, Gemini, OpenRouter, Google embeddings, ZeroEntropy embeddings, Sprites, or direct xAI API-key surfaces.</li>
     <li>Notification settings can suppress terminal or desktop notification sinks.</li>
     <li>External web search appears only when enabled and configured.</li>
     <li>Subagents appear only with valid loaded definitions.</li>

@@ -1,0 +1,69 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Memory & embeddings"
+  eyebrow="Architecture"
+  description="Local memories, provider-neutral embeddings, and retrieval configuration."
+  prev={{ href: "/docs/providers/", title: "Inference providers" }}
+  next={{ href: "/docs/openrouter/", title: "OpenRouter" }}
+>
+  <p>
+    Roder stores project and global memories through <code>roder-ext-memory</code>. The
+    default store is SQLite under Roder home, exposed through CLI commands, app-server
+    methods, and model-facing memory tools instead of direct database access.
+  </p>
+
+  <h2>Scopes</h2>
+  <ul>
+    <li><code>project</code> memories are resolved from the active workspace.</li>
+    <li><code>global</code> memories are user-wide and can be included with project queries.</li>
+    <li><code>workspace</code> and <code>thread</code> scopes remain available for extension authors.</li>
+  </ul>
+
+  <h2>CLI</h2>
+  <pre><code>roder memory list --scope project
+roder memory query "release process" --scope project --include-global
+roder memory save "use cargo nextest for this repo" --scope project
+roder memory providers list
+roder memory providers set google --model gemini-embedding-2
+roder memory providers set zeroentropy --model zembed-1</code></pre>
+
+  <h2>Embedding providers</h2>
+  <p>
+    Embeddings use the provider-neutral <code>EmbeddingProvider</code> contract. First-party
+    remote providers are OpenAI <code>text-embedding-3-large</code>, Google
+    <code>gemini-embedding-2</code>, and ZeroEntropy <code>zembed-1</code>. Query and document
+    intent is part of the shared request, so providers can use retrieval-specific prompt
+    or API fields while the memory store stays provider-neutral.
+  </p>
+
+  <pre><code>{`[memories]
+embedding_provider = "zeroentropy"
+embedding_model = "zembed-1"
+
+[embedding_providers.zeroentropy]
+enabled = true
+api_key_env = "ZEROENTROPY_API_KEY"
+endpoint = "https://api.zeroentropy.dev/v1"
+dimensions = 2560`}</code></pre>
+
+  <p>
+    Google embeddings resolve Gemini or Google AI API-key environment variables. ZeroEntropy
+    resolves <code>RODER_ZEROENTROPY_API_KEY</code> or <code>ZEROENTROPY_API_KEY</code> and can
+    use the EU endpoint when configured. Selecting a remote embedding provider sends
+    memory text to that provider; use a local command-backed provider or local extension
+    when memory text must stay fully local.
+  </p>
+
+  <h2>App-server methods</h2>
+  <p>
+    Clients use <code>memory/list</code>, <code>memory/read</code>, <code>memory/save</code>,
+    <code>memory/update</code>, <code>memory/delete</code>, <code>memory/query</code>,
+    <code>memory/provider/list</code>, <code>memory/provider/set</code>, and
+    <code>memory/recall/preview</code>. Provider changes emit
+    <code>memory/providerChanged</code>; memory CRUD and recall emit their own stream events
+    for clients that render memory activity.
+  </p>
+</DocsLayout>
