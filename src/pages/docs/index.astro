@@ -5,22 +5,41 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 <DocsLayout
   title="Roder docs"
   eyebrow="Overview"
-  description="What Roder is and how the Rust workspace is organized."
+  description="Start here to understand where Roder fits and how to build on it."
   next={{ href: "/docs/install/", title: "Install & run" }}
 >
   <p>
-    <strong>Roder</strong> is a Rust-native, extension-first agent harness. It is designed
-    for teams that need a reusable runtime for coding agents rather than another sealed
-    chatbot application.
+    <strong>Roder</strong> is reusable Rust infrastructure for coding agents. Use it when
+    you need a runtime that can run tools, enforce policy, preserve state, emit replayable
+    events, and support multiple product or research surfaces.
   </p>
 
   <p>
-    The repository is currently checked out at <code>~/w/gode</code>. The Rust rewrite uses
-    the <code>roder</code> binary and <code>roder-*</code> crates; the older Go packages are
-    still present as a reference while behavior is ported.
+    It is aimed at teams building agent products, AI labs running evaluations or RL
+    infrastructure, and platform engineers who want to embed a coding-agent runtime behind
+    internal tools, desktop clients, CI jobs, or hosted sandboxes.
   </p>
 
+  <div class="callout">
+    <strong>Alpha contract.</strong> Roder is actively moving. The docs describe the current
+    Rust workspace, binary, protocol, and extension boundaries; stable API guarantees will
+    come later.
+  </div>
+
+  <h2>Start by goal</h2>
+  <ul>
+    <li><a href="/docs/install/">Install &amp; run</a> if you want to build the workspace and start the TUI or app server.</li>
+    <li><a href="/docs/use-cases/">Use cases</a> if you are deciding whether Roder fits a product, eval, CI, or domain-agent workflow.</li>
+    <li><a href="/docs/architecture/">Runtime architecture</a> if you need to understand how a turn moves through the Rust core.</li>
+    <li><a href="/docs/extensibility/">Extension model</a> if you want to replace providers, storage, memory, policy, tools, or UI surfaces.</li>
+    <li><a href="/evals/">Eval scoreboard</a> if you want current development trajectory results and run artifacts.</li>
+  </ul>
+
   <h2>Repository map</h2>
+  <p>
+    The Rust implementation is organized around the <code>roder</code> binary and
+    <code>roder-*</code> crates:
+  </p>
   <ul>
     <li><code>crates/roder-api</code> — extension traits, canonical events, tools, inference, sessions, policy, and shared types.</li>
     <li><code>crates/roder-core</code> — runtime loop, event bus, policy gate, tool execution, cancellation, and provider orchestration.</li>
@@ -33,13 +52,9 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <h2>Read next</h2>
   <ul>
-    <li><a href="/docs/install/">Install &amp; run</a> — build the workspace and start the TUI or app server.</li>
-    <li><a href="/evals/">Eval scoreboard</a> — current Harbor and Terminal-Bench results over time.</li>
     <li><a href="/docs/evals/">Eval harness</a> — deadlines, task ledgers, plan-first reruns, and run artifacts.</li>
-    <li><a href="/mission/">Mission whitepaper</a> — the revised technical mission paper as a web page.</li>
-    <li><a href="/contact/">Contact the authors</a> — RL tooling, embedded harnesses, product work, and OSS sponsorship.</li>
-    <li><a href="/docs/architecture/">Runtime architecture</a> — how a turn moves through the Rust core.</li>
-    <li><a href="/docs/extensibility/">Extension model</a> — what can be installed without forking the core.</li>
+    <li><a href="/mission/">Mission</a> — why Roder exists and what it is trying to become.</li>
+    <li><a href="/contact/">Contact the team</a> — RL tooling, embedded harnesses, product work, and OSS sponsorship.</li>
     <li><a href="/extensions/">Extension inventory</a> — every implemented first-party extension and when it appears.</li>
     <li><a href="/docs/memories/">Memory &amp; embeddings</a> — SQLite memory plus OpenAI, Google, and ZeroEntropy embeddings.</li>
     <li><a href="/docs/openrouter/">OpenRouter provider</a> — Grok Build setup, model discovery, and API-key configuration.</li>

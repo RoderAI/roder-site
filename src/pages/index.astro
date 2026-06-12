@@ -2,43 +2,52 @@
 import Layout from "../layouts/Layout.astro";
 
 const features = [
-  { href: "/docs/architecture/", title: "Typed runtime", body: "A Rust core that owns turn lifecycle, cancellation, events, tools, policy, and replay invariants." },
-  { href: "/docs/extensibility/", title: "Native extensions", body: "Install inference engines, session stores, memory, embeddings, remote runners, policy contributors, event sinks, and UI surfaces through one registry." },
-  { href: "/docs/providers/", title: "Provider neutral", body: "OpenAI Responses, Anthropic, Gemini, OpenRouter/Grok Build, Cursor AgentService, chat-completions-style engines, and embedding providers map into canonical Roder types." },
-  { href: "/docs/workflows/", title: "Dynamic workflows", body: "Approval-gated scripts plan phases, spawn child agents, checkpoint progress, and report results through the same app-server protocol." },
-  { href: "/docs/zerolang/", title: "Graph-safe Zero edits", body: "A first-party Zerolang provider makes ProgramGraph inspection and checked graph edits available to headless coding distributions." },
-  { href: "/docs/app-server/", title: "App-server first", body: "The TUI, desktop clients, automation, Chrome, and sandbox-hosted remote nodes speak to the same control plane." },
-  { href: "/docs/tools/", title: "Capability scoped", body: "Tool execution is routed through policy modes, explicit tool specs, approval events, scoped runtime handles, and deadline-aware command limits." },
-  { href: "/evals/", title: "Eval scoreboard", body: "Harbor and Terminal-Bench runs show Roder improving over time with full-suite scores, targeted reruns, and structured artifacts." },
+  { href: "/docs/architecture/", title: "Runtime core", body: "Own turns, cancellation, tool execution, policy, event ordering, and replay in one typed Rust loop." },
+  { href: "/docs/extensibility/", title: "Replaceable subsystems", body: "Swap providers, memory, storage, policy, remote runners, event sinks, and UI surfaces through native extensions." },
+  { href: "/docs/providers/", title: "Provider-neutral inference", body: "Map OpenAI, Anthropic, Gemini, OpenRouter, Cursor, chat-completions engines, and embedding providers into canonical Roder types." },
+  { href: "/docs/app-server/", title: "One control plane", body: "Drive the TUI, desktop clients, automation, Chrome control, and sandbox-hosted workers through the same app-server protocol." },
+  { href: "/docs/tools/", title: "Scoped tool use", body: "Route tools through explicit specs, approval events, policy modes, scoped handles, and deadline-aware command limits." },
+  { href: "/docs/workflows/", title: "Repeatable workflows", body: "Run approval-gated scripts that plan phases, spawn child agents, checkpoint progress, and report structured results." },
+  { href: "/evals/", title: "Eval trajectory", body: "Track Harbor and Terminal-Bench results with full-suite scores, targeted reruns, and reproducible artifacts." },
+  { href: "/docs/zerolang/", title: "Domain distributions", body: "Build task-specific agents such as the Zerolang profile without forking the runtime." },
+];
+
+const audiences = [
+  { title: "Agent product teams", body: "Build a differentiated UI and workflow on top of a runtime you do not have to reinvent." },
+  { title: "AI labs and eval teams", body: "Collect structured trajectories, replay runs, compare providers, and control tool access." },
+  { title: "Platform engineers", body: "Embed a coding-agent runtime behind internal tools, CI jobs, desktop clients, or hosted sandboxes." },
 ];
 ---
 
-<Layout title="Roder · Rust-native extensible agent harness">
+<Layout
+  title="Roder · reusable runtime infrastructure for coding agents"
+  description="Roder is a Rust runtime for teams building, evaluating, and embedding coding agents that need real tools, policy, state, and replay."
+>
   <section class="container">
     <div class="hero">
       <div class="hero-copy">
-        <div class="eyebrow-line">Rust Coder / extension-first agent infrastructure</div>
+        <div class="eyebrow-line">Rust runtime infrastructure for coding agents</div>
         <h1 class="wordmark">Roder</h1>
         <p class="tagline">
-          A Rust-native, extension-first harness for coding agents, research systems,
-          reinforcement-learning environments, and AI-native developer tools.
+          Build coding agents that can run real jobs: tools, policy, state, events,
+          replay, providers, and clients all handled by one extensible runtime.
         </p>
         <div class="cta-row">
           <a class="btn btn-primary" href="/docs/">Read the docs</a>
-          <a class="btn btn-primary" href="/contact/">Work with the authors</a>
-          <a class="btn btn-secondary" href="/evals/">Track evals</a>
+          <a class="btn btn-primary" href="/contact/">Talk to the team</a>
+          <a class="btn btn-secondary" href="/evals/">See evals</a>
           <a class="btn btn-secondary" href="/docs/install/">Run it locally</a>
-          <a class="btn btn-secondary" href="/mission/">Mission paper</a>
+          <a class="btn btn-secondary" href="/mission/">Read the mission</a>
         </div>
       </div>
       <img class="logo" src="/roder-icon.png" alt="Roder icon" />
     </div>
 
     <div class="feature-strip" aria-label="Roder architecture summary">
-      <div class="metric"><strong>Rust</strong><span>typed core and native crates</span></div>
-      <div class="metric"><strong>Events</strong><span>replayable runtime and eval stream</span></div>
-      <div class="metric"><strong>Extensions</strong><span>providers, tools, memories, runners</span></div>
-      <div class="metric"><strong>Workflows</strong><span>approved scripts and child agents</span></div>
+      <div class="metric"><strong>Runtime</strong><span>turns, tools, policy, cancellation</span></div>
+      <div class="metric"><strong>State</strong><span>sessions, checkpoints, replay, traces</span></div>
+      <div class="metric"><strong>Extensions</strong><span>providers, memory, runners, UI</span></div>
+      <div class="metric"><strong>Control</strong><span>TUI, desktop, automation, sandboxes</span></div>
     </div>
 
     <pre><code>$ cargo build --workspace
@@ -48,28 +57,34 @@ $ cargo run -p roder-cli -- app-server</code></pre>
 
     <h2>What Roder is</h2>
     <p>
-      Roder is the harness layer underneath coding-agent products. It owns the boring,
-      high-stakes parts of an agent runtime: model orchestration, tool execution, policy,
-      capability boundaries, context assembly, session persistence, checkpointing, event
-      streaming, and replay.
+      Roder is the runtime layer underneath serious coding-agent systems. It is not trying
+      to be one more sealed chat app. It gives product teams, labs, and platform engineers
+      the reusable machinery they all end up building: model orchestration, tool execution,
+      permission boundaries, context assembly, session state, checkpointing, event streams,
+      and replay.
     </p>
     <p>
-      The project lives in <code>~/w/gode</code>, but the Rust workspace has been refounded
-      around <code>roder-*</code> crates. New work belongs in the Rust crates; the legacy Go
-      implementation remains in the repository as a behavioral reference during the rewrite.
+      The core bet is simple: the hard parts of running an agent should become shared
+      infrastructure. Teams should compete on models, UX, workflows, tools, and domain
+      knowledge instead of rebuilding the same harness every time they need a new product
+      surface or evaluation loop.
     </p>
 
     <div class="callout">
-      <strong>Alpha.</strong> Core types, extension traits, commands, protocol methods, and
-      config keys are still moving. Treat the roadmap and crate boundaries as the working
-      contract until a stable API is declared.
+      <strong>Alpha software.</strong> Roder is useful to explore and build with today, but
+      core types, extension traits, commands, protocol methods, and config keys are still
+      moving. Treat the docs and crate boundaries as the working contract until a stable
+      API is declared.
     </div>
 
-    <div class="callout">
-      <strong>For labs and product teams.</strong> The Roder authors work with AI labs
-      embedding harnesses into RL fine-tuning infrastructure and with startups building
-      agent products on a modifiable Rust runtime.
-      <a href="/contact/">Start a conversation</a>.
+    <h2>Who it is for</h2>
+    <div class="features">
+      {audiences.map((audience) => (
+        <div class="feature-card">
+          <h3>{audience.title}</h3>
+          <p>{audience.body}</p>
+        </div>
+      ))}
     </div>
 
     <h2>Explore</h2>
@@ -84,11 +99,17 @@ $ cargo run -p roder-cli -- app-server</code></pre>
 
     <h2>Core bet</h2>
     <p>
-      Agent systems should not keep rebuilding the same scaffolding around every new model
-      API. Roder makes conversations, turns, tool calls, inference events, file changes,
-      policy decisions, sessions, and checkpoints canonical Rust concepts. Extensions
-      translate into that model; dynamic workflows and domain tools such as Zerolang
-      build on it without taking over the runtime invariants.
+      Agent systems should not keep rebuilding scaffolding around every model API. Roder
+      makes conversations, turns, tool calls, inference events, file changes, policy
+      decisions, sessions, and checkpoints canonical Rust concepts. Extensions translate
+      into that model, so new providers, workflows, sandboxes, and domain tools can plug in
+      without taking over the runtime.
     </p>
+
+    <div class="callout">
+      <strong>Building on this problem?</strong> The Roder team works with AI labs and
+      startups on embedded harnesses, RL and eval infrastructure, product integrations, and
+      OSS sponsorship. <a href="/contact/">Start a conversation</a>.
+    </div>
   </section>
 </Layout>
