@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import "../styles/nav.css";
 
 export interface Props {
   title: string;
@@ -10,6 +11,16 @@ const {
   title,
   description = "Roder is reusable Rust infrastructure for building, evaluating, and embedding coding agents.",
 } = Astro.props;
+
+const navItems = [
+  { href: "/docs/", label: "Docs" },
+  { href: "/evals/", label: "Evals" },
+  { href: "/mission/", label: "Mission" },
+  { href: "/docs/architecture/", label: "Architecture" },
+  { href: "/docs/extensibility/", label: "Extensions" },
+  { href: "/contact/", label: "Contact" },
+  { href: "https://github.com/roderai/roder", label: "GitHub", external: true },
+];
 ---
 
 <!doctype html>
@@ -19,27 +30,44 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@500;600;700&display=swap"
     />
     <title>{title}</title>
   </head>
   <body>
-    <header class="site-header">
-      <div class="container row">
+    <header class="site-header" data-site-header>
+      <div class="nav-island">
         <a class="brand" href="/"><img src="/roder-icon.png" alt="" /> <span>Roder</span></a>
         <nav class="nav-links" aria-label="Primary">
-          <a href="/docs/">Docs</a>
-          <a href="/evals/">Evals</a>
-          <a href="/mission/">Mission</a>
-          <a href="/docs/architecture/">Architecture</a>
-          <a href="/docs/extensibility/">Extensions</a>
-          <a href="/contact/">Contact</a>
-          <a href="https://github.com/roderai/roder" rel="noopener">GitHub</a>
+          {navItems.map((item) => (
+            <a href={item.href} rel={item.external ? "noopener noreferrer" : undefined}>{item.label}</a>
+          ))}
+        </nav>
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false" data-nav-toggle>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+      <div class="nav-overlay" aria-hidden="true" data-nav-overlay>
+        <nav class="nav-overlay-links" aria-label="Mobile navigation">
+          {navItems.map((item, index) => (
+            <a
+              href={item.href}
+              rel={item.external ? "noopener noreferrer" : undefined}
+              style={`--nav-delay: ${120 + index * 55}ms`}
+            >
+              {item.label}
+            </a>
+          ))}
         </nav>
       </div>
     </header>
@@ -51,5 +79,30 @@ const {
         Roder &middot; alpha software &middot; reusable runtime infrastructure for coding agents
       </div>
     </footer>
+    <script is:inline>
+      const header = document.querySelector("[data-site-header]");
+      const toggle = document.querySelector("[data-nav-toggle]");
+      const overlay = document.querySelector("[data-nav-overlay]");
+
+      const setMenuOpen = (isOpen) => {
+        header?.classList.toggle("is-open", isOpen);
+        toggle?.setAttribute("aria-expanded", String(isOpen));
+        toggle?.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+        overlay?.setAttribute("aria-hidden", String(!isOpen));
+        document.body.classList.toggle("nav-open", isOpen);
+      };
+
+      toggle?.addEventListener("click", () => {
+        setMenuOpen(!header?.classList.contains("is-open"));
+      });
+
+      overlay?.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", () => setMenuOpen(false));
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") setMenuOpen(false);
+      });
+    </script>
   </body>
 </html>
