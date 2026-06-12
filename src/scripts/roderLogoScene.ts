@@ -1,12 +1,4 @@
 import * as THREE from "three";
-import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
-
-const LOGO_SVG = `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-  <path fill="#ff4d00" d="M128 20c4.6 0 9 1.2 13 3.5l60 34.7c8 4.6 13 13.2 13 22.5v31.2c0 8.2-4.4 15.8-11.6 19.9l-38.7 22.3c-7.1 4.1-16 4.1-23.1 0L128 146.9l-12.6 7.2c-7.1 4.1-16 4.1-23.1 0l-38.7-22.3C46.4 127.7 42 120.1 42 111.9V80.7c0-9.3 5-17.9 13-22.5l60-34.7c4-2.3 8.4-3.5 13-3.5Z"/>
-  <path fill="#ff4d00" d="M42.2 116.4c3.9-2.3 8.4-3.5 12.9-3.5 4.6 0 9.1 1.2 13.1 3.5l38.8 22.4c7.1 4.1 11.5 11.7 11.5 19.9v14.4l12.6 7.3c7.1 4.1 11.5 11.7 11.5 19.9v44.6c0 8.3-4.4 15.9-11.6 20l-27 15.6c-8.1 4.6-18 4.6-26 0l-60-34.7c-8-4.6-13-13.2-13-22.5v-69.4c0-9.3 5-17.9 13-22.5l24.2-14Z" transform="translate(16 -28)"/>
-  <path fill="#111316" d="M137.5 138.8c0-8.2 4.4-15.8 11.5-19.9l38.8-22.4c4-2.3 8.5-3.5 13.1-3.5 4.5 0 9 1.2 12.9 3.5l24.2 14c8 4.6 13 13.2 13 22.5v69.4c0 9.3-5 17.9-13 22.5l-60 34.7c-8 4.6-17.9 4.6-26 0l-27-15.6c-7.2-4.1-11.6-11.7-11.6-20v-44.6c0-8.2 4.4-15.8 11.5-19.9l12.6-7.3v-14.4Z" transform="translate(-11 -7)"/>
-</svg>`;
 
 type LogoStage = HTMLElement & {
   dataset: DOMStringMap & {
@@ -17,14 +9,20 @@ type LogoStage = HTMLElement & {
   };
 };
 
-type Fragment = {
-  angle: number;
-  radiusX: number;
-  radiusY: number;
-  speed: number;
-  z: number;
-  size: number;
-};
+const OUTER_RADIUS = 118;
+const INNER_RADIUS = 58;
+const CUT_HALF_GAP = 7;
+const CORNER_RADIUS = 9;
+const EXTRUDE_DEPTH = 26;
+
+type PieceTone = "orange-bright" | "orange-deep" | "graphite";
+
+// Triad pieces: top, lower-left, lower-right — matching the brand mark.
+const TRIAD_PIECES: Array<{ rotationDeg: number; tone: PieceTone }> = [
+  { rotationDeg: 0, tone: "orange-bright" },
+  { rotationDeg: 120, tone: "orange-deep" },
+  { rotationDeg: 240, tone: "graphite" },
+];
 
 export function initRoderLogoScene(selector = "[data-roder-logo-scene]") {
   const stages = Array.from(document.querySelectorAll<LogoStage>(selector));
@@ -57,17 +55,15 @@ function mountLogoScene(stage: LogoStage, canvas: HTMLCanvasElement) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.setClearColor(0x000000, 0);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.toneMappingExposure = 1.05;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 1200);
   camera.position.set(0, 0, 470);
 
-  const logoRoot = buildExtrudedLogo();
-  const spaceRoot = buildSpaceRig();
-  const fragments = buildFragments();
-
-  scene.add(spaceRoot.root, logoRoot, fragments.mesh);
+  const triad = buildTriadLogo();
+  const logoRoot = triad.root;
+  scene.add(logoRoot);
   addLights(scene);
 
   const pointer = new THREE.Vector2();
@@ -88,9 +84,7 @@ function mountLogoScene(stage: LogoStage, canvas: HTMLCanvasElement) {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
 
-    const compactScale = width < 380 ? 0.76 : 0.9;
-    logoRoot.scale.setScalar(compactScale);
-    spaceRoot.root.scale.setScalar(width < 380 ? 0.82 : 1);
+    logoRoot.scale.setScalar(width < 380 ? 0.84 : 1.06);
   };
 
   const onPointerMove = (event: PointerEvent) => {
@@ -115,18 +109,22 @@ function mountLogoScene(stage: LogoStage, canvas: HTMLCanvasElement) {
     pointer.lerp(targetPointer, 0.055);
 
     if (reducedMotion.matches) {
-      logoRoot.rotation.set(-0.24 + pointer.y * 0.08, 0.26 + pointer.x * 0.1, -0.02);
-      spaceRoot.rings.rotation.set(0.14, 0.08, 0.08);
+      logoRoot.rotation.set(-0.2 + pointer.y * 0.08, pointer.x * 0.1, 0);
     } else {
-      logoRoot.rotation.x = -0.25 + Math.sin(elapsed * 0.82) * 0.05 + pointer.y * 0.18;
-      logoRoot.rotation.y = 0.18 + elapsed * 0.24 + pointer.x * 0.18;
-      logoRoot.rotation.z = Math.sin(elapsed * 0.55) * 0.035;
+      // Lively sway around a readable front pose; never spins edge-on.
+      logoRoot.rotation.x = -0.22 + Math.sin(elapsed * 0.66) * 0.11 + pointer.y * 0.2;
+      logoRoot.rotation.y = Math.sin(elapsed * 0.45) * 0.42 + pointer.x * 0.3;
+      logoRoot.rotation.z = Math.sin(elapsed * 0.32) * 0.04;
+      logoRoot.position.y = Math.sin(elapsed * 0.85) * 7;
 
-      spaceRoot.rings.rotation.x = 0.15 + Math.sin(elapsed * 0.44) * 0.06;
-      spaceRoot.rings.rotation.y = elapsed * 0.18;
-      spaceRoot.rings.rotation.z = elapsed * 0.1;
-      spaceRoot.grid.position.z = -72 + Math.sin(elapsed * 0.6) * 5;
-      updateFragments(fragments, elapsed);
+      // Triad pieces breathe apart and reassemble.
+      const spread = (Math.sin(elapsed * 0.55 - Math.PI / 2) + 1) * 0.5; // 0..1
+      const drift = spread * spread * 16;
+      triad.pieces.forEach((piece, index) => {
+        const dir = piece.userData.driftDirection as THREE.Vector2;
+        piece.position.set(dir.x * drift, dir.y * drift, Math.sin(elapsed * 0.7 + index * 2.1) * 6);
+        piece.rotation.z = piece.userData.baseRotationZ + spread * 0.045 * (index - 1);
+      });
     }
 
     renderer.render(scene, camera);
@@ -152,169 +150,142 @@ function mountLogoScene(stage: LogoStage, canvas: HTMLCanvasElement) {
   }, { once: true });
 }
 
-function buildExtrudedLogo() {
-  const loader = new SVGLoader();
-  const parsed = loader.parse(LOGO_SVG);
-  const logo = new THREE.Group();
+/**
+ * Builds the Roder mark as a true triad: a hexagonal ring split into three
+ * chevron segments (two orange, one graphite) with radial cut gaps, matching
+ * the 2D brand mark instead of extruding its overlapping SVG paths.
+ */
+function buildTriadLogo() {
+  const root = new THREE.Group();
+  const shape = buildTriadSegmentShape();
 
-  parsed.paths.forEach((path, pathIndex) => {
-    const fill = path.userData?.style?.fill || (pathIndex === 2 ? "#111316" : "#ff4d00");
-    const shapes = SVGLoader.createShapes(path);
-    const materials = createLogoMaterials(fill, pathIndex);
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: EXTRUDE_DEPTH,
+    bevelEnabled: true,
+    bevelSize: 2.6,
+    bevelThickness: 3.2,
+    bevelSegments: 6,
+    curveSegments: 12,
+  });
+  geometry.translate(0, 0, -EXTRUDE_DEPTH / 2);
+  geometry.computeVertexNormals();
 
-    shapes.forEach((shape) => {
-      const geometry = new THREE.ExtrudeGeometry(shape, {
-        depth: 34,
-        bevelEnabled: true,
-        bevelSize: 4.6,
-        bevelThickness: 5.4,
-        bevelSegments: 10,
-        curveSegments: 18,
-      });
-
-      geometry.scale(1, -1, 1);
-      geometry.computeVertexNormals();
-      const mesh = new THREE.Mesh(geometry, materials);
-      mesh.position.z = pathIndex === 2 ? 2.4 : pathIndex === 1 ? 1.2 : 0;
-      mesh.renderOrder = pathIndex;
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      logo.add(mesh);
-    });
+  const pieces = TRIAD_PIECES.map((piece) => {
+    const mesh = new THREE.Mesh(geometry, createPieceMaterials(piece.tone));
+    const baseRotationZ = THREE.MathUtils.degToRad(piece.rotationDeg);
+    mesh.rotation.z = baseRotationZ;
+    // Each segment's centroid direction: outward from center through its midpoint.
+    const centroidAngle = THREE.MathUtils.degToRad(90 + piece.rotationDeg);
+    mesh.userData.baseRotationZ = baseRotationZ;
+    mesh.userData.driftDirection = new THREE.Vector2(
+      Math.cos(centroidAngle),
+      Math.sin(centroidAngle),
+    );
+    root.add(mesh);
+    return mesh;
   });
 
-  const box = new THREE.Box3().setFromObject(logo);
-  const center = box.getCenter(new THREE.Vector3());
-  logo.position.sub(center);
-  logo.position.z -= 10;
-  logo.rotation.set(-0.25, 0.36, -0.02);
-
-  return logo;
+  root.rotation.set(-0.2, 0.1, 0);
+  return { root, pieces };
 }
 
-function createLogoMaterials(fill: string, pathIndex: number) {
-  const dark = pathIndex === 2 || fill.toLowerCase() === "#111316";
-  const faceColor = new THREE.Color(dark ? "#11161c" : pathIndex === 1 ? "#ff3f0b" : "#ff6817");
-  const sideColor = new THREE.Color(dark ? "#080a0d" : "#b72805");
+/**
+ * The top segment of the triad: covers the two upper edges of a pointy-top
+ * hexagonal ring (vertices at 30°/90°/150°), with the cut ends inset along
+ * the edges so the three rotated copies leave clean radial gaps.
+ */
+function buildTriadSegmentShape() {
+  const at = (deg: number, radius: number) => {
+    const rad = THREE.MathUtils.degToRad(deg);
+    return new THREE.Vector2(Math.cos(rad) * radius, Math.sin(rad) * radius);
+  };
+
+  const outerRight = at(30, OUTER_RADIUS);
+  const outerTop = at(90, OUTER_RADIUS);
+  const outerLeft = at(150, OUTER_RADIUS);
+  const innerRight = at(30, INNER_RADIUS);
+  const innerTop = at(90, INNER_RADIUS);
+  const innerLeft = at(150, INNER_RADIUS);
+
+  const insetFrom = (corner: THREE.Vector2, towards: THREE.Vector2) =>
+    corner.clone().add(towards.clone().sub(corner).normalize().multiplyScalar(CUT_HALF_GAP));
+
+  const points = [
+    insetFrom(outerRight, outerTop),
+    outerTop,
+    insetFrom(outerLeft, outerTop),
+    insetFrom(innerLeft, innerTop),
+    innerTop,
+    insetFrom(innerRight, innerTop),
+  ];
+
+  return buildRoundedShape(points, CORNER_RADIUS);
+}
+
+function buildRoundedShape(points: THREE.Vector2[], radius: number) {
+  const shape = new THREE.Shape();
+  const count = points.length;
+
+  points.forEach((corner, index) => {
+    const prev = points[(index + count - 1) % count];
+    const next = points[(index + 1) % count];
+    const toPrev = prev.clone().sub(corner);
+    const toNext = next.clone().sub(corner);
+    const cornerRadius = Math.min(radius, toPrev.length() / 2, toNext.length() / 2);
+    const entry = corner.clone().add(toPrev.normalize().multiplyScalar(cornerRadius));
+    const exit = corner.clone().add(toNext.normalize().multiplyScalar(cornerRadius));
+
+    if (index === 0) {
+      shape.moveTo(entry.x, entry.y);
+    } else {
+      shape.lineTo(entry.x, entry.y);
+    }
+    shape.quadraticCurveTo(corner.x, corner.y, exit.x, exit.y);
+  });
+
+  shape.closePath();
+  return shape;
+}
+
+function createPieceMaterials(tone: PieceTone) {
+  const palette = {
+    "orange-bright": { face: "#ff6a10", side: "#d8480a" },
+    "orange-deep": { face: "#f64402", side: "#bb3804" },
+    graphite: { face: "#1c2027", side: "#0d0f13" },
+  }[tone];
+
+  const dark = tone === "graphite";
 
   const face = new THREE.MeshPhysicalMaterial({
-    color: faceColor,
-    roughness: dark ? 0.36 : 0.42,
-    metalness: dark ? 0.34 : 0.18,
-    clearcoat: dark ? 0.55 : 0.7,
-    clearcoatRoughness: 0.28,
-    emissive: dark ? new THREE.Color("#020304") : new THREE.Color("#351006"),
-    emissiveIntensity: dark ? 0.05 : 0.08,
+    color: new THREE.Color(palette.face),
+    roughness: dark ? 0.42 : 0.4,
+    metalness: dark ? 0.18 : 0.04,
+    clearcoat: 0.4,
+    clearcoatRoughness: 0.42,
   });
 
   const side = new THREE.MeshPhysicalMaterial({
-    color: sideColor,
-    roughness: 0.48,
-    metalness: dark ? 0.28 : 0.16,
-    clearcoat: 0.42,
-    clearcoatRoughness: 0.34,
+    color: new THREE.Color(palette.side),
+    roughness: 0.45,
+    metalness: dark ? 0.22 : 0.08,
+    clearcoat: 0.5,
+    clearcoatRoughness: 0.32,
   });
 
   return [face, side];
 }
 
 function addLights(scene: THREE.Scene) {
-  scene.add(new THREE.AmbientLight(0xffffff, 1.15));
+  scene.add(new THREE.AmbientLight(0xffffff, 0.85));
 
-  const key = new THREE.DirectionalLight(0xffffff, 3.4);
-  key.position.set(-120, 130, 250);
+  const hemi = new THREE.HemisphereLight(0xffffff, 0xb9b9bd, 0.7);
+  scene.add(hemi);
+
+  const key = new THREE.DirectionalLight(0xffffff, 2.1);
+  key.position.set(-140, 180, 260);
   scene.add(key);
 
-  const rim = new THREE.DirectionalLight(0xff6a1a, 2.8);
-  rim.position.set(180, -90, 170);
-  scene.add(rim);
-
-  const graphiteEdge = new THREE.PointLight(0x99b5ff, 14, 360);
-  graphiteEdge.position.set(110, 70, 145);
-  scene.add(graphiteEdge);
-}
-
-function buildSpaceRig() {
-  const root = new THREE.Group();
-  const rings = new THREE.Group();
-
-  const orangeLine = new THREE.MeshBasicMaterial({
-    color: 0xff4d00,
-    transparent: true,
-    opacity: 0.22,
-    depthWrite: false,
-  });
-
-  const graphiteLine = new THREE.MeshBasicMaterial({
-    color: 0x111316,
-    transparent: true,
-    opacity: 0.18,
-    depthWrite: false,
-  });
-
-  const ringSpecs = [
-    { radius: 150, tube: 0.42, rotation: [0.95, 0.12, 0.18], material: orangeLine },
-    { radius: 184, tube: 0.36, rotation: [1.18, -0.34, -0.1], material: graphiteLine },
-    { radius: 218, tube: 0.28, rotation: [1.42, 0.28, 0.3], material: orangeLine },
-  ] as const;
-
-  ringSpecs.forEach((spec) => {
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(spec.radius, spec.tube, 8, 180), spec.material);
-    ring.rotation.set(spec.rotation[0], spec.rotation[1], spec.rotation[2]);
-    rings.add(ring);
-  });
-
-  const grid = new THREE.GridHelper(520, 18, 0xff4d00, 0x9aa19a);
-  grid.position.set(0, -144, -74);
-
-  const gridMaterials = Array.isArray(grid.material) ? grid.material : [grid.material];
-  gridMaterials.forEach((material) => {
-    material.transparent = true;
-    material.opacity = 0.13;
-    material.depthWrite = false;
-  });
-
-  root.add(rings, grid);
-  return { root, rings, grid };
-}
-
-function buildFragments() {
-  const geometry = new THREE.BoxGeometry(3, 3, 3);
-  const material = new THREE.MeshBasicMaterial({
-    color: 0xff4d00,
-    transparent: true,
-    opacity: 0.46,
-    depthWrite: false,
-  });
-  const fragments: Fragment[] = Array.from({ length: 22 }, (_, index) => ({
-    angle: index * 0.72,
-    radiusX: 132 + (index % 5) * 18,
-    radiusY: 72 + (index % 4) * 13,
-    speed: 0.08 + (index % 6) * 0.018,
-    z: -38 + (index % 7) * 12,
-    size: 0.55 + (index % 4) * 0.16,
-  }));
-
-  const mesh = new THREE.InstancedMesh(geometry, material, fragments.length);
-  updateFragments({ mesh, fragments }, 0);
-  return { mesh, fragments };
-}
-
-function updateFragments(fragmentRig: { mesh: THREE.InstancedMesh; fragments: Fragment[] }, elapsed: number) {
-  const matrixTarget = new THREE.Object3D();
-
-  fragmentRig.fragments.forEach((fragment, index) => {
-    const angle = fragment.angle + elapsed * fragment.speed;
-    matrixTarget.position.set(
-      Math.cos(angle) * fragment.radiusX,
-      Math.sin(angle * 1.17) * fragment.radiusY,
-      fragment.z + Math.sin(angle * 1.4) * 24,
-    );
-    matrixTarget.rotation.set(angle * 0.3, angle * 0.7, angle);
-    matrixTarget.scale.setScalar(fragment.size);
-    matrixTarget.updateMatrix();
-    fragmentRig.mesh.setMatrixAt(index, matrixTarget.matrix);
-  });
-
-  fragmentRig.mesh.instanceMatrix.needsUpdate = true;
+  const fill = new THREE.DirectionalLight(0xfff3ea, 0.8);
+  fill.position.set(170, -60, 220);
+  scene.add(fill);
 }

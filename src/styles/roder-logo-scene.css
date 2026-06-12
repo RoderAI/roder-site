@@ -3,7 +3,7 @@
   isolation: isolate;
   display: grid;
   place-items: center;
-  min-height: clamp(19rem, 34vw, 28rem);
+  min-height: clamp(22rem, 44vw, 35rem);
   margin-inline: min(0px, 0vw);
   overflow: visible;
   cursor: grab;
@@ -91,10 +91,6 @@
   pointer-events: none;
 }
 
-.roder-logo-stage + .harness-artifact {
-  margin-top: clamp(-1rem, -2vw, -0.45rem);
-}
-
 @media (max-width: 860px) {
   .roder-logo-stage {
     min-height: clamp(18rem, 74vw, 29rem);
@@ -104,10 +100,6 @@
     right: 0.6rem;
     bottom: 1.2rem;
     font-size: clamp(3rem, 15vw, 4.65rem);
-  }
-
-  .roder-logo-stage + .harness-artifact {
-    margin-top: -0.55rem;
   }
 }
 
