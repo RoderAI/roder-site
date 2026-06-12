@@ -6,12 +6,12 @@ import TurnFlowDiagram from "../components/TurnFlowDiagram.astro";
 import "../styles/diagrams.css";
 
 const principles = [
-  "Stable core, extensible edges. The runtime owns lifecycle ordering, cancellation, capability enforcement, and event semantics.",
-  "Providers instead of forks. New inference protocols, storage engines, context systems, and policy backends should be pluggable subsystems.",
-  "Canonical internal representations. The core speaks Roder-native IR instead of leaking provider request shapes everywhere.",
-  "Capability-based access. Filesystem, shell, network, and secrets access are explicit and scoped, not ambient.",
-  "Event-sourced execution. The harness is replayable, resumable, and inspectable by default.",
-  "UI as client. The TUI consumes the same control plane as IDEs, web UIs, tests, and training systems.",
+  "Keep the core small and strict. The runtime owns lifecycle ordering, cancellation, capability enforcement, and event semantics.",
+  "Make major subsystems replaceable. Providers, storage, context, policy, sandboxes, and UI surfaces should plug in without a fork.",
+  "Normalize provider differences. Model APIs can change quickly; the rest of the harness should speak canonical Roder types.",
+  "Treat access as a capability. Filesystem, shell, network, browser, and secret access should be explicit, scoped, and auditable.",
+  "Record what happened. Runs should produce structured events that support resume, replay, evaluation, debugging, and training data.",
+  "Let every UI be a client. The TUI, desktop clients, IDEs, web surfaces, tests, and RL environments should use the same control plane.",
 ];
 
 const roadmap = [
@@ -39,18 +39,18 @@ const roadmap = [
 ---
 
 <Layout
-  title="Roder Mission Whitepaper"
-  description="Roder's technical mission paper as a web page: a Rust-native extensible harness for coding agents."
+  title="Roder Mission"
+  description="Roder's mission: reusable Rust infrastructure for teams building, evaluating, and embedding coding agents."
 >
   <section class="container paper-page">
     <header class="paper-hero">
       <div>
-        <div class="eyebrow-line">Roder Mission Whitepaper / Revised edition / May 2026</div>
+        <div class="eyebrow-line">Roder mission / June 2026</div>
         <h1>Roder</h1>
-        <p class="paper-subtitle">A Rust-Native Extensible Harness for Coding Agents</p>
+        <p class="paper-subtitle">Reusable runtime infrastructure for coding agents</p>
         <p class="paper-kicker">
-          The last harness ever written: a stable, extensible foundation for coding agents,
-          research systems, reinforcement-learning environments, and AI-native developer tools.
+          Roder exists so teams can build serious coding agents without rebuilding the
+          runtime layer: tools, policy, providers, state, events, replay, and clients.
         </p>
       </div>
       <img src="/roder-icon.png" alt="Roder icon" />
@@ -58,15 +58,14 @@ const roadmap = [
 
     <article class="paper-content">
       <p class="paper-lede">
-        This revised whitepaper presents Roder as an opinionated systems foundation rather
-        than merely another coding-agent application. The emphasis is on core architecture,
-        provider-neutral inference, native harness extensibility, resumable execution, and
-        a control plane that lets many different products and research systems build on the
-        same runtime.
+        Roder is not another sealed coding assistant. It is the runtime beneath coding
+        assistants, eval runners, RL environments, internal automation, and domain-specific
+        agent products. The mission is to turn the common hard parts of agent execution into
+        shared, inspectable, extensible Rust infrastructure.
       </p>
 
-      <nav class="paper-toc" aria-label="Whitepaper sections">
-        <a href="#abstract">Abstract</a>
+      <nav class="paper-toc" aria-label="Mission sections">
+        <a href="#abstract">Short version</a>
         <a href="#why">Why Roder exists</a>
         <a href="#mission">Mission</a>
         <a href="#architecture">Architecture</a>
@@ -82,55 +81,52 @@ const roadmap = [
         <a href="#closing">Closing</a>
       </nav>
 
-      <h2 id="abstract">1. Abstract</h2>
+      <h2 id="abstract">1. Short version</h2>
       <p>
-        Roder is an open-source Rust harness designed to be the common substrate for coding
-        agents, AI research systems, training environments, and customer-facing AI developer
-        tools. Instead of rebuilding the same runtime machinery in Python or Node for every
-        project, Roder proposes a durable reference implementation of the hard parts:
-        context assembly, inference orchestration, tool execution, filesystem mediation,
-        policy enforcement, state persistence, replay, and extension.
+        Roder is an open-source Rust runtime for coding agents. It handles the parts that
+        become painful once an agent moves beyond a demo: context assembly, provider
+        orchestration, tool execution, filesystem mediation, policy enforcement, session
+        state, event streaming, replay, and extension.
       </p>
       <p>
-        The key thesis is that the ecosystem does not need a new harness every time it
-        explores a new model, provider, workflow, or interface. What it needs is a stable
-        core with deliberately designed extension seams. Roder is intended to fill that
-        role: provider-neutral, strongly typed, high-performance, portable, and flexible
-        enough that serious downstream users can replace internal subsystems without
-        forking the whole codebase.
+        The target audience is practical: teams building agent products, AI labs running
+        evaluations or training infrastructure, and platform engineers embedding coding
+        agents into real developer workflows. They need a runtime they can inspect,
+        customize, replay, and trust under load.
       </p>
-      <blockquote>Roder is not the final coding agent. It is the harness beneath them.</blockquote>
+      <blockquote>Roder is not the final coding agent. It is the runtime layer beneath many of them.</blockquote>
 
       <h2 id="why">2. Why Roder exists</h2>
       <p>
-        Most mature agent systems converge on the same invisible architecture. They start
-        as a model loop, but quickly accrete the same requirements: a tool registry, file
-        and shell mediation, session history, context building, user approvals, telemetry,
-        replay, retries, cancellation, and some notion of persistence. By the time a
-        product becomes reliable, it has quietly grown a runtime.
+        Most agent systems start as a model loop. Then the real requirements arrive: tools,
+        permissions, file access, shell access, browser access, session history, context
+        selection, approvals, telemetry, retries, cancellation, replay, and persistence. By
+        the time the product is reliable, it has quietly grown a runtime.
       </p>
       <p>
-        Today that runtime is rebuilt repeatedly. The result is fragmentation: every project
-        invents its own transcript format, tool schema conventions, context pipeline,
-        provider wrapper, and persistence mechanism. Useful ideas are trapped inside
-        product-specific codebases, and teams fork upstream projects because they cannot
-        cleanly replace core internals such as storage, context planning, or model-wire logic.
+        Today that runtime is rebuilt inside every product, eval harness, and lab workflow.
+        That creates fragmentation: transcript formats do not line up, provider wrappers
+        leak everywhere, context pipelines are hard to compare, and teams fork entire
+        projects just to replace storage, policy, model wiring, or sandbox behavior.
       </p>
       <ul>
-        <li>Roder exists to make the harness itself reusable.</li>
-        <li>It aims to be lower-level than a polished end-user app, but higher-level than a bag of unrelated crates.</li>
-        <li>It is intentionally closer to a reference runtime than to a single-provider product.</li>
-        <li>Its architecture should let products, labs, and research teams extend heavily without a permanent fork.</li>
+        <li>Roder exists to make the agent runtime reusable.</li>
+        <li>It is lower-level than a polished end-user app, but higher-level than a bag of unrelated crates.</li>
+        <li>It is provider-neutral by design, so no model API owns the architecture.</li>
+        <li>It should let products, labs, and platform teams extend heavily without living on a permanent fork.</li>
       </ul>
 
       <h2 id="mission">3. Mission and design principles</h2>
       <p>
-        Roder's mission is to become the most solid maintained reference implementation of
-        an agent harness for coding work. The project should be useful to AI labs, model
-        creators, app makers, internal platform teams, and open-source developers who need
-        a serious runtime foundation. In spirit, the goal is similar to a kernel: a stable
-        base that is heavily extensible, open to forks, but designed so that most real
-        customization can happen upstream through supported interfaces.
+        Roder's mission is to become the maintained reference runtime for coding-agent
+        execution. It should be the place where core runtime concerns are solved once,
+        tested seriously, exposed through clear interfaces, and reused by many downstream
+        products and research systems.
+      </p>
+      <p>
+        The vision is not a single perfect assistant. The vision is an ecosystem where new
+        providers, tools, UIs, sandboxes, memory systems, policy layers, and research ideas
+        can plug into a shared execution model instead of starting from scratch.
       </p>
       <ul>
         {principles.map((principle) => <li>{principle}</li>)}
@@ -328,11 +324,10 @@ const roadmap = [
         should generally remain downstream.
       </p>
       <p>
-        The Linux-kernel comparison is useful only in spirit: Roder should aim to be a
-        maintained substrate that many systems build on. That does not mean the project
-        must mimic kernel process or culture exactly. It means the project should optimize
-        for long-term architectural integrity, a clear subsystem model, and an ecosystem
-        that benefits from shared foundations rather than incompatible reinventions.
+        The useful comparison is not process or culture; it is responsibility. Roder should
+        optimize for long-term architectural integrity, clear subsystem boundaries, and an
+        ecosystem that benefits from shared runtime infrastructure rather than incompatible
+        reinventions.
       </p>
 
       <h2 id="roadmap">13. Implementation roadmap</h2>
@@ -349,25 +344,22 @@ const roadmap = [
 
       <h2 id="closing">14. Closing statement</h2>
       <p>
-        Roder's ambition is not to anticipate every future product shape. Its ambition is
-        to establish a harness architecture that can absorb future ideas without needing to
-        be rewritten each time. If the ecosystem gets a durable provider-neutral runtime,
-        then product builders can focus on UX, labs can focus on research, model creators
-        can focus on inference quality, and training teams can focus on environments and
-        evaluation rather than rebuilding the same substrate.
+        Roder does not need to predict every future product shape. It needs to provide a
+        runtime that can absorb new requirements without forcing every team back to a blank
+        page. If the ecosystem has a durable provider-neutral runtime, product builders can
+        focus on UX, labs can focus on research, model creators can focus on inference
+        quality, and training teams can focus on environments and evaluation.
       </p>
       <p>
-        The strongest version of the project is therefore simple to state: Roder is the
-        last harness ever written not because it predicts every requirement in advance, but
-        because it gives new requirements a structured place to live. New inference
-        technologies become engines. New storage approaches become stores. New context
-        strategies become planners. New products become clients. The harness remains the
-        foundation.
+        The strongest version of the project is simple to state: new inference technologies
+        become engines, new storage approaches become stores, new context strategies become
+        planners, new sandboxes become runners, and new products become clients. The runtime
+        remains shared.
       </p>
       <div class="callout">
-        <strong>Building on this foundation?</strong> The Roder authors work with AI labs
-        and startups on RL infrastructure, embedded harnesses, product integrations, and
-        OSS sponsorship. <a href="/contact/">Contact the authors</a>.
+        <strong>Building on this problem?</strong> The Roder team works with AI labs and
+        startups on RL infrastructure, embedded harnesses, product integrations, and OSS
+        sponsorship. <a href="/contact/">Contact the team</a>.
       </div>
     </article>
   </section>
