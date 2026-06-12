@@ -33,9 +33,9 @@
 .home-hero-grid {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.06fr) minmax(340px, 0.74fr);
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 0.88fr);
   align-items: center;
-  gap: clamp(3rem, 7vw, 7rem);
+  gap: clamp(2.5rem, 5vw, 5rem);
 }
 
 .home-copy {
@@ -79,7 +79,7 @@
 }
 
 .home-copy h1 {
-  font-size: clamp(3.15rem, 4.65vw, 4.95rem);
+  font-size: clamp(3rem, 4.3vw, 4.6rem);
   line-height: 0.96;
 }
 
@@ -229,7 +229,7 @@
 
 .hero-visual {
   justify-self: end;
-  width: min(100%, 430px);
+  width: min(100%, 560px);
 }
 
 .visual-shell,
@@ -256,101 +256,6 @@
 
 .visual-core {
   padding: clamp(1.1rem, 3vw, 1.6rem);
-}
-
-.harness-artifact {
-  position: relative;
-  display: grid;
-  gap: 0.52rem;
-  margin-top: 1.5rem;
-  padding: 1.1rem 0.88rem 0.9rem;
-  border-radius: 1.35rem;
-  background:
-    linear-gradient(145deg, rgba(250, 252, 248, 0.98), rgba(237, 241, 236, 0.88));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.96),
-    inset 0 0 0 1px rgba(17, 19, 22, 0.08),
-    0 24px 58px rgba(17, 19, 22, 0.08);
-  overflow: hidden;
-}
-
-.harness-artifact::before {
-  content: "";
-  position: absolute;
-  inset: 0.72rem;
-  border-radius: 1rem;
-  background:
-    linear-gradient(rgba(17, 19, 22, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(17, 19, 22, 0.045) 1px, transparent 1px);
-  background-size: 2.15rem 2.15rem;
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), transparent 78%);
-  pointer-events: none;
-}
-
-.artifact-slab,
-.artifact-layers {
-  position: relative;
-}
-
-.artifact-slab {
-  border-radius: 0.95rem;
-  font-family: var(--mono);
-}
-
-.artifact-slab-top {
-  display: grid;
-  gap: 0.26rem;
-  padding: 0.82rem 0.9rem;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: inset 0 0 0 1px rgba(17, 19, 22, 0.08);
-}
-
-.artifact-slab-top span,
-.artifact-slab-base {
-  color: var(--accent-strong);
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.artifact-slab-top strong {
-  color: var(--home-ink);
-  font-size: 1.12rem;
-  line-height: 1.06;
-}
-
-.artifact-layers {
-  display: grid;
-  gap: 0.36rem;
-  padding: 0 0.35rem;
-}
-
-.artifact-layers span {
-  display: block;
-  padding: 0.48rem 0.75rem;
-  border-radius: 0.72rem;
-  color: rgba(17, 19, 22, 0.72);
-  background: rgba(255, 255, 255, calc(0.78 - var(--layer-index) * 0.07));
-  box-shadow:
-    inset 0 0 0 1px rgba(17, 19, 22, 0.07),
-    0 calc(0.28rem + var(--layer-index) * 0.08rem) 0 rgba(17, 19, 22, 0.045);
-  font-family: var(--mono);
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.artifact-slab-base {
-  padding: 0.86rem 0.95rem;
-  color: #f8faf6;
-  background:
-    linear-gradient(145deg, #15171b, #0f1114);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 18px 36px rgba(17, 19, 22, 0.14);
-  border-radius: 0.95rem;
 }
 
 .proof-strip {

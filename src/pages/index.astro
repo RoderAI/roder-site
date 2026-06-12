@@ -57,8 +57,6 @@ const foundationPillars = [
   ["Labs", "repeatable evals and training loops"],
 ];
 
-const harnessLayers = ["tools", "policy", "providers", "state", "replay"];
-
 const typewriterAudiences = [
   "coding agents",
   "local software",
@@ -140,19 +138,6 @@ const headlineAria = `Harness infrastructure for ${typewriterAudiences
               aria-hidden="true"
             />
             <p class="roder-stage-wordmark" aria-hidden="true">roder</p>
-          </div>
-
-          <div class="harness-artifact" aria-label="Reusable harness base layers">
-            <div class="artifact-slab artifact-slab-top">
-              <span>shared harness surface</span>
-              <strong>one base, many products</strong>
-            </div>
-            <div class="artifact-layers" aria-hidden="true">
-              {harnessLayers.map((layer, index) => (
-                <span style={`--layer-index: ${index}`}>{layer}</span>
-              ))}
-            </div>
-            <div class="artifact-slab artifact-slab-base">roder runtime foundation</div>
           </div>
         </div>
       </div>
