@@ -201,6 +201,15 @@
   filter: drop-shadow(0 0.6rem 1.2rem rgba(255, 77, 0, 0.16));
 }
 
+.foundation-base img.logo-mark-3d {
+  width: 4.35rem;
+  height: 4.35rem;
+  margin-block: -0.35rem;
+  filter:
+    drop-shadow(0 0.65rem 1.15rem rgba(255, 77, 0, 0.18))
+    drop-shadow(0 0.45rem 0.8rem rgba(17, 19, 22, 0.18));
+}
+
 .foundation-compounds {
   position: absolute;
   z-index: 3;
