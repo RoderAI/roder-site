@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import "../styles/home.css";
 import "../styles/home-foundation.css";
+import "../styles/roder-logo-scene.css";
 import "../styles/home-sections.css";
 
 const proofPoints = [
@@ -123,30 +124,35 @@ const headlineAria = `Harness infrastructure for ${typewriterAudiences
         </div>
 
         <div class="hero-visual reveal">
-          <div class="visual-shell">
-            <div class="visual-core">
-              <div class="brand-lockup">
-                <div class="brand-mark-tray">
-                  <img src="/roder-icon.png" alt="Roder triad hex mark" />
-                </div>
-                <div>
-                  <p class="brand-name">roder</p>
-                </div>
-              </div>
+          <div
+            class="roder-logo-stage"
+            data-roder-logo-scene
+            role="img"
+            aria-label="Animated 3D Roder triad hex mark"
+          >
+            <canvas class="roder-logo-canvas" data-roder-logo-canvas aria-hidden="true"></canvas>
+            <img
+              class="logo-mark-3d roder-logo-fallback"
+              src="/roder-mark-3d.png"
+              alt=""
+              width="1254"
+              height="1254"
+              aria-hidden="true"
+            />
+            <p class="roder-stage-wordmark" aria-hidden="true">roder</p>
+          </div>
 
-              <div class="harness-artifact" aria-label="Reusable harness base layers">
-                <div class="artifact-slab artifact-slab-top">
-                  <span>shared harness surface</span>
-                  <strong>one base, many products</strong>
-                </div>
-                <div class="artifact-layers" aria-hidden="true">
-                  {harnessLayers.map((layer, index) => (
-                    <span style={`--layer-index: ${index}`}>{layer}</span>
-                  ))}
-                </div>
-                <div class="artifact-slab artifact-slab-base">roder runtime foundation</div>
-              </div>
+          <div class="harness-artifact" aria-label="Reusable harness base layers">
+            <div class="artifact-slab artifact-slab-top">
+              <span>shared harness surface</span>
+              <strong>one base, many products</strong>
             </div>
+            <div class="artifact-layers" aria-hidden="true">
+              {harnessLayers.map((layer, index) => (
+                <span style={`--layer-index: ${index}`}>{layer}</span>
+              ))}
+            </div>
+            <div class="artifact-slab artifact-slab-base">roder runtime foundation</div>
           </div>
         </div>
       </div>
@@ -201,7 +207,13 @@ const headlineAria = `Harness infrastructure for ${typewriterAudiences
               <span>roder base</span>
               <strong>tools · policy · providers · state · replay</strong>
             </div>
-            <img src="/roder-icon.png" alt="" />
+            <img
+              class="logo-mark-3d"
+              src="/roder-mark-3d.png"
+              alt=""
+              width="1254"
+              height="1254"
+            />
           </div>
 
           <div class="foundation-compounds" aria-label="Roder compounding loop">
@@ -290,6 +302,18 @@ const headlineAria = `Harness infrastructure for ${typewriterAudiences
   </div>
 
   <script>
+    const bootRoderLogoScene = () => {
+      import("../scripts/roderLogoScene").then(({ initRoderLogoScene }) => {
+        initRoderLogoScene();
+      });
+    };
+
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(bootRoderLogoScene, { timeout: 800 });
+    } else {
+      window.setTimeout(bootRoderLogoScene, 0);
+    }
+
     const typewriterTarget = document.querySelector("[data-typewriter-target]");
 
     if (typewriterTarget) {

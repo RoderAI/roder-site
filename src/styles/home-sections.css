@@ -212,10 +212,6 @@
     align-items: start;
   }
 
-  .brand-lockup {
-    grid-template-columns: 5.4rem 1fr;
-  }
-
 }
 
 @media (max-width: 540px) {
@@ -234,10 +230,6 @@
 
   .home-section {
     padding: 5rem 0;
-  }
-
-  .brand-name {
-    font-size: 2.6rem;
   }
 
 }
