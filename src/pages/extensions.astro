@@ -1,362 +1,660 @@
 ---
 import DocsLayout from "../layouts/DocsLayout.astro";
+
+type Ext = {
+  crate: string;
+  provides: string[];
+  how: string;
+  install: string;
+};
+
+type Category = {
+  id: string;
+  title: string;
+  intro: string;
+  extensions: Ext[];
+};
+
+const categories: Category[] = [
+  {
+    id: "inference",
+    title: "Inference providers",
+    intro:
+      "Inference extensions install an InferenceEngine into the registry. The turn engine streams provider events (text, reasoning, tool calls) through the same interface regardless of vendor, so providers are swappable without touching the core loop.",
+    extensions: [
+      {
+        crate: "roder-ext-openai-responses",
+        provides: ["InferenceEngine({provider_id})"],
+        how: "Generic OpenAI Responses API engine: streams /v1/responses and maps output items and deltas to inference events, including reasoning summaries and hosted web search. Reused as the engine for xAI API-key, OpenRouter, Codex OAuth, and custom OpenAI-compatible providers, registering as roder-ext-openai-responses-{provider_id}.",
+        install: "When configured",
+      },
+      {
+        crate: "roder-ext-openai-chat-completions",
+        provides: ["InferenceEngine(openai-chat-completions)"],
+        how: "Streams the classic OpenAI Chat Completions API (/v1/chat/completions) through a shared stream_chat_completions helper. Not wired into the default host; mainly consumed as a library by other providers such as Xiaomi MiMo.",
+        install: "Opt-in",
+      },
+      {
+        crate: "roder-ext-anthropic",
+        provides: ["InferenceEngine(anthropic)"],
+        how: "Maps harness turns to Anthropic Messages API request bodies and streams SSE from api.anthropic.com, translating tool_use content blocks into harness tool-call events. Resolves the API key at call time from config or environment.",
+        install: "When configured",
+      },
+      {
+        crate: "roder-ext-gemini",
+        provides: ["InferenceEngine(gemini)"],
+        how: "Adapts harness turns to the Google Gemini generateContent streaming API with text and tool-call support.",
+        install: "When configured",
+      },
+      {
+        crate: "roder-ext-vertex",
+        provides: ["InferenceEngine(vertex)"],
+        how: "Runs Gemini models on Vertex AI using service-account OAuth (credentials path or inline JSON) with project and location configuration.",
+        install: "When configured",
+      },
+      {
+        crate: "roder-ext-xai",
+        provides: ["InferenceEngine(supergrok)", "InferenceEngine(xai)"],
+        how: "Always registers the SuperGrok OAuth engine; when an xAI API key is declared it additionally installs a direct xAI surface built on the OpenAI Responses engine pointed at api.x.ai/v1.",
+        install: "Default · SuperGrok",
+      },
+      {
+        crate: "roder-ext-claude-code",
+        provides: ["InferenceEngine(claude-code)"],
+        how: "Spawns and manages the Claude Code CLI through the claude-agent-sdk, streaming SDK events into harness inference events. Reuses the CLI session by default so conversation history stays on the Claude Code side.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-cursor",
+        provides: ["InferenceEngine(cursor)"],
+        how: "Talks directly to Cursor's AgentService backend APIs for Composer-style agent turns. Live turns require a Cursor User API key.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-openrouter",
+        provides: ["InferenceEngine(openrouter)"],
+        how: "OpenRouter API-key provider built on the OpenAI Responses engine, with optional HTTP-Referer and X-Title attribution headers.",
+        install: "Default · needs key",
+      },
+      {
+        crate: "roder-ext-opencode",
+        provides: ["InferenceEngine(opencode)", "InferenceEngine(opencode-go)"],
+        how: "Two OpenCode subscription providers (Zen and Go) speaking a chat-completions-style HTTP API at opencode.ai, with cached model lists and retry policy.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-poolside",
+        provides: ["InferenceEngine(poolside)"],
+        how: "Poolside Laguna API-key provider using chat completions at inference.poolside.ai/v1 with cached /models discovery.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-roder-cloud",
+        provides: ["InferenceEngine(roder-cloud)"],
+        how: "Hosted roder.cloud inference: prunes requests down to a documented Responses-API subset, exchanges a roder_ API key for short-lived JWTs, and parses edge Responses payloads. Hosted tools are intentionally omitted.",
+        install: "Default · needs key",
+      },
+      {
+        crate: "roder-ext-xiaomi-mimo",
+        provides: [
+          "InferenceEngine(xiaomi-mimo)",
+          "InferenceEngine(xiaomi-mimo-token-plan)",
+          "SpeechSynthesizer(xiaomi-mimo)",
+          "SpeechSynthesizer(xiaomi-mimo-token-plan)",
+        ],
+        how: "Xiaomi MiMo in both pay-as-you-go and Token Plan billing modes via OpenAI-compatible chat completions, plus matching text-to-speech synthesizer surfaces.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-inference-router",
+        provides: ["InferenceRouter(local)"],
+        how: "Local policy router for adaptive model selection: when [inference_router] is enabled it scores turn signals and picks a tiered provider, model, and reasoning level from config before each turn.",
+        install: "Default · off until configured",
+      },
+    ],
+  },
+  {
+    id: "speech",
+    title: "Speech and transcription",
+    intro:
+      "Speech extensions install SpeechTranscriber (audio in) or SpeechSynthesizer (audio out) services used by voice-capable clients.",
+    extensions: [
+      {
+        crate: "roder-ext-openai-speech",
+        provides: ["SpeechTranscriber(openai-speech)"],
+        how: "Posts captured audio to OpenAI transcription endpoints (Whisper-class models) and returns normalized transcripts with metadata.",
+        install: "Default · needs key",
+      },
+      {
+        crate: "roder-ext-google-speech",
+        provides: ["SpeechTranscriber(google-speech)"],
+        how: "Google Cloud Speech-to-Text client supporting OAuth access tokens, API keys, or Application Default Credentials, with project and location awareness.",
+        install: "Default · needs credentials",
+      },
+    ],
+  },
+  {
+    id: "embeddings",
+    title: "Embeddings",
+    intro:
+      "Embedding extensions install an EmbeddingProvider used by the memory system for vector recall. The active provider is selected by memory configuration.",
+    extensions: [
+      {
+        crate: "roder-ext-openai-embeddings",
+        provides: ["EmbeddingProvider(openai)"],
+        how: "Calls the OpenAI embeddings API (text-embedding-3 family). The default embedding provider for the SQLite memory store when an OpenAI key is present.",
+        install: "Default · needs key",
+      },
+      {
+        crate: "roder-ext-google-embeddings",
+        provides: ["EmbeddingProvider(google)"],
+        how: "Gemini Embedding 2 via the Generative Language API, with separate query and document input modes for retrieval.",
+        install: "Default · needs key",
+      },
+      {
+        crate: "roder-ext-zeroentropy-embeddings",
+        provides: ["EmbeddingProvider(zeroentropy)"],
+        how: "ZeroEntropy zembed-1 embeddings with configurable encoding format and latency tier, and query/document retrieval intent.",
+        install: "Default · needs key",
+      },
+    ],
+  },
+  {
+    id: "memory",
+    title: "Memory and knowledge",
+    intro:
+      "Memory extensions bundle three services: a MemoryStore for persistence, a ContextProvider that injects recalled records into turns, and a ToolProvider with memory CRUD and search tools. Only one memory backend is active at a time, chosen by RODER_MEMORY_BACKEND.",
+    extensions: [
+      {
+        crate: "roder-ext-memory",
+        provides: [
+          "MemoryStore(sqlite-memory)",
+          "ContextProvider(memory-context)",
+          "ToolProvider(memory-tools)",
+        ],
+        how: "SQLite-backed project and global memory under {roder_home}/memory, with an optional embedding provider for vector recall. The default memory backend.",
+        install: "Default backend",
+      },
+      {
+        crate: "roder-ext-honcho",
+        provides: [
+          "MemoryStore(honcho-memory)",
+          "ContextProvider(memory-context)",
+          "ToolProvider(memory-tools)",
+        ],
+        how: "Remote Honcho workspace backend: a REST client maps memory scopes to Honcho sessions and peers, and semantic search is delegated to Honcho's hosted retrieval instead of local vectors.",
+        install: "Config-selected",
+      },
+      {
+        crate: "roder-ext-knowledge-md",
+        provides: [
+          "KnowledgeStore(markdown-knowledge)",
+          "ToolProvider(knowledge-tools)",
+          "ContextProvider(knowledge-context)",
+        ],
+        how: "Project knowledge base stored as Markdown files with YAML front matter under {roder_home}/knowledge. Exposes knowledge_* tools and, when recall is enabled, injects matching documents into context (default limit four).",
+        install: "When enabled",
+      },
+    ],
+  },
+  {
+    id: "persistence",
+    title: "Session and thread persistence",
+    intro:
+      "Thread stores persist sessions, turn items, and events so resumes, forks, replays, and evals all read the same durable record.",
+    extensions: [
+      {
+        crate: "roder-ext-jsonl-thread-store",
+        provides: ["ThreadStore(jsonl-thread-store)"],
+        how: "Append-only JSONL event logs per thread under {roder_home}/threads/{thread_id}/, with a thread-index.json for listing, plus archive and restore support. The default store.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-postgres-session",
+        provides: ["ThreadStore(postgres-session)"],
+        how: "Tenant-scoped PostgreSQL persistence for threads and context artifacts over async SQL, configured with a database_url. Built for multi-tenant hosted deployments.",
+        install: "When configured",
+      },
+    ],
+  },
+  {
+    id: "web-search",
+    title: "Web search tools",
+    intro:
+      "Web search uses a canonical router plus optional provider-specific tools. The router exposes one unified web_search tool; namespaced mode installs the per-provider tools directly.",
+    extensions: [
+      {
+        crate: "roder-ext-web-search",
+        provides: ["ToolProvider(web-search)"],
+        how: "The canonical web_search router: delegates each query to the configured backend (Firecrawl, Perplexity, Tavily, or Parallel) and normalizes results into one response shape.",
+        install: "When enabled",
+      },
+      {
+        crate: "roder-ext-firecrawl-search",
+        provides: ["ToolProvider(firecrawl-search)"],
+        how: "Firecrawl search API client exposing namespaced search and retrieval tools; also serves as a router backend.",
+        install: "Router backend",
+      },
+      {
+        crate: "roder-ext-perplexity-search",
+        provides: ["ToolProvider(perplexity-search)"],
+        how: "Perplexity raw Search API tools with request-id metadata extraction.",
+        install: "Router backend",
+      },
+      {
+        crate: "roder-ext-tavily-search",
+        provides: ["ToolProvider(tavily-search)"],
+        how: "Tavily search API adapter exposing Tavily-backed search tools.",
+        install: "Router backend",
+      },
+      {
+        crate: "roder-ext-parallel-search",
+        provides: ["ToolProvider(parallel-search)"],
+        how: "Parallel.ai objective-oriented search with extended tool-argument options for goal-directed queries.",
+        install: "Router backend",
+      },
+    ],
+  },
+  {
+    id: "tools",
+    title: "Tools, browser, VCS, and language",
+    intro:
+      "ToolProvider extensions add callable tools to the registry; the policy layer governs every invocation. This group also covers version control and workspace fork providers.",
+    extensions: [
+      {
+        crate: "roder-ext-chrome",
+        provides: ["ToolProvider(chrome)"],
+        how: "Registers chrome_* tools bound to the Roder browser-extension bridge, letting the agent inspect, control, debug, and record the user's live Chrome session.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-webwright",
+        provides: ["TaskExecutor(webwright.browser_task)", "ToolProvider(webwright)"],
+        how: "Playwright-based browser automation: a background webwright.browser_task executor plus helper tools. Runs a shell preflight for Playwright dependencies and writes artifacts under Roder home.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-mcp",
+        provides: ["ToolProvider(mcp-tools)"],
+        how: "Connects to configured MCP servers over streamable HTTP at startup, lists their tools, and registers each as a remote tool. Offline servers are skipped with a warning in discover mode or fail hard in discover_required mode.",
+        install: "Opt-in",
+      },
+      {
+        crate: "roder-ext-git",
+        provides: ["VersionControlProvider(git)", "ForkProvider(git-worktree)"],
+        how: "Shells out to git for status, diffs, snapshots, and line metadata, and creates linked git worktrees for workspace forks.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-fork-rift",
+        provides: ["ForkProvider(rift)"],
+        how: "Copy-on-write workspace snapshots by shelling out to a configured rift binary (APFS clonefile, btrfs snapshots, reflinks) behind a narrow CLI adapter with typed errors, since the rift CLI is pre-1.0.",
+        install: "Default · needs binary",
+      },
+      {
+        crate: "roder-ext-zerolang",
+        provides: ["ToolProvider(zerolang)"],
+        how: "Invokes the configured zero compiler binary for diagnostics, graph inspection, validation, fix plans, and checked ProgramGraph edits (zerolang_edit, zerolang_check, and friends).",
+        install: "Default · needs binary",
+      },
+      {
+        crate: "roder-ext-task-ledger",
+        provides: ["ToolProvider(task-ledger)"],
+        how: "An in-process task_ledger.update tool that maintains a validated task snapshot — pending, in_progress, completed, blocked — with optional evidence per item.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-verification",
+        provides: ["ToolProvider(verification)"],
+        how: "A verification_review gate tool for eval and non-interactive coding turns: the model submits structured completion evidence, and status, gap, and skip-reason rules are validated server-side.",
+        install: "Default",
+      },
+    ],
+  },
+  {
+    id: "policy",
+    title: "Policy",
+    intro:
+      "PolicyContributor extensions participate in tool-call review alongside the core permission system.",
+    extensions: [
+      {
+        crate: "roder-ext-plan-mode",
+        provides: ["PolicyContributor(plan-mode)", "ToolProvider(plan-mode-tools)"],
+        how: "Installs the plan-mode policy contributor plus the exit_plan_mode tool the model calls to leave planning and begin execution.",
+        install: "Default",
+      },
+    ],
+  },
+  {
+    id: "tasks",
+    title: "Task executors and subagents",
+    intro:
+      "TaskExecutor extensions run background work outside the main turn; the SubagentDispatcher runs nested agents with their own budgets and tool registries.",
+    extensions: [
+      {
+        crate: "roder-ext-task-process",
+        provides: ["TaskExecutor(process)"],
+        how: "Spawns background shell processes in the workspace (via the unix-local runner when remote), streaming stdout and stderr and tracking a process descriptor for stop and resume.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-task-subagent",
+        provides: ["TaskExecutor(subagent)"],
+        how: "Background subagent tasks: deserializes task input and delegates to the first registered SubagentDispatcher, so it requires the subagents extension to be installed first.",
+        install: "Opt-in",
+      },
+      {
+        crate: "roder-ext-subagents",
+        provides: [
+          "SubagentDispatcher(in-process-subagents)",
+          "ToolProvider(roder-subagents-task)",
+        ],
+        how: "An in-process dispatcher that loads agent definitions from disk and runs child agent turns in-process against the parent tool registry, with concurrency and depth limits. Exposes the task tool plus optional per-agent-type tools.",
+        install: "When enabled",
+      },
+    ],
+  },
+  {
+    id: "notifications",
+    title: "Notifications",
+    intro:
+      "NotificationSink extensions deliver turn and task lifecycle events (NeedsInput, TurnIdle, TaskCompleted, TaskFailed) to the user.",
+    extensions: [
+      {
+        crate: "roder-ext-notify-terminal",
+        provides: ["NotificationSink(terminal-bell)"],
+        how: "Writes an ASCII bell to stderr for selected notification kinds, throttled to once every two seconds.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-notify-desktop",
+        provides: ["NotificationSink(desktop)"],
+        how: "Best-effort native OS notifications via notify-rust when the desktop feature is enabled.",
+        install: "When enabled",
+      },
+    ],
+  },
+  {
+    id: "runners",
+    title: "Remote runners",
+    intro:
+      "RemoteRunnerProvider extensions execute workspace commands and file I/O behind one common protocol covering files, commands, ports, snapshots, mounts, artifacts, and provider state. Most hosted runners share a single HTTP client from roder-ext-runner-hosted-common.",
+    extensions: [
+      {
+        crate: "roder-ext-runner-unix-local",
+        provides: ["RemoteRunnerProvider(unix-local)"],
+        how: "Runs commands and file I/O directly against a canonical local workspace root with path-escape guards. No snapshot support.",
+        install: "Default",
+      },
+      {
+        crate: "roder-ext-runner-docker",
+        provides: ["RemoteRunnerProvider(docker)"],
+        how: "Starts a long-lived container with the workspace bind-mounted; commands and file ops run through docker exec, and snapshots use docker export.",
+        install: "Default · needs Docker",
+      },
+      {
+        crate: "roder-ext-runner-sprites",
+        provides: ["RemoteRunnerProvider(sprites)"],
+        how: "Fly Sprites sandboxes over HTTP and WebSocket: creates and restores sprites, applies policies, materializes runner manifests, and can deploy a managed remote app-server.",
+        install: "Default · needs token",
+      },
+      {
+        crate: "roder-ext-runner-blaxel",
+        provides: ["RemoteRunnerProvider(blaxel)"],
+        how: "Hosted Blaxel runner via the shared hosted-runner REST client.",
+        install: "Default · needs key",
+      },
+      {
+        crate: "roder-ext-runner-cloudflare",
+        provides: ["RemoteRunnerProvider(cloudflare)"],
+        how: "Hosted Cloudflare runner via the shared hosted-runner REST client.",
+        install: "Default · needs token",
+      },
+      {
+        crate: "roder-ext-runner-daytona",
+        provides: ["RemoteRunnerProvider(daytona)"],
+        how: "Hosted Daytona runner via the shared hosted-runner REST client.",
+        install: "Default · needs key",
+      },
+      {
+        crate: "roder-ext-runner-e2b",
+        provides: ["RemoteRunnerProvider(e2b)"],
+        how: "Hosted E2B runner via the shared hosted-runner REST client.",
+        install: "Default · needs key",
+      },
+      {
+        crate: "roder-ext-runner-modal",
+        provides: ["RemoteRunnerProvider(modal)"],
+        how: "Hosted Modal runner via the shared hosted-runner REST client.",
+        install: "Default · needs token",
+      },
+      {
+        crate: "roder-ext-runner-runloop",
+        provides: ["RemoteRunnerProvider(runloop)"],
+        how: "Hosted Runloop runner via the shared hosted-runner REST client.",
+        install: "Default · needs key",
+      },
+      {
+        crate: "roder-ext-runner-vercel",
+        provides: ["RemoteRunnerProvider(vercel)"],
+        how: "Hosted Vercel runner via the shared hosted-runner REST client.",
+        install: "Default · needs token",
+      },
+    ],
+  },
+  {
+    id: "infrastructure",
+    title: "Infrastructure and support crates",
+    intro:
+      "These crates round out the extension system: one bridges out-of-process extensions, the others are libraries without runtime manifests of their own.",
+    extensions: [
+      {
+        crate: "roder-ext-process-host",
+        provides: ["Dynamic: bridges any child-declared service"],
+        how: "Spawns child processes declared in [[process_extensions]] config and speaks newline-delimited JSON-RPC over stdio, bridging the child's declared services (inference engines, event sinks, dispatchers, task executors) into the registry. This is how extensions written in any language plug in.",
+        install: "Per config entry",
+      },
+      {
+        crate: "roder-ext-runner-hosted-common",
+        provides: ["Support library (no manifest)"],
+        how: "The shared HTTP client implementing the hosted-runner session protocol (sessions, commands, files) used by the Blaxel, Cloudflare, Daytona, E2B, Modal, Runloop, and Vercel runner crates.",
+        install: "Library",
+      },
+      {
+        crate: "roder-ext-disk-context",
+        provides: ["Helper only (extension not yet implemented)"],
+        how: "Exports a saved_context_block helper for building disk-sourced context blocks. Distribution metadata references a DiskContextExtension that is not implemented yet, so there is currently no runtime install path.",
+        install: "Not installable yet",
+      },
+    ],
+  },
+];
+
+const totalCount = categories.reduce((sum, category) => sum + category.extensions.length, 0);
+
+const installTone = (install: string) => {
+  if (install.startsWith("Default")) return "is-default";
+  if (
+    install.startsWith("Opt-in") ||
+    install.startsWith("Library") ||
+    install.startsWith("Not installable")
+  )
+    return "is-optin";
+  return "is-conditional";
+};
 ---
 
 <DocsLayout
-  title="Extension inventory"
+  title="Extension directory"
   eyebrow="Architecture"
-  description="The native Roder extensions implemented in the Rust workspace and what the /extensions surface reports."
+  description="Every extension crate in the Roder workspace, organized by category, with what it provides and how it works."
   prev={{ href: "/docs/extensibility/", title: "Extension model" }}
   next={{ href: "/docs/event-bus/", title: "Events & replay" }}
 >
   <p>
-    Roder's <code>/extensions</code> page is backed by the app-server
-    <code>extensions/list</code> method. It reports the extensions installed in the active
-    runtime registry, not every crate that happens to exist in the repository.
+    This directory covers all {totalCount} <code>roder-ext-*</code> crates in the Roder workspace.
+    Every extension implements the same contract: it declares a manifest
+    (<code>id</code>, <code>version</code>, <code>provides</code>,
+    <code>required_capabilities</code>) and installs typed services into the runtime registry.
+    The runtime core never knows vendor specifics — it talks to the service interfaces.
   </p>
 
   <div class="callout">
-    <strong>Runtime truth.</strong> Configuration decides the final list. API keys, web-search
-    settings, subagent definitions, notification settings, and custom distributions can all add
-    or suppress entries.
+    <strong>Directory vs runtime.</strong> This page lists what exists in the source tree. The
+    live runtime reports its installed set through the app-server <code>extensions/list</code>
+    method — configuration, API keys, and distribution profiles decide which of these are
+    actually active. Distribution profiles (<code>full</code>, <code>minimal</code>,
+    <code>openai-only</code>, <code>anthropic-only</code>, <code>research-headless</code>) bundle
+    different subsets.
   </div>
 
-  <h2>Discovery contract</h2>
-  <p>Clients call <code>extensions/list</code> and receive manifests plus capability statuses:</p>
-
-  <pre><code>{`{
-  "method": "extensions/list",
-  "params": null
-}`}</code></pre>
-
-  <p>Each manifest contains:</p>
-  <ul>
-    <li><code>id</code>, <code>name</code>, <code>version</code>, and <code>api_version</code>.</li>
-    <li><code>description</code> for UI display.</li>
-    <li><code>provides</code>, the typed services installed into the registry.</li>
-    <li><code>required_capabilities</code>, the sensitive access requested by the extension.</li>
-  </ul>
-
-  <h2>Service types</h2>
-  <p>Extensions can contribute these services:</p>
+  <h2>Categories</h2>
   <ul class="columns-list">
-    <li><code>InferenceEngine</code></li>
-    <li><code>ContextProvider</code></li>
-    <li><code>ContextPlanner</code></li>
-    <li><code>SessionStore</code></li>
-    <li><code>CheckpointStore</code></li>
-    <li><code>MemoryStore</code></li>
-    <li><code>EmbeddingProvider</code></li>
-    <li><code>ToolProvider</code></li>
-    <li><code>SubagentDispatcher</code></li>
-    <li><code>PolicyContributor</code></li>
-    <li><code>EventSink</code></li>
-    <li><code>TaskExecutor</code></li>
-    <li><code>NotificationSink</code></li>
-    <li><code>InteractiveRegionHandler</code></li>
-    <li><code>RemoteRunnerProvider</code></li>
-    <li><code>StatusSegment</code></li>
-    <li><code>PaletteSource</code></li>
+    {categories.map((category) => (
+      <li>
+        <a href={`#${category.id}`}>{category.title}</a> ({category.extensions.length})
+      </li>
+    ))}
   </ul>
 
-  <h2>Built-in host extensions</h2>
-  <table>
-    <thead>
-      <tr><th>Runtime id</th><th>Provides</th><th>Purpose</th><th>Capabilities</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>roder-ext-mock-provider</code></td>
-        <td><code>InferenceEngine(mock)</code></td>
-        <td>Deterministic local provider for tests and offline development.</td>
-        <td>none</td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-codex-oauth-provider</code></td>
-        <td><code>InferenceEngine(codex)</code></td>
-        <td>Codex provider backed by ChatGPT OAuth credentials.</td>
-        <td>none declared</td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-builtin-echo-tools</code></td>
-        <td><code>ToolProvider(builtin-echo)</code></td>
-        <td>Offline <code>echo</code> tool provider.</td>
-        <td>none</td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-builtin-coding-tools</code></td>
-        <td><code>ToolProvider(builtin-coding-tools)</code></td>
-        <td>Workspace file, search, patch, edit, workflow, media, shell, and command tools.</td>
-        <td><code>fs.read.workspace</code>, <code>fs.write.workspace</code>, <code>process.spawn.shell</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-zerolang</code></td>
-        <td><code>ToolProvider(zerolang)</code></td>
-        <td>Zero compiler diagnostics, graph inspection, and checked ProgramGraph edit tools.</td>
-        <td><code>fs.read.workspace</code>, <code>fs.write.workspace</code>, <code>process.spawn.shell</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-default-tui</code></td>
-        <td><code>StatusSegment(...)</code>, <code>PaletteSource(...)</code></td>
-        <td>Built-in TUI status line and command-palette surfaces.</td>
-        <td>none</td>
-      </tr>
-    </tbody>
-  </table>
+  {categories.map((category) => (
+    <>
+      <h2 id={category.id}>{category.title}</h2>
+      <p>{category.intro}</p>
+      <div class="ext-list">
+        {category.extensions.map((ext) => (
+          <article class="ext-card">
+            <header class="ext-head">
+              <code class="ext-name">{ext.crate}</code>
+              <span class={`ext-install ${installTone(ext.install)}`}>{ext.install}</span>
+            </header>
+            <div class="ext-provides">
+              {ext.provides.map((service) => (
+                <code>{service}</code>
+              ))}
+            </div>
+            <p class="ext-how">{ext.how}</p>
+          </article>
+        ))}
+      </div>
+    </>
+  ))}
 
+  <h2>How an extension plugs in</h2>
   <p>
-    The default TUI extension installs status segments for <code>mode</code>, <code>model</code>,
-    <code>session</code>, <code>branch</code>, <code>usage</code>, <code>mcp</code>, and
-    <code>runner</code>. It also installs palette sources for <code>commands</code>,
-    <code>sessions</code>, <code>agents</code>, <code>models</code>, <code>modes</code>,
-    <code>workflow-imports</code>, and <code>media</code>.
+    Regardless of category, every extension follows the same lifecycle:
   </p>
-
-  <h2>Inference providers</h2>
-  <table>
-    <thead>
-      <tr><th>Runtime id</th><th>Provides</th><th>When installed</th><th>Capabilities</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>roder-ext-openai-responses-openai</code></td>
-        <td><code>InferenceEngine(openai)</code></td>
-        <td>When OpenAI credentials are configured. Runtime id is <code>roder-ext-openai-responses-&#123;provider_id&#125;</code>.</td>
-        <td><code>network.api.openai.com</code>, <code>secret.read.OPENAI_API_KEY</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-openai-chat-completions</code></td>
-        <td><code>InferenceEngine(openai-chat-completions)</code></td>
-        <td>Implemented, but not installed by the default host path.</td>
-        <td><code>network.api.openai.com</code>, <code>secret.read.OPENAI_API_KEY</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-anthropic</code></td>
-        <td><code>InferenceEngine(anthropic)</code></td>
-        <td>When Anthropic credentials are configured.</td>
-        <td><code>network.api.anthropic.com</code>, <code>secret.read.ANTHROPIC_API_KEY</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-gemini</code></td>
-        <td><code>InferenceEngine(gemini)</code></td>
-        <td>When Gemini credentials are configured.</td>
-        <td><code>network.api.googleai</code>, <code>secret.read.GEMINI_API_KEY</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-cursor</code></td>
-        <td><code>InferenceEngine(cursor)</code></td>
-        <td>Installed by default; live turns require a Cursor User API Key.</td>
-        <td><code>network.agentn.global.api5.cursor.sh</code>, <code>network.api2.cursor.sh</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-openrouter-provider</code></td>
-        <td><code>InferenceEngine(openrouter)</code></td>
-        <td>Installed by default; live turns require an OpenRouter API key. Includes the built-in <code>x-ai/grok-build-0.1</code> Grok Build route.</td>
-        <td><code>network.openrouter.ai</code>, optionally <code>secret.read.OPENROUTER_API_KEY</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-xai</code></td>
-        <td><code>InferenceEngine(supergrok)</code>; also <code>InferenceEngine(xai)</code> with an API key.</td>
-        <td>Installed by default. Direct xAI API-key surface is conditional.</td>
-        <td><code>network.api.x.ai</code>; optionally <code>secret.read.XAI_API_KEY</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-opencode-provider</code></td>
-        <td><code>InferenceEngine(opencode)</code>, <code>InferenceEngine(opencode-go)</code></td>
-        <td>Installed by default.</td>
-        <td><code>network.opencode.ai</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-poolside-provider</code></td>
-        <td><code>InferenceEngine(poolside)</code></td>
-        <td>Installed by default.</td>
-        <td><code>network.inference.poolside.ai</code></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h2>Storage, memory, and embeddings</h2>
-  <table>
-    <thead>
-      <tr><th>Runtime id</th><th>Provides</th><th>Purpose</th><th>Capabilities</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>roder-ext-jsonl-session</code></td>
-        <td><code>SessionStore(jsonl)</code></td>
-        <td>Append-only JSONL session persistence under Roder home.</td>
-        <td><code>fs.readwrite.roder-home</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-memory</code></td>
-        <td><code>MemoryStore(sqlite-memory)</code>, <code>ContextProvider(memory-context)</code>, <code>ToolProvider(memory-tools)</code></td>
-        <td>SQLite-backed project/global memory, memory context, and memory tools.</td>
-        <td><code>fs.readwrite.roder-home</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-openai-embeddings</code></td>
-        <td><code>EmbeddingProvider(openai)</code></td>
-        <td>OpenAI embedding provider for memories.</td>
-        <td><code>network.openai</code>, <code>secrets.openai-api-key</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-google-embeddings</code></td>
-        <td><code>EmbeddingProvider(google)</code></td>
-        <td>Google Gemini Embedding 2 provider for memory retrieval.</td>
-        <td><code>network.generativelanguage.googleapis.com</code>, <code>secret.read.GEMINI_API_KEY</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-zeroentropy-embeddings</code></td>
-        <td><code>EmbeddingProvider(zeroentropy)</code></td>
-        <td>ZeroEntropy <code>zembed-1</code> provider with query/document retrieval intent.</td>
-        <td><code>network.api.zeroentropy.dev</code>, <code>secret.read.ZEROENTROPY_API_KEY</code></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h2>Policy, tasks, subagents, and notifications</h2>
-  <table>
-    <thead>
-      <tr><th>Runtime id</th><th>Provides</th><th>When installed</th><th>Capabilities</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>roder-ext-plan-mode</code></td>
-        <td><code>PolicyContributor(plan-mode)</code></td>
-        <td>Installed by default.</td>
-        <td>none</td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-task-process</code></td>
-        <td><code>TaskExecutor(process)</code></td>
-        <td>Installed by default.</td>
-        <td><code>process.spawn.shell</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-task-subagent</code></td>
-        <td>Currently none declared in the manifest.</td>
-        <td>Implemented, but not installed by the default host path.</td>
-        <td><code>process.spawn.roder</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-subagents</code></td>
-        <td><code>SubagentDispatcher(in-process-subagents)</code> and a task tool provider.</td>
-        <td>Only when subagents are enabled and valid agent definitions are loaded.</td>
-        <td><code>process.spawn.roder</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-notify-terminal</code></td>
-        <td><code>NotificationSink(terminal-bell)</code></td>
-        <td>When notifications and terminal notifications are enabled.</td>
-        <td><code>terminal.write</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-notify-desktop</code></td>
-        <td><code>NotificationSink(desktop)</code></td>
-        <td>When notifications and desktop notifications are enabled.</td>
-        <td><code>desktop.notification</code></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <p>
-    The default notification kinds are <code>NeedsInput</code>, <code>TurnIdle</code>,
-    <code>TaskCompleted</code>, and <code>TaskFailed</code>.
-  </p>
-
-  <h2>Web search</h2>
-  <p>
-    Web search has a canonical router plus optional provider-specific tools. The router exposes
-    the unified local <code>web_search</code> tool when external web-search mode is configured.
-  </p>
-
-  <table>
-    <thead>
-      <tr><th>Runtime id</th><th>Provides</th><th>Purpose</th><th>Capabilities</th></tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>roder-ext-web-search</code></td>
-        <td><code>ToolProvider(web-search)</code></td>
-        <td>Canonical <code>web_search</code> router backed by Firecrawl, Perplexity, Tavily, or Parallel.</td>
-        <td><code>network.web</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-firecrawl-search</code></td>
-        <td><code>ToolProvider(firecrawl-search)</code></td>
-        <td>Firecrawl-backed search and retrieval tools.</td>
-        <td><code>network.api.firecrawl.dev</code>, <code>secret.read.FIRECRAWL_API_KEY</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-perplexity-search</code></td>
-        <td><code>ToolProvider(perplexity-search)</code></td>
-        <td>Perplexity raw Search API tools.</td>
-        <td><code>network.api.perplexity.ai</code>, <code>secret.read.PERPLEXITY_API_KEY</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-tavily-search</code></td>
-        <td><code>ToolProvider(tavily-search)</code></td>
-        <td>Tavily-backed web search tools.</td>
-        <td><code>network.api.tavily.com</code>, <code>secret.read.TAVILY_API_KEY</code></td>
-      </tr>
-      <tr>
-        <td><code>roder-ext-parallel-search</code></td>
-        <td><code>ToolProvider(parallel-search)</code></td>
-        <td>Parallel.ai objective-oriented search tools.</td>
-        <td><code>network.web</code></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <h2>Remote runners</h2>
-  <p>
-    Remote runner extensions install providers behind a common protocol for files, commands,
-    ports, snapshots, mounts, artifacts, and provider state.
-  </p>
-
-  <table>
-    <thead>
-      <tr><th>Runtime id</th><th>Provides</th><th>Purpose</th><th>Capabilities</th></tr>
-    </thead>
-    <tbody>
-      <tr><td><code>roder-ext-runner-unix-local</code></td><td><code>RemoteRunnerProvider(unix-local)</code></td><td>Local Unix workspace runner.</td><td><code>fs.readwrite.workspace</code>, <code>process.spawn.shell</code></td></tr>
-      <tr><td><code>roder-ext-runner-docker</code></td><td><code>RemoteRunnerProvider(docker)</code></td><td>Local Docker container runner.</td><td><code>fs.readwrite.workspace</code>, <code>process.spawn.docker</code></td></tr>
-      <tr><td><code>roder-ext-runner-blaxel</code></td><td><code>RemoteRunnerProvider(blaxel)</code></td><td>Hosted Blaxel runner.</td><td><code>network.http</code>, <code>secret.read.BLAXEL_API_KEY</code></td></tr>
-      <tr><td><code>roder-ext-runner-cloudflare</code></td><td><code>RemoteRunnerProvider(cloudflare)</code></td><td>Hosted Cloudflare runner.</td><td><code>network.http</code>, <code>secret.read.CLOUDFLARE_API_TOKEN</code></td></tr>
-      <tr><td><code>roder-ext-runner-daytona</code></td><td><code>RemoteRunnerProvider(daytona)</code></td><td>Hosted Daytona runner.</td><td><code>network.http</code>, <code>secret.read.DAYTONA_API_KEY</code></td></tr>
-      <tr><td><code>roder-ext-runner-e2b</code></td><td><code>RemoteRunnerProvider(e2b)</code></td><td>Hosted E2B runner.</td><td><code>network.http</code>, <code>secret.read.E2B_API_KEY</code></td></tr>
-      <tr><td><code>roder-ext-runner-modal</code></td><td><code>RemoteRunnerProvider(modal)</code></td><td>Hosted Modal runner.</td><td><code>network.http</code>, <code>secret.read.MODAL_TOKEN_SECRET</code></td></tr>
-      <tr><td><code>roder-ext-runner-runloop</code></td><td><code>RemoteRunnerProvider(runloop)</code></td><td>Hosted Runloop runner.</td><td><code>network.http</code>, <code>secret.read.RUNLOOP_API_KEY</code></td></tr>
-      <tr><td><code>roder-ext-runner-vercel</code></td><td><code>RemoteRunnerProvider(vercel)</code></td><td>Hosted Vercel runner.</td><td><code>network.http</code>, <code>secret.read.VERCEL_TOKEN</code></td></tr>
-      <tr><td><code>roder-ext-runner-sprites</code></td><td><code>RemoteRunnerProvider(sprites)</code></td><td>Fly Sprites runner with optional managed remote app-server service.</td><td><code>network.api.sprites.dev</code>, <code>secret.read.RODER_SPRITES_TOKEN</code></td></tr>
-    </tbody>
-  </table>
-
-  <h2>Catalog and support crates</h2>
-  <p>
-    <code>roder-configure</code> uses distribution catalog ids from crate metadata. Those ids are
-    for profile generation and do not always match runtime manifest ids.
-  </p>
-
   <ul>
-    <li><code>openai-responses</code> can become <code>roder-ext-openai-responses-openai</code>.</li>
-    <li><code>xai</code> becomes <code>roder-ext-xai</code>.</li>
-    <li><code>jsonl-session</code> becomes <code>roder-ext-jsonl-session</code>.</li>
+    <li>
+      <strong>Manifest.</strong> The crate implements <code>RoderExtension</code> and returns an
+      <code>ExtensionManifest</code> describing itself and the sensitive capabilities it needs
+      (network hosts, secrets, filesystem scopes, process spawning).
+    </li>
+    <li>
+      <strong>Install.</strong> The extension host calls <code>install</code>, and the extension
+      registers its services — an inference engine, tool provider, store, runner, sink, or any
+      combination — into the typed registry.
+    </li>
+    <li>
+      <strong>Gating.</strong> <code>build_default_registry</code> installs the stock set, but
+      config and credentials gate conditional extensions: missing API keys suppress provider
+      surfaces, <code>RODER_MEMORY_BACKEND</code> selects one memory store, web search and
+      subagents appear only when enabled.
+    </li>
+    <li>
+      <strong>Use.</strong> The turn engine, tool policy, and task system resolve services from
+      the registry at runtime — never from the crates directly — so any service can be replaced
+      by an alternative implementation, including one running out-of-process via
+      <code>roder-ext-process-host</code>.
+    </li>
   </ul>
 
   <p>
-    Two workspace crates are worth calling out: <code>roder-ext-runner-hosted-common</code> is shared
-    hosted-runner support, not a user-facing manifest; <code>roder-ext-disk-context</code> has catalog
-    metadata and helper code, but no runtime <code>RoderExtension</code> implementation was present in
-    the inspected workspace.
+    For the service-type taxonomy and how to write your own extension, see the
+    <a href="/docs/extensibility/">extension model</a> documentation.
   </p>
-
-  <h2>Why the list can differ</h2>
-  <ul>
-    <li>Missing API keys suppress OpenAI, Anthropic, Gemini, OpenRouter, Google embeddings, ZeroEntropy embeddings, Sprites, or direct xAI API-key surfaces.</li>
-    <li>Notification settings can suppress terminal or desktop notification sinks.</li>
-    <li>External web search appears only when enabled and configured.</li>
-    <li>Subagents appear only with valid loaded definitions.</li>
-    <li>Custom distributions can install a different extension set.</li>
-  </ul>
 </DocsLayout>
+
+<style>
+  .ext-list {
+    display: grid;
+    gap: 0.85rem;
+    margin: 1.4rem 0 2.2rem;
+  }
+
+  .ext-card {
+    padding: 1rem 1.15rem 1.05rem;
+    background: var(--bg-card, #fff);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .ext-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+
+  .ext-name {
+    font-family: var(--mono);
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--graphite);
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  .ext-install {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.55rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .ext-install.is-default {
+    color: var(--teal-dark);
+    background: rgba(10, 155, 141, 0.1);
+  }
+
+  .ext-install.is-conditional {
+    color: var(--accent-strong);
+    background: rgba(255, 77, 0, 0.09);
+  }
+
+  .ext-install.is-optin {
+    color: rgba(23, 25, 29, 0.62);
+    background: rgba(32, 41, 50, 0.07);
+  }
+
+  .ext-provides {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.32rem;
+    margin-top: 0.55rem;
+  }
+
+  .ext-provides code {
+    font-size: 0.74rem;
+    white-space: nowrap;
+  }
+
+  .ext-how {
+    margin: 0.7rem 0 0;
+    font-size: 0.94rem;
+    line-height: 1.58;
+    color: var(--fg-muted, rgba(23, 25, 29, 0.78));
+  }
+
+  @media (max-width: 600px) {
+    .ext-provides code {
+      white-space: normal;
+    }
+  }
+</style>
