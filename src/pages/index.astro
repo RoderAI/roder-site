@@ -1,115 +1,344 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import "../styles/home.css";
+import "../styles/home-foundation.css";
+import "../styles/home-sections.css";
 
-const features = [
-  { href: "/docs/architecture/", title: "Runtime core", body: "Own turns, cancellation, tool execution, policy, event ordering, and replay in one typed Rust loop." },
-  { href: "/docs/extensibility/", title: "Replaceable subsystems", body: "Swap providers, memory, storage, policy, remote runners, event sinks, and UI surfaces through native extensions." },
-  { href: "/docs/providers/", title: "Provider-neutral inference", body: "Map OpenAI, Anthropic, Gemini, OpenRouter, Cursor, chat-completions engines, and embedding providers into canonical Roder types." },
-  { href: "/docs/app-server/", title: "One control plane", body: "Drive the TUI, desktop clients, automation, Chrome control, and sandbox-hosted workers through the same app-server protocol." },
-  { href: "/docs/tools/", title: "Scoped tool use", body: "Route tools through explicit specs, approval events, policy modes, scoped handles, and deadline-aware command limits." },
-  { href: "/docs/workflows/", title: "Repeatable workflows", body: "Run approval-gated scripts that plan phases, spawn child agents, checkpoint progress, and report structured results." },
-  { href: "/evals/", title: "Eval trajectory", body: "Track Harbor and Terminal-Bench results with full-suite scores, targeted reruns, and reproducible artifacts." },
-  { href: "/docs/zerolang/", title: "Domain distributions", body: "Build task-specific agents such as the Zerolang profile without forking the runtime." },
+const proofPoints = [
+  { value: "Rust", label: "typed runtime core" },
+  { value: "JSON-RPC", label: "shared app-server control plane" },
+  { value: "Replay", label: "events, sessions, and checkpoints" },
+  { value: "Extensions", label: "providers, tools, memory, runners" },
+];
+
+const runtimeCards = [
+  {
+    title: "Turn engine",
+    body: "Own lifecycle, cancellation, context assembly, provider streaming, and end-of-turn semantics in one stable loop.",
+    tone: "orange",
+  },
+  {
+    title: "Tool policy",
+    body: "Route shell, filesystem, browser, edit, and domain tools through explicit specs, approvals, scopes, and audit events.",
+    tone: "ink",
+  },
+  {
+    title: "State and replay",
+    body: "Persist sessions, checkpoints, turn items, and traces so evals, resumes, forks, and training runs use the same record.",
+    tone: "mint",
+  },
+  {
+    title: "Extension kernel",
+    body: "Replace providers, memory, storage, policy, event sinks, runners, and UI surfaces without taking over the runtime.",
+    tone: "silver",
+  },
 ];
 
 const audiences = [
-  { title: "Agent product teams", body: "Build a differentiated UI and workflow on top of a runtime you do not have to reinvent." },
-  { title: "AI labs and eval teams", body: "Collect structured trajectories, replay runs, compare providers, and control tool access." },
-  { title: "Platform engineers", body: "Embed a coding-agent runtime behind internal tools, CI jobs, desktop clients, or hosted sandboxes." },
+  {
+    title: "Agent product teams",
+    body: "Ship a differentiated product surface on top of a runtime that already understands tools, state, permissions, and replay.",
+  },
+  {
+    title: "AI labs and eval teams",
+    body: "Run repeatable trajectories, compare providers, export structured traces, and plug the harness into RL infrastructure.",
+  },
+  {
+    title: "Platform engineers",
+    body: "Embed coding agents behind internal tools, CI jobs, desktop clients, Chrome control, or hosted sandbox workers.",
+  },
 ];
+
+const foundationPillars = [
+  ["Community", "extensions, fixes, shared lessons"],
+  ["Companies", "product velocity on a common base"],
+  ["Startups", "move faster without rebuilding the harness"],
+  ["Labs", "repeatable evals and training loops"],
+];
+
+const harnessLayers = ["tools", "policy", "providers", "state", "replay"];
+
+const typewriterAudiences = [
+  "coding agents",
+  "local software",
+  "CI runners",
+  "desktop apps",
+  "mobile apps",
+  "games",
+  "embedded AI",
+  "ML labs",
+  "tinkerers",
+  "vimmers",
+];
+
+const headlineAria = `Harness infrastructure for ${typewriterAudiences
+  .slice(0, -1)
+  .join(", ")}, and ${typewriterAudiences[typewriterAudiences.length - 1]}.`;
 ---
 
 <Layout
-  title="Roder · reusable runtime infrastructure for coding agents"
-  description="Roder is a Rust runtime for teams building, evaluating, and embedding coding agents that need real tools, policy, state, and replay."
+  title="Roder · runtime infrastructure for coding agents"
+  description="Roder is a Rust runtime for teams building, evaluating, and embedding coding agents that need real tools, policy, state, events, and replay."
 >
-  <section class="container">
-    <div class="hero">
-      <div class="hero-copy">
-        <div class="eyebrow-line">Rust runtime infrastructure for coding agents</div>
-        <h1 class="wordmark">Roder</h1>
-        <p class="tagline">
-          Build coding agents that can run real jobs: tools, policy, state, events,
-          replay, providers, and clients all handled by one extensible runtime.
-        </p>
-        <div class="cta-row">
-          <a class="btn btn-primary" href="/docs/">Read the docs</a>
-          <a class="btn btn-primary" href="/contact/">Talk to the team</a>
-          <a class="btn btn-secondary" href="/evals/">See evals</a>
-          <a class="btn btn-secondary" href="/docs/install/">Run it locally</a>
-          <a class="btn btn-secondary" href="/mission/">Read the mission</a>
+  <div class="home-page">
+    <section class="home-hero">
+      <div class="home-container home-hero-grid">
+        <div class="home-copy reveal">
+          <h1 class="home-headline" aria-label={headlineAria}>
+            <span class="headline-line">Harness</span>
+            <span class="headline-line">infrastructure</span>
+            <span class="headline-line headline-line-for">
+              <span>for</span>
+              <span
+                class="typewriter-word"
+                data-typewriter-target
+                data-phrases={JSON.stringify(typewriterAudiences)}
+                aria-hidden="true"
+              >
+                {typewriterAudiences[0]}
+              </span>
+              <span class="typewriter-caret" aria-hidden="true"></span>
+            </span>
+          </h1>
+          <p class="home-lede">
+            Roder gives serious agent teams the machinery every production harness needs:
+            real tools, policy, provider abstraction, durable state, replayable events, and
+            one control plane for every client.
+          </p>
+          <div class="home-actions" aria-label="Primary actions">
+            <a class="home-button home-button-primary" href="/docs/">
+              <span>Read the docs</span>
+              <span class="button-glyph">↗</span>
+            </a>
+            <a class="home-button home-button-secondary" href="/contact/">
+              <span>Talk to the team</span>
+              <span class="button-glyph">→</span>
+            </a>
+          </div>
+          <div class="home-proofline" aria-label="Roder positioning">
+            <span>Open source</span>
+            <span>Provider neutral</span>
+            <span>Built for evals and products</span>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal">
+          <div class="visual-shell">
+            <div class="visual-core">
+              <div class="brand-lockup">
+                <div class="brand-mark-tray">
+                  <img src="/roder-icon.png" alt="Roder triad hex mark" />
+                </div>
+                <div>
+                  <p class="brand-name">roder</p>
+                </div>
+              </div>
+
+              <div class="harness-artifact" aria-label="Reusable harness base layers">
+                <div class="artifact-slab artifact-slab-top">
+                  <span>shared harness surface</span>
+                  <strong>one base, many products</strong>
+                </div>
+                <div class="artifact-layers" aria-hidden="true">
+                  {harnessLayers.map((layer, index) => (
+                    <span style={`--layer-index: ${index}`}>{layer}</span>
+                  ))}
+                </div>
+                <div class="artifact-slab artifact-slab-base">roder runtime foundation</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <img class="logo" src="/roder-icon.png" alt="Roder icon" />
-    </div>
+    </section>
 
-    <div class="feature-strip" aria-label="Roder architecture summary">
-      <div class="metric"><strong>Runtime</strong><span>turns, tools, policy, cancellation</span></div>
-      <div class="metric"><strong>State</strong><span>sessions, checkpoints, replay, traces</span></div>
-      <div class="metric"><strong>Extensions</strong><span>providers, memory, runners, UI</span></div>
-      <div class="metric"><strong>Control</strong><span>TUI, desktop, automation, sandboxes</span></div>
-    </div>
+    <section class="proof-strip reveal" aria-label="Roder product proof points">
+      <div class="home-container proof-grid">
+        {proofPoints.map((point) => (
+          <div>
+            <strong>{point.value}</strong>
+            <span>{point.label}</span>
+          </div>
+        ))}
+      </div>
+    </section>
 
-    <pre><code>$ cargo build --workspace
-$ cargo test -p roder-cli
-$ cargo run -p roder-cli
-$ cargo run -p roder-cli -- app-server</code></pre>
-
-    <h2>What Roder is</h2>
-    <p>
-      Roder is the runtime layer underneath serious coding-agent systems. It is not trying
-      to be one more sealed chat app. It gives product teams, labs, and platform engineers
-      the reusable machinery they all end up building: model orchestration, tool execution,
-      permission boundaries, context assembly, session state, checkpointing, event streams,
-      and replay.
-    </p>
-    <p>
-      The core bet is simple: the hard parts of running an agent should become shared
-      infrastructure. Teams should compete on models, UX, workflows, tools, and domain
-      knowledge instead of rebuilding the same harness every time they need a new product
-      surface or evaluation loop.
-    </p>
-
-    <div class="callout">
-      <strong>Alpha software.</strong> Roder is useful to explore and build with today, but
-      core types, extension traits, commands, protocol methods, and config keys are still
-      moving. Treat the docs and crate boundaries as the working contract until a stable
-      API is declared.
-    </div>
-
-    <h2>Who it is for</h2>
-    <div class="features">
-      {audiences.map((audience) => (
-        <div class="feature-card">
-          <h3>{audience.title}</h3>
-          <p>{audience.body}</p>
+    <section class="home-section foundation-story">
+      <div class="home-container foundation-story-grid">
+        <div class="foundation-copy reveal">
+          <p class="section-kicker">Open foundation</p>
+          <h2>The shared base for harness engineering.</h2>
+          <p>
+            Every serious agent project grows the same machinery: tools, policy,
+            provider abstraction, durable state, replay, eval traces, and client control.
+            Roder makes that base open, reusable, and compounding.
+          </p>
         </div>
-      ))}
-    </div>
 
-    <h2>Explore</h2>
-    <div class="features">
-      {features.map((f) => (
-        <a class="feature-card" href={f.href}>
-          <h3>{f.title}</h3>
-          <p>{f.body}</p>
-        </a>
-      ))}
-    </div>
+        <div class="foundation-stage reveal" aria-label="Roder mission: Linux for harness engineering">
+          <div class="foundation-stage-head">
+            <span>Linux for harness engineering</span>
+            <strong>Build once. Compound together.</strong>
+          </div>
 
-    <h2>Core bet</h2>
-    <p>
-      Agent systems should not keep rebuilding scaffolding around every model API. Roder
-      makes conversations, turns, tool calls, inference events, file changes, policy
-      decisions, sessions, and checkpoints canonical Rust concepts. Extensions translate
-      into that model, so new providers, workflows, sandboxes, and domain tools can plug in
-      without taking over the runtime.
-    </p>
+          <div class="foundation-builders">
+            {foundationPillars.map(([title, body], index) => (
+              <div class="foundation-builder" style={`--builder-index: ${index}`}>
+                <strong>{title}</strong>
+                <span>{body}</span>
+              </div>
+            ))}
+          </div>
 
-    <div class="callout">
-      <strong>Building on this problem?</strong> The Roder team works with AI labs and
-      startups on embedded harnesses, RL and eval infrastructure, product integrations, and
-      OSS sponsorship. <a href="/contact/">Start a conversation</a>.
-    </div>
-  </section>
+          <div class="foundation-flow" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <div class="foundation-base">
+            <div>
+              <span>roder base</span>
+              <strong>tools · policy · providers · state · replay</strong>
+            </div>
+            <img src="/roder-icon.png" alt="" />
+          </div>
+
+          <div class="foundation-compounds" aria-label="Roder compounding loop">
+            <span>Open interfaces</span>
+            <span>Shared extensions</span>
+            <span>Reusable eval traces</span>
+            <span>Better defaults</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="home-section">
+      <div class="home-container">
+        <div class="section-heading reveal">
+          <div>
+            <div class="home-badge">Runtime architecture</div>
+            <h2>One core. Replaceable edges.</h2>
+          </div>
+          <a class="text-link" href="/docs/architecture/">Explore architecture</a>
+        </div>
+
+        <div class="runtime-bento">
+          {runtimeCards.map((card) => (
+            <article class={`bento-shell reveal tone-${card.tone}`}>
+              <div class="bento-core">
+                <span class="bento-index"></span>
+                <h3>{card.title}</h3>
+                <p>{card.body}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="home-section">
+      <div class="home-container audience-layout">
+        <div class="audience-copy reveal">
+          <div class="home-badge">Who it is for</div>
+          <h2>Built for teams whose agents have to survive contact with real workflows.</h2>
+          <p>
+            Roder is intentionally lower-level than a polished chat app and higher-level
+            than a pile of crates. It is the runtime foundation you build on when the
+            agent has to be inspectable, controllable, and repeatable.
+          </p>
+        </div>
+        <div class="audience-list">
+          {audiences.map((audience) => (
+            <article class="audience-card reveal">
+              <h3>{audience.title}</h3>
+              <p>{audience.body}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="home-section final-cta">
+      <div class="home-container">
+        <div class="cta-shell reveal">
+          <div class="cta-core">
+            <div>
+              <div class="home-badge">Alpha, useful now</div>
+              <h2>Build on the harness instead of rebuilding it.</h2>
+              <p>
+                Start with the docs, inspect the eval trajectory, or talk to the Roder
+                team about embedded harnesses, RL infrastructure, product integrations,
+                and OSS sponsorship.
+              </p>
+            </div>
+            <div class="home-actions">
+              <a class="home-button home-button-primary" href="/docs/install/">
+                <span>Run it locally</span>
+                <span class="button-glyph">↗</span>
+              </a>
+              <a class="home-button home-button-secondary" href="/evals/">
+                <span>See evals</span>
+                <span class="button-glyph">→</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const typewriterTarget = document.querySelector("[data-typewriter-target]");
+
+    if (typewriterTarget) {
+      const phrases = JSON.parse(typewriterTarget.dataset.phrases || "[]");
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (prefersReducedMotion || phrases.length < 2) {
+        typewriterTarget.textContent = phrases[0] || "";
+      } else {
+        let phraseIndex = 0;
+        let characterIndex = phrases[0].length;
+        let isDeleting = true;
+
+        const wait = (duration) => new Promise((resolve) => window.setTimeout(resolve, duration));
+
+        const typeNextFrame = async () => {
+          const phrase = phrases[phraseIndex];
+          typewriterTarget.textContent = phrase.slice(0, characterIndex);
+
+          if (!isDeleting && characterIndex === phrase.length) {
+            await wait(1450);
+            isDeleting = true;
+          } else if (isDeleting && characterIndex === 0) {
+            phraseIndex = (phraseIndex + 1) % phrases.length;
+            isDeleting = false;
+            await wait(220);
+          }
+
+          characterIndex += isDeleting ? -1 : 1;
+          window.setTimeout(typeNextFrame, isDeleting ? 28 : 48);
+        };
+
+        window.setTimeout(typeNextFrame, 950);
+      }
+    }
+
+    const revealTargets = document.querySelectorAll(".reveal");
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.12 },
+    );
+
+    revealTargets.forEach((target) => revealObserver.observe(target));
+  </script>
 </Layout>
