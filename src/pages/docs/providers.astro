@@ -20,9 +20,11 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><code>roder-ext-openai-responses</code> - OpenAI Responses-style inference.</li>
     <li><code>roder-ext-openai-chat-completions</code> - chat-completions-compatible endpoints.</li>
     <li><code>roder-ext-anthropic</code> - Anthropic Messages-style inference.</li>
-    <li><code>roder-ext-gemini</code> - Gemini through the configured Google-compatible path.</li>
+    <li><code>roder-ext-gemini</code> - Gemini through the configured Google-compatible API-key path.</li>
+    <li><code>roder-ext-vertex</code> - Gemini-on-Vertex through service-account OAuth and regional Vertex AI endpoints.</li>
     <li><code>roder-ext-cursor</code> - Cursor Composer and proxied frontier models through Cursor AgentService.</li>
     <li><code>roder-ext-openrouter</code> - OpenRouter API-key provider, including the Grok Build catalog entry.</li>
+    <li><code>roder-ext-roder-cloud</code> - roder.cloud hosted inference using a roder_ team key exchanged for short-lived JWTs.</li>
     <li><code>roder-core::fake_provider</code> - deterministic mock behavior for tests and offline work.</li>
     <li><code>roder-codex-auth</code> and host wiring - Codex OAuth where enabled.</li>
   </ul>
@@ -47,6 +49,16 @@ RODER_PROVIDER=cursor RODER_MODEL=cursor/composer-2.5 cargo run -p roder-cli</co
     OpenRouter model slug intact, so clients should keep provider and model fields separate
     instead of splitting every model id on <code>/</code>. Its reasoning options are
     <code>none</code>, <code>low</code>, <code>medium</code>, and <code>high</code>.
+  </p>
+
+  <h2>roder.cloud and Vertex</h2>
+  <p>
+    Roder now includes two infrastructure-oriented provider paths. The
+    <a href="/docs/roder-cloud/">roder.cloud provider</a> routes through Roder's hosted
+    inference service, using a synchronous Responses-style subset and a short-lived
+    token exchange. The <a href="/docs/vertex/">Vertex provider</a> runs Gemini models
+    through Google Cloud regional endpoints with service-account OAuth, so enterprises
+    can use Vertex access without switching to the Gemini API-key provider.
   </p>
 
   <pre><code>export OPENROUTER_API_KEY="..."
@@ -85,6 +97,14 @@ roder memory providers set zeroentropy --model zembed-1</code></pre>
     <li>Preserve tool-call ids across the turn so the runtime can route results back correctly.</li>
     <li>Handle cancellation promptly when the active turn is interrupted.</li>
   </ul>
+
+  <h2>Media providers</h2>
+  <p>
+    Image generation providers are deliberately separate from chat inference providers.
+    OpenAI GPT Image and Google Gemini image models live in the media catalog and are
+    selected through <a href="/docs/media-generation/">media generation</a>, not the chat
+    model picker.
+  </p>
 
   <div class="callout">
     <strong>Provider-specific APIs stay outside the core.</strong> Responses, Messages,

@@ -1,0 +1,39 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Roadmap orchestration"
+  eyebrow="Capabilities"
+  description="Supervised roadmap loops, inbox triage, worker dispatch, and evidence."
+  prev={{ href: "/docs/cursor-sdk-agents/", title: "Cursor SDK agents" }}
+  next={{ href: "/docs/zerolang/", title: "Zerolang graph edits" }}
+>
+  <p>
+    Roadmap orchestration turns Roder's roadmap workspace into a supervised loop engine.
+    Users feed wants into an intake inbox, the loop triages them into roadmap tasks,
+    dispatches ready work to bounded workers, and records evidence before checking tasks
+    off.
+  </p>
+
+  <h2>Coordinator rule</h2>
+  <p>
+    The loop does not edit implementation files or run build commands itself. It reads
+    roadmap state, writes inbox/evidence state, dispatches workers through subagents or
+    dynamic workflows, and accepts completion only when worker results include evidence.
+  </p>
+
+  <h2>User-facing commands</h2>
+  <pre><code>/roadmap loop start
+/roadmap loop status
+/roadmap loop inbox
+
+roder roadmap loop start
+roder roadmap inbox add "Add a provider smoke test"</code></pre>
+
+  <p>
+    The TUI roadmap workspace now presents orchestration as a dashboard: plan/task rows,
+    worker state, validation status, and activity are separated so users can supervise
+    multiple delegated tasks without losing the roadmap document as the source of truth.
+  </p>
+</DocsLayout>

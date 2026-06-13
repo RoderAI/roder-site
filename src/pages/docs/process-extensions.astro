@@ -1,0 +1,50 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Process extensions"
+  eyebrow="Architecture"
+  description="Run non-Rust extensions as child processes behind the normal registry."
+  prev={{ href: "/docs/extensibility/", title: "Extension model" }}
+  next={{ href: "/extensions/", title: "Extension directory" }}
+>
+  <p>
+    Roder can host extensions written in any language. A process extension is a child
+    process that speaks newline-delimited JSON-RPC over stdio, echoes a manifest, and
+    registers ordinary services such as inference engines, event sinks, subagent
+    dispatchers, and task executors.
+  </p>
+
+  <h2>Configuration</h2>
+  <pre><code>{`[[process_extensions]]
+id = "python-chat-completions"
+enabled = true
+manifest = "examples/non-rust-extensions/python-chat-completions/roder-extension.toml"
+command = "python3"
+args = ["-m", "roder_python_chat_provider"]
+cwd = "examples/non-rust-extensions/python-chat-completions"
+env = { PYTHONUNBUFFERED = "1", PYTHONPATH = "src" }
+startup_timeout_ms = 10000`}</code></pre>
+
+  <p>
+    The environment is explicit and redacted. The host clears the child environment,
+    forwards only configured variables plus <code>PATH</code>, and never prints secrets
+    in manifests, diagnostics, or events.
+  </p>
+
+  <h2>Protocol shape</h2>
+  <ul>
+    <li><code>extension/initialize</code> validates protocol version, services, capabilities, and manifest checksum.</li>
+    <li><code>inference/streamTurn</code> lets a child stream canonical inference events.</li>
+    <li><code>subagents/dispatch</code> and <code>tasks/execute</code> bridge remote agents and background executors.</li>
+    <li><code>events/handle</code> forwards filtered canonical runtime events to child sinks.</li>
+  </ul>
+
+  <h2>Current examples</h2>
+  <p>
+    The source tree includes a Python chat-completions provider proof and a TypeScript
+    Cursor SDK agent extension. App-server clients see these services through the same
+    registry metadata as native Rust extensions.
+  </p>
+</DocsLayout>

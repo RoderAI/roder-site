@@ -1,0 +1,48 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Cursor SDK agents"
+  eyebrow="Capabilities"
+  description="Launch and resume Cursor cloud agents through a process extension."
+  prev={{ href: "/docs/process-extensions/", title: "Process extensions" }}
+  next={{ href: "/docs/roadmap-loop/", title: "Roadmap orchestration" }}
+>
+  <p>
+    Roder can delegate work to Cursor-hosted cloud agents through the official
+    <code>@cursor/sdk</code>. The integration is a process-hosted TypeScript extension,
+    separate from the native <code>cursor</code> inference provider used for ordinary
+    Roder turns.
+  </p>
+
+  <h2>Services</h2>
+  <ul>
+    <li><code>cursor-cloud</code> is a <code>SubagentDispatcher</code>; each dispatch maps to one cloud-agent run.</li>
+    <li><code>cursor-cloud-agent</code> is a <code>TaskExecutor</code>; app-server clients can submit, stream, resume, and cancel work through <code>tasks/*</code>.</li>
+  </ul>
+
+  <pre><code>{`[[process_extensions]]
+id = "cursor-sdk"
+enabled = true
+manifest = "examples/non-rust-extensions/cursor-sdk-agents/roder-extension.toml"
+command = "node"
+args = ["dist/src/main.js"]
+cwd = "examples/non-rust-extensions/cursor-sdk-agents"
+env = { CURSOR_API_KEY = "..." }
+startup_timeout_ms = 15000`}</code></pre>
+
+  <h2>Dispatch input</h2>
+  <p>
+    The task and dispatcher schemas accept a prompt, HTTPS repository URL, starting ref,
+    model, <code>autoCreatePr</code>, and an optional <code>agentId</code> for resume.
+    Cloud agents keep running on Cursor's side, so callers should persist the returned
+    <code>bc-...</code> id when using fire-and-forget mode.
+  </p>
+
+  <div class="callout">
+    A Cursor cloud agent acts with the configured Cursor account's authority on the
+    target repository. Use it only for repositories where remote branch and PR creation
+    are intended.
+  </div>
+</DocsLayout>

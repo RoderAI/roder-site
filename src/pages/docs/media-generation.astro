@@ -1,0 +1,46 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Media generation"
+  eyebrow="Capabilities"
+  description="Provider-neutral image generation and media artifacts."
+  prev={{ href: "/docs/knowledge/", title: "Project knowledge" }}
+  next={{ href: "/docs/speech/", title: "Speech" }}
+>
+  <p>
+    Roder generates images through a provider-neutral media API. Tool calls,
+    app-server clients, SDKs, and the TUI all use the same request shape, and every
+    output is persisted as a Roder-owned <code>MediaArtifact</code> before it is shown or
+    attached to another turn.
+  </p>
+
+  <h2>Image providers</h2>
+  <ul>
+    <li><code>openai</code> supports <code>gpt-image-2</code> plus compatibility GPT Image model ids.</li>
+    <li><code>google</code> supports Gemini Nano Banana image models, including aspect ratio and image-size options where available.</li>
+    <li><code>fake</code> is deterministic and always available for tests and offline profiles.</li>
+  </ul>
+
+  <pre><code>{`[media]
+artifacts_dir = "~/.roder/artifacts"
+
+[media.image_generation]
+default_provider = "openai"
+default_model = "gpt-image-2"
+max_outputs = 4
+max_input_images = 16`}</code></pre>
+
+  <h2>CLI and app server</h2>
+  <pre><code>roder media providers --json
+roder media models --provider google
+roder media generate "a clean terminal product hero" --provider openai --model gpt-image-2</code></pre>
+
+  <p>
+    App-server clients call <code>media/image/providers/list</code> and
+    <code>media/image/generate</code>. Generated artifacts then flow through the existing
+    <code>media/list</code>, <code>media/read</code>, <code>media/thumbnail</code>,
+    <code>media/delete</code>, and <code>media/attachToTurn</code> methods.
+  </p>
+</DocsLayout>

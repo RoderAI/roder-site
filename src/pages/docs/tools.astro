@@ -51,9 +51,20 @@ allowlist = ["zerolang_skills_get", "zerolang_check", "zerolang_edit"]`}</code><
   <ul>
     <li><code>web_search</code> from the web-search router extension.</li>
     <li><code>task</code> from the subagent extension, with optional per-agent namespaced tools.</li>
+    <li><code>knowledge_*</code> tools for markdown-backed project knowledge documents.</li>
+    <li><code>media_generate_image</code>, <code>media_attach</code>, and related media artifact tools.</li>
     <li><code>zerolang_*</code> graph-inspection and checked-edit tools from the Zerolang extension.</li>
+    <li>MCP tools loaded by <code>roder-ext-mcp</code> from configured streamable HTTP servers.</li>
     <li>Provider or product-specific tools installed by custom extensions.</li>
   </ul>
+
+  <h2>Workspace and fork controls</h2>
+  <p>
+    Clients can branch agent work without teaching models about provider internals.
+    <a href="/docs/workspace-forks/">Workspace forks</a> expose thread and workspace fork
+    methods, while tool execution still runs through the active policy mode and scoped
+    workspace handles.
+  </p>
 
   <h2>Policy modes</h2>
   <ul>

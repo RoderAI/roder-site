@@ -1,0 +1,42 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Remote agent nodes"
+  eyebrow="Surfaces"
+  description="Control a full remote Roder runtime over mTLS."
+  prev={{ href: "/docs/tui/", title: "TUI" }}
+  next={{ href: "/docs/hosted-service/", title: "Hosted service" }}
+>
+  <p>
+    Agent-node mode runs one Roder instance as the authoritative runtime and lets another
+    Roder instance control it over a secure connection. This differs from remote runners:
+    a runner executes workspace commands under a local runtime, while an agent node owns
+    the runtime, sessions, extensions, tools, and filesystem remotely.
+  </p>
+
+  <h2>Security model</h2>
+  <ul>
+    <li>Transport is always <code>wss://</code>; there is no plaintext agent-node mode.</li>
+    <li>mTLS is canonical: the controller pins the node certificate and the node enrolls controller certificates.</li>
+    <li>Pairing tokens are single-use, short-lived bootstrap secrets and are stored hashed.</li>
+    <li>Trust state and private keys live under <code>~/.roder/agent-node/</code>.</li>
+  </ul>
+
+  <pre><code>roder agent-node serve --listen 0.0.0.0:7878 --name my-vps
+roder agent-node connect-check --address my-vps:7878 --fingerprint &lt;sha256&gt; --token &lt;pairing-token&gt;</code></pre>
+
+  <h2>Profiles</h2>
+  <pre><code>{`[[agent_nodes]]
+name = "studio"
+address = "studio.local:7878"
+fingerprint = "<node cert sha256>"
+token_env = "RODER_STUDIO_TOKEN"`}</code></pre>
+
+  <p>
+    <code>roder agent-node connect studio</code> opens the TUI against that node and shows
+    a remote authority banner so it is clear that turns, files, and tools run on the
+    remote machine.
+  </p>
+</DocsLayout>

@@ -1,0 +1,34 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Speech"
+  eyebrow="Capabilities"
+  description="Provider-neutral speech-to-text for clients that capture audio."
+  prev={{ href: "/docs/media-generation/", title: "Media generation" }}
+  next={{ href: "/docs/usage-analytics/", title: "Usage analytics" }}
+>
+  <p>
+    Roder exposes a provider-neutral speech-to-text service. Clients own microphone
+    capture and encoding; Roder accepts bounded audio payloads and normalizes provider
+    results into text, language, duration, segments, and metadata.
+  </p>
+
+  <h2>Providers</h2>
+  <ul>
+    <li><code>openai-speech</code> supports OpenAI transcription models including <code>gpt-4o-mini-transcribe</code> and <code>whisper-1</code>.</li>
+    <li><code>google-speech</code> supports Google Speech-to-Text with access tokens, API keys, or authorized-user ADC.</li>
+  </ul>
+
+  <pre><code>roder speech providers
+roder speech transcribe clip.wav --provider openai-speech --model gpt-4o-mini-transcribe
+cat clip.wav | roder speech transcribe - --format json
+roder speech transcribe clip.wav --to-thread &lt;thread-id&gt;</code></pre>
+
+  <p>
+    Raw audio is not stored in thread transcripts. API transcript recording redacts audio
+    bytes and sensitive headers before writing JSONL. Sending a transcript into a turn is
+    explicit via <code>--to-thread</code>; audio never starts a turn silently.
+  </p>
+</DocsLayout>

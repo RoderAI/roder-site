@@ -1,0 +1,44 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Project knowledge"
+  eyebrow="Capabilities"
+  description="Markdown-backed project documents the agent can search and revise."
+  prev={{ href: "/docs/memories/", title: "Memory & embeddings" }}
+  next={{ href: "/docs/media-generation/", title: "Media generation" }}
+>
+  <p>
+    Project knowledge is for durable documents: requirements, decisions, research notes,
+    runbooks, artifact references, and longer narrative memory. The first engine,
+    <code>roder-ext-knowledge-md</code>, stores each document as markdown with YAML front
+    matter so humans can browse, diff, and edit it outside Roder.
+  </p>
+
+  <h2>Agent tools</h2>
+  <ul>
+    <li><code>knowledge_list</code>, <code>knowledge_read</code>, and <code>knowledge_search</code> browse the corpus.</li>
+    <li><code>knowledge_save</code>, <code>knowledge_update</code>, and <code>knowledge_delete</code> create revisions or archive documents.</li>
+    <li><code>knowledge_link</code> records typed relationships such as supersedes, contradicts, duplicates, or relates_to.</li>
+  </ul>
+
+  <pre><code>roder knowledge list --kind decision
+roder knowledge search "release process" --include-global
+roder knowledge save --kind runbook --title "Deploy checklist" "Body text"
+roder knowledge revisions kn-123</code></pre>
+
+  <h2>Recall</h2>
+  <p>
+    When enabled, knowledge recall injects a bounded set of relevant documents as cited
+    context blocks and points the model at <code>knowledge_read</code> for full bodies.
+    Memories remain short atomic facts; knowledge documents are larger, typed, revised,
+    and linked.
+  </p>
+
+  <pre><code>{`[knowledge]
+enabled = true
+backend = "markdown"
+recall = true
+recall_limit = 4`}</code></pre>
+</DocsLayout>

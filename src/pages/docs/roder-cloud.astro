@@ -1,0 +1,43 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="roder.cloud provider"
+  eyebrow="Providers"
+  description="Use roder.cloud hosted inference as a first-class provider."
+  prev={{ href: "/docs/openrouter/", title: "OpenRouter" }}
+  next={{ href: "/docs/vertex/", title: "Google Vertex AI" }}
+>
+  <p>
+    The <code>roder-cloud</code> provider exposes roder.cloud hosted inference through the
+    normal provider and model picker. The default model is
+    <code>roder.cloud/free</code>; team-enabled and BYOK aliases appear when the service
+    reports them.
+  </p>
+
+  <h2>Authentication</h2>
+  <p>
+    Roder exchanges a long-lived <code>roder_</code> team API key for short-lived JWTs,
+    caches those tokens, and refreshes before expiry or after an invalid-token response.
+    The team key is not sent to the inference edge.
+  </p>
+
+  <pre><code>roder auth login roder-cloud
+roder auth status roder-cloud
+roder auth logout roder-cloud</code></pre>
+
+  <pre><code>{`provider = "roder-cloud"
+model = "roder.cloud/free"
+
+[providers.roder-cloud]
+base_url = "https://<inference-host>/v1"
+api_key_env = "RODER_CLOUD_API_KEY"`}</code></pre>
+
+  <h2>Request subset</h2>
+  <p>
+    roder.cloud currently speaks a synchronous Responses-style subset. Roder synthesizes
+    stream events from the completed response, sends flat text input for heterogeneous
+    upstream routes, and does not advertise tool calls through this provider.
+  </p>
+</DocsLayout>
