@@ -1,0 +1,57 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Workspace forks"
+  eyebrow="Architecture"
+  description="Isolated writable workspaces for branchable agent work."
+  prev={{ href: "/docs/sessions/", title: "Sessions & state" }}
+  next={{ href: "/docs/providers/", title: "Inference providers" }}
+>
+  <p>
+    Workspace forks let Roder branch a conversation or task into an isolated writable
+    workspace. A fork is a Roder runtime concept: it can be backed by a Git worktree,
+    a Rift copy-on-write snapshot, or a remote-runner session, but it is not a GitHub
+    fork and not an inference provider.
+  </p>
+
+  <h2>Providers</h2>
+  <ul>
+    <li><code>git-worktree</code> creates <code>roder/fork/&lt;name&gt;</code> worktrees under the source repository.</li>
+    <li><code>rift</code> shells out to a configured Rift binary for copy-on-write snapshots.</li>
+    <li><code>remote-runner</code> can attach a fork to a fresh remote-runner session when a host constructs that provider.</li>
+  </ul>
+
+  <p>
+    Providers fail closed on unsafe inputs: dirty source workspaces are rejected by
+    default, removal requires the caller to repeat the exact fork workspace path, and
+    fork metadata never carries secrets.
+  </p>
+
+  <h2>Conversation forks</h2>
+  <p>
+    Forking a thread creates a child thread with the parent transcript history and a
+    fresh workspace fork. Tool calls are not replayed. The child keeps
+    <code>parentThreadId</code>, <code>forkedFromTurnId</code>, and
+    <code>workspaceFork</code> metadata in both JSONL and PostgreSQL stores.
+  </p>
+
+  <pre><code>/fork spike-ui
+/fork status
+/fork remove /absolute/path/to/fork</code></pre>
+
+  <pre><code>roder thread fork &lt;thread-id&gt; --name spike-ui
+roder forks providers
+roder forks list --source /path/to/repo
+roder forks create --name experiment --provider git-worktree</code></pre>
+
+  <h2>Protocol</h2>
+  <p>
+    App-server clients use <code>thread/fork</code>, <code>thread/fork_status</code>,
+    <code>thread/remove_fork</code>, <code>forks/providers/list</code>,
+    <code>forks/list</code>, <code>forks/create</code>, and <code>forks/remove</code>.
+    Fork lifecycle events are emitted as normal runtime events, so TUI, desktop,
+    and automation clients can render the same state.
+  </p>
+</DocsLayout>

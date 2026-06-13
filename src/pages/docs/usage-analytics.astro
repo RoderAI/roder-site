@@ -1,0 +1,42 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Usage analytics"
+  eyebrow="Capabilities"
+  description="Local-only analytics for tokens, tools, latency, and sessions."
+  prev={{ href: "/docs/speech/", title: "Speech" }}
+  next={{ href: "/docs/workflows/", title: "Dynamic workflows" }}
+>
+  <p>
+    Roder records local usage analytics into a SQLite projection under the Roder data
+    directory. The raw JSONL event stream remains the audit source; analytics make token
+    spend, tool popularity, latency percentiles, errors, and session summaries queryable.
+  </p>
+
+  <h2>Privacy defaults</h2>
+  <ul>
+    <li>Recorded: provider/model ids, tool names, timestamps, durations, token counts, statuses, and bounded error classes.</li>
+    <li>Not recorded: prompt bodies, assistant text, tool output bodies, command payloads, API keys, bearer tokens, or environment secrets.</li>
+    <li>Workspace labels can be stored as full paths, hashes, or basenames.</li>
+  </ul>
+
+  <pre><code>{`[analytics]
+enabled = true
+workspace_labels = "full_path"
+retention_days = 0`}</code></pre>
+
+  <h2>CLI</h2>
+  <pre><code>roder stats backfill
+roder stats summary --since 7d --json
+roder stats tools --sort p95
+roder stats tokens --group day
+roder stats export --format jsonl --output usage-export.jsonl</code></pre>
+
+  <p>
+    App-server methods mirror the CLI through <code>stats/summary</code>,
+    <code>stats/tools</code>, <code>stats/tokens</code>, <code>stats/sessions</code>,
+    <code>stats/backfill</code>, and <code>stats/export</code>, with server-side row caps.
+  </p>
+</DocsLayout>

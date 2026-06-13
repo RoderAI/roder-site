@@ -5,23 +5,24 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 <DocsLayout
   title="MCP integration"
   eyebrow="Capabilities"
-  description="How Model Context Protocol support fits into Roder's tool model."
+  description="How streamable HTTP MCP servers become Roder tools."
   prev={{ href: "/docs/zerolang/", title: "Zerolang graph edits" }}
-  next={{ href: "/docs/goal-mode/", title: "Plan mode & goals" }}
+  next={{ href: "/docs/process-extensions/", title: "Process extensions" }}
 >
   <p>
-    MCP is the language-agnostic extension path for tools that should run outside the
-    Roder process. The legacy implementation already proved the host behavior; the Rust
-    roadmap tracks the parity work for MCP and LSP capabilities.
+    MCP is the language-agnostic path for tool servers that should stay outside the
+    Roder process. <code>roder-ext-mcp</code> connects to configured streamable HTTP MCP
+    servers at startup, lists their tools, and registers each remote tool through the
+    same <code>ToolRegistry</code> and policy path as native tools.
   </p>
 
-  <h2>Target model</h2>
+  <h2>Runtime model</h2>
   <ul>
-    <li>Attach MCP servers to a session or app-server client.</li>
-    <li>Discover tool schemas through the MCP handshake.</li>
-    <li>Register MCP tools into the same <code>ToolRegistry</code> as native tools.</li>
+    <li>Connect to configured streamable HTTP MCP endpoints during registry construction.</li>
+    <li>Discover tool schemas through the MCP tool listing flow.</li>
+    <li>Register MCP tools as remote tools with namespaced identities.</li>
     <li>Route calls through Roder policy, approval, event, and result handling.</li>
-    <li>Terminate session-scoped server processes when the session closes.</li>
+    <li>Skip offline servers with a warning in discovery mode, or fail startup in required-discovery mode.</li>
   </ul>
 
   <h2>Naming</h2>
@@ -34,7 +35,8 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <h2>When to use MCP vs native extensions</h2>
   <ul>
-    <li>Use MCP when you need process isolation, language independence, or a tool that ships separately.</li>
+    <li>Use MCP when a tool server already speaks MCP or should ship/deploy separately.</li>
     <li>Use a native Roder extension when you need direct Rust integration, tighter lifecycle control, or hot-path performance.</li>
+    <li>Use <a href="/docs/process-extensions/">process extensions</a> when the external process needs to provide services beyond tools, such as inference engines, task executors, or subagent dispatchers.</li>
   </ul>
 </DocsLayout>

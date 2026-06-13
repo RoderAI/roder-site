@@ -42,10 +42,10 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   </p>
   <ul>
     <li><code>crates/roder-api</code> — extension traits, canonical events, tools, inference, sessions, policy, and shared types.</li>
-    <li><code>crates/roder-core</code> — runtime loop, event bus, policy gate, tool execution, cancellation, and provider orchestration.</li>
-    <li><code>crates/roder-extension-host</code> — default distribution wiring for providers, web search, subagents, sessions, tools, and TUI services.</li>
-    <li><code>crates/roder-app-server</code> and <code>crates/roder-protocol</code> — local and remote JSON-RPC control plane plus typed protocol shapes.</li>
-    <li><code>crates/roder-dynamic-workflows</code> — approval-gated workflow scripts, child-agent orchestration, checkpoints, and reports.</li>
+    <li><code>crates/roder-core</code> — runtime loop, event bus, policy gate, tool execution, cancellation, media artifacts, forks, knowledge recall, and provider orchestration.</li>
+    <li><code>crates/roder-extension-host</code> — default distribution wiring for providers, web search, subagents, sessions, tools, media, knowledge, process extensions, and TUI services.</li>
+    <li><code>crates/roder-app-server</code> and <code>crates/roder-protocol</code> — local, remote-node, and hosted JSON-RPC control planes plus typed protocol shapes.</li>
+    <li><code>crates/roder-dynamic-workflows</code> and <code>crates/roder-roadmap</code> — approval-gated workflow scripts, child-agent orchestration, roadmap boards, loop orchestration, checkpoints, and reports.</li>
     <li><code>crates/roder-cli</code> and <code>crates/roder-tui</code> — command entrypoint and reference terminal client.</li>
     <li><code>crates/roder-ext-*</code> — provider, storage, search, remote-runner, subagent, plan-mode, memory, notification, Chrome, and Zerolang extensions.</li>
   </ul>
@@ -57,7 +57,17 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><a href="/contact/">Contact the team</a> — RL tooling, embedded harnesses, product work, and OSS sponsorship.</li>
     <li><a href="/extensions/">Extension inventory</a> — every implemented first-party extension and when it appears.</li>
     <li><a href="/docs/memories/">Memory &amp; embeddings</a> — SQLite memory plus OpenAI, Google, and ZeroEntropy embeddings.</li>
+    <li><a href="/docs/knowledge/">Project knowledge</a> — markdown requirements, decisions, runbooks, links, revisions, and recall.</li>
+    <li><a href="/docs/workspace-forks/">Workspace forks</a> — branch a thread or task into isolated writable workspaces.</li>
+    <li><a href="/docs/media-generation/">Media generation</a> — OpenAI and Google image providers with artifact persistence.</li>
+    <li><a href="/docs/usage-analytics/">Usage analytics</a> — local-only token, tool, latency, and session statistics.</li>
+    <li><a href="/docs/remote-nodes/">Remote agent nodes</a> — control a full remote Roder runtime over mTLS.</li>
+    <li><a href="/docs/hosted-service/">Hosted service</a> — multi-tenant Roder gateway with isolated tenant runtimes.</li>
+    <li><a href="/docs/process-extensions/">Process extensions</a> — non-Rust services through stdio JSON-RPC.</li>
+    <li><a href="/docs/roadmap-loop/">Roadmap orchestration</a> — inbox triage, worker dispatch, and evidence-gated completion.</li>
     <li><a href="/docs/openrouter/">OpenRouter provider</a> — Grok Build setup, model discovery, and API-key configuration.</li>
+    <li><a href="/docs/roder-cloud/">roder.cloud provider</a> — hosted inference with roder_ key exchange and Responses-subset turns.</li>
+    <li><a href="/docs/vertex/">Google Vertex AI</a> — Gemini-on-Vertex via service-account OAuth and regional endpoints.</li>
     <li><a href="/docs/tool-search/">Provider tool search</a> — provider-native discovery for large tool catalogs.</li>
     <li><a href="/docs/chrome/">Chrome browser control</a> — pair Roder with a logged-in Chrome session.</li>
     <li><a href="/docs/workflows/">Dynamic workflows</a> — approval-gated scripts for larger multi-agent jobs.</li>

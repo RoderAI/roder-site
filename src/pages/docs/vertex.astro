@@ -1,0 +1,35 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Google Vertex AI"
+  eyebrow="Providers"
+  description="Gemini-on-Vertex through service-account OAuth and regional endpoints."
+  prev={{ href: "/docs/roder-cloud/", title: "roder.cloud provider" }}
+  next={{ href: "/docs/tools/", title: "Tools & policy" }}
+>
+  <p>
+    <code>roder-ext-vertex</code> adds provider id <code>vertex</code> for teams whose
+    Google access runs through Vertex AI rather than the Gemini API-key path. It is a
+    sibling of <code>roder-ext-gemini</code>, not a replacement.
+  </p>
+
+  <h2>What differs from Gemini API</h2>
+  <ul>
+    <li>Auth uses OAuth2 access tokens minted from service-account credentials or ADC.</li>
+    <li>Endpoints are regional Vertex AI URLs under a Google Cloud project and location.</li>
+    <li>Models are addressed as publisher paths, for example <code>publishers/google/models/gemini-*</code>.</li>
+  </ul>
+
+  <pre><code>{`RODER_PROVIDER=vertex RODER_MODEL=gemini-3.5-flash roder
+VERTEX_PROJECT=my-project
+VERTEX_LOCATION=us-central1
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json`}</code></pre>
+
+  <p>
+    The provider streams Gemini-on-Vertex turns, maps tools, usage, cached-token counts,
+    and finish reasons into canonical Roder inference events, and keeps registration
+    independent from whether credentials are currently configured.
+  </p>
+</DocsLayout>

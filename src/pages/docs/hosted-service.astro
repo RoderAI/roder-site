@@ -1,0 +1,47 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Hosted service"
+  eyebrow="Surfaces"
+  description="Run Roder as a multi-tenant gateway."
+  prev={{ href: "/docs/remote-nodes/", title: "Remote agent nodes" }}
+  next={{ href: "/docs/chrome/", title: "Chrome browser control" }}
+>
+  <p>
+    <code>roder-hosted</code> runs Roder as a multi-tenant gateway. Many tenants share one
+    process, but each tenant gets its own runtime, thread store, artifact store,
+    automation database, and notification stream.
+  </p>
+
+  <h2>Remote modes compared</h2>
+  <ul>
+    <li><strong>Trusted LAN remote:</strong> one user, one bearer token, trusted network.</li>
+    <li><strong>Agent node:</strong> machine-to-machine mTLS with pinned certificates.</li>
+    <li><strong>Hosted service:</strong> multi-tenant credentials, per-request authorization, and tenant-scoped runtimes.</li>
+  </ul>
+
+  <h2>Configuration sketch</h2>
+  <pre><code>{`listen = "127.0.0.1:7900"
+data_root = "/var/lib/roder-hosted"
+allow_local_workspaces = false
+idle_ttl_secs = 900
+
+[[tenants]]
+id = "acme"
+display_name = "Acme"
+
+[[static_keys]]
+token_env = "RODER_HOSTED_KEY_ACME_ADMIN"
+tenant = "acme"
+user = "ops"
+role = "tenant_admin"
+scopes = ["read", "write", "admin"]`}</code></pre>
+
+  <p>
+    The gateway authenticates before dispatch, authorizes every request by scope and
+    role, records redacted audit JSONL, and supports tenant webhooks with HMAC
+    signatures, retries, circuit breakers, and dead-letter records.
+  </p>
+</DocsLayout>
