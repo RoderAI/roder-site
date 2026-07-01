@@ -1,0 +1,106 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Blaxel sandbox runner"
+  eyebrow="Capabilities"
+  description="Run coding tools in a persistent Blaxel sandbox and control its lifecycle."
+  prev={{ href: "/docs/tools/", title: "Tools & policy" }}
+  next={{ href: "/docs/tool-search/", title: "Provider tool search" }}
+>
+  <p>
+    Roder's first-party <code>blaxel</code> remote-runner provider executes shell and
+    file tools inside an isolated Blaxel sandbox. A selected sandbox can outlive one
+    turn or one local Roder process: pause it toward standby, detach from it, then
+    rejoin the same filesystem and running processes from persisted thread state.
+  </p>
+
+  <div class="callout">
+    <strong>What runs remotely.</strong> Selecting Blaxel changes the execution
+    destination for coding tools such as shell, file reads and writes, and patches.
+    The Roder runtime and thread history remain locally controlled unless you separately
+    connect to a remote agent node or hosted runtime.
+  </div>
+
+  <h2>Set up a destination</h2>
+  <p>
+    Create a Blaxel API key and note the workspace name from the Blaxel console. Roder
+    reads credentials from the environment and does not write the API key into thread
+    metadata, runner session state, logs, or errors.
+  </p>
+
+  <pre><code>{`export BLAXEL_API_KEY=...
+export BL_WORKSPACE=...
+
+# BL_API_KEY also works for the API key.`}</code></pre>
+
+  <pre><code>{`[remote_runners]
+enabled = true
+default_destination = "blaxel-dev"
+
+[remote_runners.destinations.blaxel-dev]
+provider = "blaxel"
+secret_env = { BLAXEL_API_KEY = "BLAXEL_API_KEY", BL_WORKSPACE = "BL_WORKSPACE" }
+config = { image = "blaxel/base-image:latest", memory = 4096, region = "eu-lon-1", working_dir = "/home/user/roder", cleanup = "detach-on-close" }`}</code></pre>
+
+  <p>
+    New sandboxes default to <code>blaxel/base-image:latest</code>, 4096 MB of memory,
+    and <code>/home/user/roder</code> as the working directory. Choose the destination
+    at startup with <code>default_destination</code>, or select it from the TUI command
+    palette. New threads then auto-bind to the sandbox workspace.
+  </p>
+
+  <h2>Choose the cleanup behavior</h2>
+  <ul>
+    <li><code>delete-on-close</code> permanently deletes a fresh sandbox when the runner session closes. This is the default for newly created sandboxes.</li>
+    <li><code>detach-on-close</code> releases the local session but leaves the sandbox available for rejoin. This is the default when configuration names an existing sandbox.</li>
+    <li><code>keep</code> explicitly preserves the sandbox instead of deleting it on close.</li>
+  </ul>
+
+  <p>
+    Optional destination settings include <code>sandbox_name</code> for an existing
+    sandbox, <code>sandbox_name_prefix</code>, <code>external_id</code>, <code>image</code>,
+    <code>memory</code>, <code>region</code>, <code>ttl</code>, and
+    <code>working_dir</code>. A Blaxel volume can provide durability beyond the
+    sandbox's preserved standby state.
+  </p>
+
+  <h2>Pause, resume, detach, and rejoin</h2>
+  <ul>
+    <li><strong>Pause</strong> marks standby intent so the sandbox can scale to zero; a later command can wake it.</li>
+    <li><strong>Resume</strong> wakes a standby sandbox immediately.</li>
+    <li><strong>Detach</strong> persists the sandbox identity on the thread and releases the local runner session without deleting the sandbox.</li>
+    <li><strong>Rejoin</strong> restores the same sandbox from thread state, including after restarting Roder, without provisioning an orphan replacement.</li>
+  </ul>
+
+  <pre><code>{`roder runners list
+roder runners pause <thread-id>
+roder runners resume <thread-id>
+roder runners detach <thread-id>
+roder runners rejoin <thread-id>
+roder runners rejoin <thread-id> --sandbox <name>`}</code></pre>
+
+  <p>
+    <code>roder runners list</code> reports provider capabilities so clients can show
+    lifecycle actions only when the active provider supports them. Existing Docker,
+    Sprites, and local runners keep their current behavior because lifecycle support is
+    optional in the remote-runner contract.
+  </p>
+
+  <h2>App-server and SDK control</h2>
+  <p>
+    Product clients and automation can call the thread-scoped
+    <code>runners/pause</code>, <code>runners/resume</code>,
+    <code>runners/detach</code>, and <code>runners/rejoin</code> methods. These methods
+    are registered in the app-server manifest and included in the JSON schema and
+    generated TypeScript and Python client types.
+  </p>
+
+  <h2>Ports and previews</h2>
+  <p>
+    Exposing a sandbox port returns a Blaxel preview URL. Bind the service to
+    <code>0.0.0.0</code> inside the sandbox so the preview can reach it. Blaxel preview
+    connections currently have a 15-minute timeout.
+  </p>
+</DocsLayout>

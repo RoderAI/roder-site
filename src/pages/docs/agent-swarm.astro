@@ -1,0 +1,86 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Agent swarm"
+  eyebrow="Capabilities"
+  description="Run one task shape across many items with bounded parallel agents."
+  prev={{ href: "/docs/tools/", title: "Tools & policy" }}
+  next={{ href: "/docs/tui/", title: "TUI" }}
+>
+  <p>
+    Agent-swarm mode lets a lead model apply one prompt template to many items, run the
+    child agents in parallel, and receive one ordered result. It is built on Roder's
+    existing subagent dispatcher, so children inherit the parent workspace handle,
+    policy boundary, cancellation signal, and authorized tool surface.
+  </p>
+
+  <h2>Use it from the TUI</h2>
+  <pre><code>/agent-swarm on
+/agent-swarm status
+/agent-swarm Review each changed file and report one risk
+/swarm off</code></pre>
+
+  <p>
+    Persistent mode adds the swarm reminder to each turn without changing the text in
+    your transcript. A one-shot command asks the model to use <code>agent_swarm</code> for
+    that prompt. Mode is scoped per thread, so enabling it in one conversation does not
+    change sibling threads sharing the same runtime.
+  </p>
+
+  <h2>Tool contract</h2>
+  <pre><code>{`{
+  "description": "Review the changed files",
+  "prompt_template": "Review {{item}} and report one concrete risk.",
+  "items": ["src/api.rs", "src/runtime.rs", "src/tui.rs"]
+}`}</code></pre>
+
+  <ul>
+    <li>The prompt template must contain the exact <code>{'{{item}}'}</code> placeholder.</li>
+    <li>Rendered prompts must be distinct and the full swarm is validated before any child starts.</li>
+    <li>Results stay in input order even when children finish out of order.</li>
+    <li>Failed or aborted children include resumable agent ids when a child reached running state.</li>
+    <li><code>agent_swarm</code> must be the only tool call in a model response, preventing mixed partial work.</li>
+  </ul>
+
+  <h2>Bounded scheduling and rate limits</h2>
+  <p>
+    The scheduler starts a small initial burst, then paces later launches. You can cap
+    active children, set per-child timeouts, and limit the swarm to at most 128 agents.
+    Provider rate limits trigger exponential retries for the affected child and a shared
+    capacity governor for the whole swarm, preventing every child from retrying at once.
+  </p>
+
+  <pre><code>{`[agent_swarm]
+max_subagents = 64
+initial_launch_limit = 5
+launch_interval_ms = 700
+max_concurrency = 4
+child_timeout_seconds = 180
+rate_limit_max_retries = 4
+rate_limit_base_backoff_ms = 3000`}</code></pre>
+
+  <p>
+    Cancellation preserves completed output, marks started children as aborted, and
+    records children that never launched separately. After a quiet period without more
+    rate limits, global capacity recovers gradually instead of jumping back to full
+    parallelism.
+  </p>
+
+  <h2>Live progress for every client</h2>
+  <p>
+    The TUI renders live completed, failed, and aborted counts plus a compact child
+    result grid. App-server and SDK clients can toggle mode with
+    <code>thread/set_agent_swarm_mode</code> and listen for
+    <code>agentSwarm/started</code>, <code>agentSwarm/progress</code>, and
+    <code>agentSwarm/completed</code> notifications. Per-child detail continues through
+    the existing subagent-trace event family.
+  </p>
+
+  <div class="callout">
+    <strong>Policy stays explicit.</strong> Swarm mode does not bypass approvals or
+    sandbox rules. When the current TUI policy would gate parallel child work, Roder asks
+    for the policy switch before entering the mode.
+  </div>
+</DocsLayout>

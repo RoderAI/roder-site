@@ -1,0 +1,83 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Claude Code provider"
+  eyebrow="Architecture"
+  description="Run Claude Code models through Roder, including subscription-backed Claude-in-Chrome browser tools."
+  prev={{ href: "/docs/providers/", title: "Inference providers" }}
+  next={{ href: "/docs/openrouter/", title: "OpenRouter" }}
+>
+  <p>
+    The <code>claude-code</code> provider runs your local <code>claude</code> CLI through
+    Roder's inference interface. It is separate from the direct <code>anthropic</code>
+    API provider: Claude Code uses the CLI's local login and keeps its own resumable
+    session, while Roder continues to own the surrounding thread, policy, and event stream.
+  </p>
+
+  <h2>Set up the provider</h2>
+  <p>
+    Install and authenticate Claude Code first, then select one of Roder's
+    <code>claude-code/*</code> models. The built-in aliases include
+    <code>sonnet</code>, <code>opus</code>, and <code>haiku</code>.
+  </p>
+
+  <pre><code># ~/.roder/config.toml
+provider = "claude-code"
+model = "sonnet"
+
+[providers.claude-code]
+cli_path = "claude"
+permission_mode = "default"
+setting_sources = ["user", "project"]</code></pre>
+
+  <p>
+    Roder reuses the CLI session by default, sending only the new transcript tail on later
+    turns. This lets Claude Code keep and compact its own conversation history instead of
+    rebuilding the full prompt for every request. If continuity no longer matches, Roder
+    safely starts a fresh CLI session with the full current transcript.
+  </p>
+
+  <h2>Use Claude in Chrome</h2>
+  <p>
+    When the Claude-in-Chrome extension is paired, a <code>claude-code/*</code> turn can use
+    Claude Code's native browser tools to work in your real local Chrome session. Roder
+    automatically detects a paired or enabled extension from Claude Code's local config and
+    exposes the browser activity as hosted tool calls, so navigation and page actions stay
+    visible in the Roder UI without being executed a second time by the runtime.
+  </p>
+
+  <ol>
+    <li>Install and sign in to the Claude Code CLI with your claude.ai subscription.</li>
+    <li>Pair and enable the Claude-in-Chrome extension, then keep Chrome running.</li>
+    <li>Select a <code>claude-code/*</code> model in Roder and ask it to use the browser.</li>
+  </ol>
+
+  <pre><code># Override auto-detection when needed
+export RODER_CLAUDE_CODE_ENABLE_CHROME=1
+
+# Force the integration off
+export RODER_CLAUDE_CODE_ENABLE_CHROME=0</code></pre>
+
+  <div class="callout">
+    <strong>Subscription auth is required for browser control.</strong> When Claude in Chrome
+    is enabled, Roder starts the child CLI with API-key variables blank so Claude Code uses
+    its claude.ai subscription login. Set <code>RODER_CLAUDE_CODE_ENABLE_CHROME=0</code> if
+    the CLI must continue using <code>ANTHROPIC_API_KEY</code> instead.
+  </div>
+
+  <h2>Tool safety and visibility</h2>
+  <p>
+    Roder authorizes Claude Code's own <code>mcp__claude-in-chrome__*</code> tools only when
+    the integration is enabled. Other unmapped Claude Code tools remain denied. Browser
+    calls are reported as started and completed hosted-tool events, including no-argument
+    calls and interrupted streams, so the TUI does not leave stale in-progress rows.
+  </p>
+
+  <p>
+    This integration uses Claude Code's native browser connection. For Roder's separate,
+    runtime-policy-controlled Manifest V3 extension and <code>chrome_*</code> tool surface,
+    see <a href="/docs/chrome/">Chrome browser control</a>.
+  </p>
+</DocsLayout>

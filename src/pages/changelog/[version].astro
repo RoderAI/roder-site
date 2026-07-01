@@ -1,0 +1,90 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import { changelogUrl, formatReleaseDate, sortChangelog } from "../../lib/changelog";
+import { changelogOgImage } from "../../lib/seo";
+
+export async function getStaticPaths() {
+  const entries = sortChangelog(await getCollection("changelog"));
+  return entries.map((entry, index) => ({
+    params: { version: entry.data.version },
+    props: {
+      entry,
+      newer: entries[index - 1],
+      older: entries[index + 1],
+    },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<"changelog">;
+  newer?: CollectionEntry<"changelog">;
+  older?: CollectionEntry<"changelog">;
+}
+
+const { entry, newer, older } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<Layout
+  title={`${entry.data.version}: ${entry.data.headline}`}
+  description={entry.data.summary}
+  image={changelogOgImage(entry)}
+  imageAlt={`Roder ${entry.data.version} changelog social preview`}
+  type="article"
+  publishedTime={entry.data.releaseDate}
+  tags={["Roder CLI", "changelog", entry.data.tag]}
+>
+  <article class="container changelog-article">
+    <a class="breadcrumb-link" href="/changelog/">Changelog</a>
+
+    <header class="changelog-article__header">
+      <div class="release-meta">
+        <span>{formatReleaseDate(entry.data.releaseDate)}</span>
+        <span>{entry.data.tag}</span>
+      </div>
+      <h1>{entry.data.headline}</h1>
+      <p>{entry.data.summary}</p>
+    </header>
+
+    {
+      entry.data.demo && (
+        <figure class="terminal-demo">
+          <img src={entry.data.demo.image} alt={entry.data.demo.alt} />
+          <figcaption>{entry.data.demo.caption}</figcaption>
+        </figure>
+      )
+    }
+
+    <div class="changelog-article__body">
+      <Content />
+    </div>
+
+    <footer class="changelog-article__footer">
+      <a href={entry.data.githubUrl} rel="noopener">View GitHub release</a>
+
+      <nav class="changelog-pagination" aria-label="Release navigation">
+        {
+          newer ? (
+            <a href={changelogUrl(newer)}>
+              <span>Newer</span>
+              {newer.data.version}: {newer.data.headline}
+            </a>
+          ) : (
+            <span></span>
+          )
+        }
+        {
+          older ? (
+            <a href={changelogUrl(older)}>
+              <span>Older</span>
+              {older.data.version}: {older.data.headline}
+            </a>
+          ) : (
+            <span></span>
+          )
+        }
+      </nav>
+    </footer>
+  </article>
+</Layout>

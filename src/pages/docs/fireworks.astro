@@ -1,0 +1,56 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Fireworks provider"
+  eyebrow="Providers"
+  description="First-party Fireworks AI inference through Roder's provider runtime."
+  prev={{ href: "/docs/roder-cloud/", title: "roder.cloud provider" }}
+  next={{ href: "/docs/vertex/", title: "Google Vertex AI" }}
+>
+  <p>
+    Roder ships a first-party <code>fireworks</code> inference provider. It preserves
+    Fireworks account-scoped model ids, streams turns through the OpenAI-compatible
+    Responses transport, and appears in provider discovery even before credentials are
+    configured so the setup path is visible in clients.
+  </p>
+
+  <div class="callout">
+    <strong>Setup.</strong> Set <code>FIREWORKS_API_KEY</code> or
+    <code>RODER_FIREWORKS_API_KEY</code>, then select provider
+    <code>fireworks</code>. Missing credentials fail locally with provider-specific
+    guidance instead of an opaque remote authentication error.
+  </div>
+
+  <h2>Provider shape</h2>
+  <ul>
+    <li>Canonical provider id: <code>fireworks</code>.</li>
+    <li>Default endpoint: <code>https://api.fireworks.ai/inference/v1</code>.</li>
+    <li>Transport: OpenAI-compatible Responses requests.</li>
+    <li>Model ids keep the full Fireworks path, such as <code>accounts/fireworks/models/qwen3-235b-a22b</code>.</li>
+    <li>Model discovery is non-blocking; offline fallback metadata remains available when credentials are missing.</li>
+  </ul>
+
+  <h2>Configuration</h2>
+  <p>
+    The provider uses Fireworks-specific credentials and does not fall back to OpenAI
+    environment variables. The default model is available from offline catalog data,
+    while authenticated discovery can expose the models available to the account.
+  </p>
+
+  <pre><code>{`provider = "fireworks"
+model = "accounts/fireworks/models/qwen3-235b-a22b"
+
+[providers.fireworks]
+api_key_env = "FIREWORKS_API_KEY"
+base_url = "https://api.fireworks.ai/inference/v1"`}</code></pre>
+
+  <h2>Runtime contract</h2>
+  <p>
+    Fireworks turns stream through the same canonical Roder inference events as
+    OpenAI, OpenRouter, Vertex, Cursor, and other providers. Roder-owned tools remain
+    client-executed through the normal tool executor, so policy, approvals, transcripts,
+    and cancellation work the same way as other provider routes.
+  </p>
+</DocsLayout>

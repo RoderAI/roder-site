@@ -1,7 +1,37 @@
+---
+import { buildSeo, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH, SITE_NAME } from "../lib/seo";
+
+const seo = buildSeo({
+  title: "Talk to the Roder devs",
+  description: "Contact the Roder team about agent runtime infrastructure, evals, and product work.",
+  pathname: Astro.url.pathname,
+  image: "/og/contact.png",
+});
+---
+
 <html>
   <head>
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-    <title>Talk to the Roder devs</title>
+    <meta name="description" content={seo.description} />
+    <link rel="canonical" href={seo.canonicalUrl} />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content={seo.type} />
+    <meta property="og:title" content={seo.title} />
+    <meta property="og:description" content={seo.description} />
+    <meta property="og:url" content={seo.canonicalUrl} />
+    <meta property="og:image" content={seo.imageUrl} />
+    <meta property="og:image:secure_url" content={seo.imageUrl} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content={String(OG_IMAGE_WIDTH)} />
+    <meta property="og:image:height" content={String(OG_IMAGE_HEIGHT)} />
+    <meta property="og:image:alt" content={seo.imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={seo.title} />
+    <meta name="twitter:description" content={seo.description} />
+    <meta name="twitter:image" content={seo.imageUrl} />
+    <meta name="twitter:image:alt" content={seo.imageAlt} />
+    <title>{seo.title}</title>
     <script async src="https://tally.so/widgets/embed.js"></script>
     <style type="text/css">
       html {

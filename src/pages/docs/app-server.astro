@@ -184,6 +184,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     "cwd": "/absolute/path/to/workspace",
     "modelProvider": "mock",
     "model": "mock",
+    "mcpAuthToken": "short-lived-capability-token",
     "ephemeral": false
   }
 }`}</code></pre>
@@ -253,6 +254,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><code>item/started</code> and <code>item/completed</code></li>
     <li><code>item/agentMessage/delta</code> for streamed model text and reasoning deltas</li>
     <li><code>command/exec/outputDelta</code> for command output when streaming is requested</li>
+    <li><code>agentSwarm/started</code>, <code>agentSwarm/progress</code>, and <code>agentSwarm/completed</code> for fanout work</li>
   </ul>
 
   <pre><code>{`{
@@ -268,7 +270,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <p>
     Feature-specific notifications are emitted for teams, subagent traces, plan
-    reviews, hunks, workflow imports, media artifacts, memory updates, and durable
+    reviews, hunks, workflow imports, swarm mode, media artifacts, memory updates, and durable
     thread goal changes. Treat notifications as an append-only stream: render what you
     understand and ignore unknown methods until your client adds support.
   </p>
@@ -283,7 +285,8 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <pre><code>{`{"jsonrpc":"2.0","id":30,"method":"thread/state"}
 {"jsonrpc":"2.0","id":31,"method":"thread/set_mode","params":{"mode":"ask","reason":"desktop toggle"}}
-{"jsonrpc":"2.0","id":32,"method":"thread/goal/set","params":{"threadId":"THREAD_ID","objective":"Ship docs parity","tokenBudget":20000}}`}</code></pre>
+{"jsonrpc":"2.0","id":32,"method":"thread/set_agent_swarm_mode","params":{"threadId":"THREAD_ID","enabled":true,"trigger":"manual"}}
+{"jsonrpc":"2.0","id":33,"method":"thread/goal/set","params":{"threadId":"THREAD_ID","objective":"Ship docs parity","tokenBudget":20000}}`}</code></pre>
 
   <p>
     When a turn requires approval, user input, or plan-mode exit, the runtime emits
@@ -459,9 +462,9 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><strong>Handshake:</strong> <code>initialize</code>.</li>
     <li><strong>Discovery:</strong> <code>extensions/list</code>, <code>providers/list</code>, <code>model/list</code>, <code>tools/list</code>, <code>agents/list</code>, <code>discovery/refresh</code>, <code>discovery/groups</code>, and <code>discovery/search</code>.</li>
     <li><strong>Providers/auth/settings:</strong> <code>providers/configure</code>, <code>providers/select</code>, <code>auth/codex/login</code>, <code>auth/codex/status</code>, <code>auth/codex/logout</code>, <code>auth/supergrok/login</code>, <code>auth/supergrok/status</code>, <code>auth/supergrok/logout</code>, <code>settings/get</code>, <code>settings/set_web_search</code>, <code>settings/set_default_mode</code>.</li>
-    <li><strong>Threads/turns/goals:</strong> <code>thread/start</code>, <code>thread/list</code>, <code>thread/read</code>, <code>thread/archive</code>, <code>thread/goal/get</code>, <code>thread/goal/set</code>, <code>thread/goal/clear</code>, <code>turn/start</code>, <code>turn/steer</code>, <code>turn/interrupt</code>, <code>thread/state</code>, <code>thread/set_mode</code>, <code>thread/exit_plan</code>, <code>thread/resolve_approval</code>, and <code>thread/resolve_user_input</code>.</li>
+    <li><strong>Threads/turns/goals:</strong> <code>thread/start</code>, <code>thread/list</code>, <code>thread/read</code>, <code>thread/archive</code>, <code>thread/goal/get</code>, <code>thread/goal/set</code>, <code>thread/goal/clear</code>, <code>turn/start</code>, <code>turn/steer</code>, <code>turn/interrupt</code>, <code>thread/state</code>, <code>thread/set_mode</code>, <code>thread/set_agent_swarm_mode</code>, <code>thread/exit_plan</code>, <code>thread/resolve_approval</code>, and <code>thread/resolve_user_input</code>.</li>
     <li><strong>Filesystem/process/tools:</strong> <code>fs/readFile</code>, <code>fs/readDirectory</code>, <code>command/exec</code>, <code>commands/list</code>, <code>commands/expand</code>, <code>commands/run</code>, <code>tools/call</code>.</li>
-    <li><strong>Runners/tasks:</strong> <code>runners/list</code>, <code>runners/select</code>, <code>runners/session</code>, <code>runners/snapshot</code>, <code>runners/delete</code>, <code>runners/ports</code>, <code>tasks/submit</code>, <code>tasks/list</code>, <code>tasks/get</code>, <code>tasks/cancel</code>, <code>tasks/subscribe</code>.</li>
+    <li><strong>Runners/tasks:</strong> <code>runners/list</code>, <code>runners/select</code>, <code>runners/session</code>, <code>runners/snapshot</code>, <code>runners/delete</code>, <code>runners/ports</code>, <code>runners/pause</code>, <code>runners/resume</code>, <code>runners/detach</code>, <code>runners/rejoin</code>, <code>tasks/submit</code>, <code>tasks/list</code>, <code>tasks/get</code>, <code>tasks/cancel</code>, <code>tasks/subscribe</code>. The lifecycle methods are included in the checked-in schema and generated TypeScript and Python client types.</li>
     <li><strong>Teams/subagents:</strong> <code>team/start</code>, <code>team/list</code>, <code>team/read</code>, <code>team/member/start</code>, <code>team/member/message</code>, <code>team/member/interrupt</code>, <code>team/member/focus</code>, <code>team/cleanup</code>, <code>team/pane/focus</code>, <code>team/pane/cleanup</code>, <code>turn/subagentTraces/list</code>, <code>turn/subagentTrace/read</code>.</li>
     <li><strong>Review/workflow/state:</strong> <code>plan/review/read</code>, <code>plan/review/comment</code>, <code>plan/review/rewrite</code>, <code>plan/review/approve</code>, <code>plan/review/reject</code>, <code>git/changes/list</code>, <code>git/changes/read</code>, <code>workspace/changes/list</code>, <code>hunk/list</code>, <code>hunk/read</code>, <code>hunk/rollback</code>, <code>workflow/*</code> import methods, and <code>workflows/*</code> dynamic workflow methods.</li>
     <li><strong>Marketplace/media/memory:</strong> <code>marketplaces/list</code>, <code>marketplaces/install_default</code>, <code>marketplaces/add</code>, <code>marketplaces/remove</code>, <code>marketplaces/refresh</code>, <code>marketplaces/search</code>, <code>marketplaces/plugin</code>, <code>plugins/preview_install</code>, <code>plugins/install</code>, <code>plugins/install_all_variants</code>, <code>plugins/list_installed</code>, <code>plugins/disable</code>, <code>plugins/uninstall</code>, <code>media/list</code>, <code>media/read</code>, <code>media/thumbnail</code>, <code>media/delete</code>, <code>media/attachToTurn</code>, <code>memory/list</code>, <code>memory/read</code>, <code>memory/save</code>, <code>memory/update</code>, <code>memory/delete</code>, <code>memory/query</code>, <code>memory/provider/list</code>, <code>memory/provider/set</code>, <code>memory/recall/preview</code>.</li>

@@ -33,6 +33,21 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <pre><code>mcp.&lt;server-name&gt;.&lt;tool-name&gt;</code></pre>
 
+  <h2>Per-thread bearer identity</h2>
+  <p>
+    Remote clients can include <code>mcpAuthToken</code> when they call
+    <code>thread/start</code>. Roder keeps that short-lived token in memory for the thread
+    and forwards it as the bearer credential for MCP tool calls, falling back to the
+    process-level MCP credential when a thread has no override.
+  </p>
+
+  <p>
+    This lets one shared Roder app server call the same MCP service on behalf of
+    different users or organizations without placing identity tokens in global config.
+    Clients should re-supply the token on each <code>thread/start</code> and rotate it with
+    the upstream capability lifetime.
+  </p>
+
   <h2>When to use MCP vs native extensions</h2>
   <ul>
     <li>Use MCP when a tool server already speaks MCP or should ship/deploy separately.</li>

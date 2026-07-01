@@ -30,8 +30,10 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <ul>
     <li><a href="/docs/install/">Install &amp; run</a> if you want to build the workspace and start the TUI or app server.</li>
     <li><a href="/docs/use-cases/">Use cases</a> if you are deciding whether Roder fits a product, eval, CI, or domain-agent workflow.</li>
+    <li><a href="/changelog/">CLI changelog</a> if you want release-by-release notes for the <code>roder</code> command.</li>
     <li><a href="/docs/architecture/">Runtime architecture</a> if you need to understand how a turn moves through the Rust core.</li>
     <li><a href="/docs/extensibility/">Extension model</a> if you want to replace providers, storage, memory, policy, tools, or UI surfaces.</li>
+    <li><a href="/docs/blaxel-runner/">Blaxel sandbox runner</a> if you want coding tools to run in a persistent remote sandbox that can pause, detach, and rejoin.</li>
     <li><a href="/evals/">Eval scoreboard</a> if you want current development trajectory results and run artifacts.</li>
   </ul>
 
@@ -47,6 +49,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><code>crates/roder-app-server</code> and <code>crates/roder-protocol</code> — local, remote-node, and hosted JSON-RPC control planes plus typed protocol shapes.</li>
     <li><code>crates/roder-dynamic-workflows</code> and <code>crates/roder-roadmap</code> — approval-gated workflow scripts, child-agent orchestration, roadmap boards, loop orchestration, checkpoints, and reports.</li>
     <li><code>crates/roder-cli</code> and <code>crates/roder-tui</code> — command entrypoint and reference terminal client.</li>
+    <li><code>sdk/typescript</code> — JavaScript and TypeScript host APIs for local or remote app-server control, streaming, display parts, and external tools.</li>
     <li><code>crates/roder-ext-*</code> — provider, storage, search, remote-runner, subagent, plan-mode, memory, notification, Chrome, and Zerolang extensions.</li>
   </ul>
 
@@ -56,8 +59,12 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><a href="/mission/">Mission</a> — why Roder exists and what it is trying to become.</li>
     <li><a href="/contact/">Contact the team</a> — RL tooling, embedded harnesses, product work, and OSS sponsorship.</li>
     <li><a href="/extensions/">Extension inventory</a> — every implemented first-party extension and when it appears.</li>
+    <li><a href="/changelog/">CLI changelog</a> — user-facing notes for the <code>roder</code> binary, sourced from GitHub releases.</li>
+    <li><a href="/docs/sdk/">TypeScript SDK</a> — local/remote agent hosts, abortable streams, display parts, and runner read roots.</li>
     <li><a href="/docs/memories/">Memory &amp; embeddings</a> — SQLite memory plus OpenAI, Google, and ZeroEntropy embeddings.</li>
     <li><a href="/docs/knowledge/">Project knowledge</a> — markdown requirements, decisions, runbooks, links, revisions, and recall.</li>
+    <li><a href="/docs/agent-swarm/">Agent swarm</a> — bounded, rate-limit-aware fanout with live progress and ordered results.</li>
+    <li><a href="/docs/blaxel-runner/">Blaxel sandbox runner</a> — isolated remote coding workspaces with pause, resume, detach, and rejoin.</li>
     <li><a href="/docs/workspace-forks/">Workspace forks</a> — branch a thread or task into isolated writable workspaces.</li>
     <li><a href="/docs/media-generation/">Media generation</a> — OpenAI and Google image providers with artifact persistence.</li>
     <li><a href="/docs/usage-analytics/">Usage analytics</a> — local-only token, tool, latency, and session statistics.</li>
@@ -67,6 +74,8 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><a href="/docs/roadmap-loop/">Roadmap orchestration</a> — inbox triage, worker dispatch, and evidence-gated completion.</li>
     <li><a href="/docs/openrouter/">OpenRouter provider</a> — Grok Build setup, model discovery, and API-key configuration.</li>
     <li><a href="/docs/roder-cloud/">roder.cloud provider</a> — hosted inference with roder_ key exchange and Responses-subset turns.</li>
+    <li><a href="/docs/fireworks/">Fireworks provider</a> — first-party API-key provider with account-scoped model ids and Responses transport.</li>
+    <li><a href="/docs/claude-code/">Claude Code provider</a> — local CLI sessions with optional subscription-backed Claude-in-Chrome browser tools.</li>
     <li><a href="/docs/vertex/">Google Vertex AI</a> — Gemini-on-Vertex via service-account OAuth and regional endpoints.</li>
     <li><a href="/docs/tool-search/">Provider tool search</a> — provider-native discovery for large tool catalogs.</li>
     <li><a href="/docs/chrome/">Chrome browser control</a> — pair Roder with a logged-in Chrome session.</li>
