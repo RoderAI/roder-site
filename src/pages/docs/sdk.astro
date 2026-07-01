@@ -1,0 +1,98 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="TypeScript SDK"
+  eyebrow="Architecture"
+  description="Drive Roder from JavaScript or TypeScript hosts."
+  prev={{ href: "/docs/extensibility/", title: "Extension model" }}
+  next={{ href: "/extensions/", title: "Extension directory" }}
+>
+  <p>
+    The TypeScript SDK wraps the app-server JSON-RPC protocol for product surfaces,
+    hosted workers, and test harnesses that want to start turns, stream events, run
+    host tools, and connect either to a local app-server process or a remote WebSocket.
+  </p>
+
+  <h2>Agent host</h2>
+  <p>
+    <code>RoderAgent.create()</code> accepts local process, remote WebSocket, or custom
+    transport options. A host can set the workspace, provider/model preference,
+    tool allowlist, developer instructions, approval callbacks, and external tools,
+    then call <code>send()</code> to start a turn.
+  </p>
+
+  <pre><code>{`const agent = await RoderAgent.create({
+  local: {
+    cwd: process.cwd(),
+    inheritEnv: false,
+    env: {
+      HOME: "/tmp/roder-home",
+      PATH: process.env.PATH,
+      TMPDIR: process.env.TMPDIR,
+      OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    },
+  },
+});
+
+const run = await agent.send("Summarize this repo");`}</code></pre>
+
+  <h2>Stream control</h2>
+  <p>
+    <code>RoderRun.stream()</code> and <code>RoderRun.wait()</code> now accept an
+    <code>AbortSignal</code>. This gives UI clients and automation harnesses a clean
+    way to bound a wedged notification stream without abandoning a parked read that
+    can swallow a later event.
+  </p>
+
+  <pre><code>{`const signal = AbortSignal.timeout(30_000);
+
+for await (const event of run.stream({ signal })) {
+  renderEvent(event);
+}`}</code></pre>
+
+  <h2>Display parts</h2>
+  <p>
+    <code>createPartTransformer()</code> derives display-ordered text, reasoning, and
+    tool parts from raw SDK events. It gives each part a stable id and splits text
+    around tool boundaries, so a UI can render pre-tool text, the tool row, and
+    post-tool text in the order the user expects.
+  </p>
+
+  <pre><code>{`const parts = createPartTransformer();
+
+for await (const event of run.stream()) {
+  for (const part of parts.push(event)) {
+    renderPart(part);
+  }
+}
+
+for (const part of parts.flush()) {
+  renderPart(part);
+}`}</code></pre>
+
+  <h2>Runner workspaces</h2>
+  <p>
+    SDK-created threads can bind coding tools to a remote-runner workspace. The
+    runner config now supports <code>readRoots</code>, which lets file reads resolve
+    under additional absolute runner paths while writes and the working directory stay
+    confined to the main workspace.
+  </p>
+
+  <pre><code>{`const agent = await RoderAgent.create({
+  runner: {
+    providerId: "e2b",
+    workspace: "/workspace/project",
+    readRoots: ["/workspace/shared-docs"],
+  },
+});`}</code></pre>
+
+  <div class="callout">
+    <strong>Host environment note.</strong> For local process transports, pass a narrow
+    environment. Include only runtime essentials such as <code>PATH</code>,
+    <code>TMPDIR</code>, provider keys, and a managed <code>HOME</code>; avoid inheriting
+    database URLs, service tokens, or a real <code>$HOME/.codex/skills</code> tree into
+    hosted app-server sessions.
+  </div>
+</DocsLayout>

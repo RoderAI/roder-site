@@ -20,7 +20,8 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <ul>
     <li>Streaming assistant output and tool-call timeline.</li>
     <li>Approval prompts and policy-mode state.</li>
-    <li>Provider, model, session, command, mode, and agent choices through the command palette.</li>
+    <li>Provider, model, session, command, policy, and agent-mode choices through the command palette and composer title.</li>
+    <li><code>/agent-swarm</code> and <code>/swarm</code> commands, live child-count progress, and compact ordered result grids for parallel agent work.</li>
     <li>Composer mention pickers for workspace files with <code>@</code> and skills with <code>$</code>.</li>
     <li>Knowledge browsing through <code>/knowledge</code> commands and command-palette entries.</li>
     <li>Media generation palette entries for image and video prompts, with artifact rows in the timeline.</li>
@@ -39,5 +40,11 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     The TUI should not be the only owner of runtime state. Keeping it as a client of
     <code>roder-app-server</code> means terminal, desktop, test harness, and future IDE
     surfaces can share protocol methods and event semantics.
+  </p>
+
+  <p>
+    Agent-swarm mode follows that rule: the TUI toggles per-thread runtime state and
+    renders app-server events rather than owning a separate client-only mode. Entering
+    swarm from a gating policy asks for the required policy switch before work starts.
   </p>
 </DocsLayout>

@@ -1,0 +1,89 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
+import { changelogUrl, formatReleaseDate, sortChangelog } from "../lib/changelog";
+
+const entries = sortChangelog(await getCollection("changelog"));
+const [latest, ...olderEntries] = entries;
+---
+
+<Layout
+  title="Roder CLI changelog"
+  description="User-facing release notes for the Roder CLI, sourced from the roder GitHub releases."
+>
+  <section class="changelog-hero">
+    <div class="container changelog-hero__inner">
+      <div>
+        <div class="eyebrow">Roder CLI releases</div>
+        <h1>Changelog</h1>
+        <p>
+          User-facing notes for the <code>roder</code> command-line interface. These entries
+          are based on the <a href="https://github.com/RoderAI/roder/releases" rel="noopener">GitHub releases</a>
+          for tags that start with <code>roder/</code>, then rewritten around practical
+          impact for people running Roder in a terminal.
+        </p>
+      </div>
+      {
+        latest && (
+          <div class="changelog-release-card" aria-label="Latest Roder CLI release">
+            <span>Latest</span>
+            <strong>{latest.data.version}</strong>
+            <a href={changelogUrl(latest)}>Read release</a>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="container changelog-page">
+    {
+      latest ? (
+        <>
+          <article class="changelog-feature">
+            <div class="release-meta">
+              <span>{formatReleaseDate(latest.data.releaseDate)}</span>
+              <span>{latest.data.tag}</span>
+            </div>
+            <h2>
+              <a href={changelogUrl(latest)}>{latest.data.headline}</a>
+            </h2>
+            <p>{latest.data.summary}</p>
+
+            {latest.data.demo && (
+              <figure class="terminal-demo">
+                <img src={latest.data.demo.image} alt={latest.data.demo.alt} />
+                <figcaption>{latest.data.demo.caption}</figcaption>
+              </figure>
+            )}
+
+            <div class="release-actions">
+              <a href={changelogUrl(latest)}>Read release notes</a>
+              <a href={latest.data.githubUrl} rel="noopener">GitHub release</a>
+            </div>
+          </article>
+
+          <div class="changelog-list" aria-label="Older Roder CLI releases">
+            {olderEntries.map((entry) => (
+              <article class="changelog-entry">
+                <div class="release-meta">
+                  <span>{formatReleaseDate(entry.data.releaseDate)}</span>
+                  <span>{entry.data.tag}</span>
+                </div>
+                <h2>
+                  <a href={changelogUrl(entry)}>{entry.data.version}: {entry.data.headline}</a>
+                </h2>
+                <p>{entry.data.summary}</p>
+                <div class="release-actions">
+                  <a href={changelogUrl(entry)}>Read release notes</a>
+                  <a href={entry.data.githubUrl} rel="noopener">GitHub release</a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </>
+      ) : (
+        <p class="empty-state">No Roder CLI release notes have been published yet.</p>
+      )
+    }
+  </section>
+</Layout>
