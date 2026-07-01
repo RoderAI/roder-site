@@ -1,6 +1,6 @@
 import type { ChangelogEntry } from "./changelog";
 
-export const SITE_URL = "https://roder.cc";
+export const SITE_URL = "https://roder.sh";
 export const SITE_NAME = "Roder";
 export const DEFAULT_DESCRIPTION =
   "Roder is reusable Rust infrastructure for building, evaluating, and embedding coding agents.";
