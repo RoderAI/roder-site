@@ -1,5 +1,8 @@
 import { ImageResponse } from "@vercel/og";
-import { OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH, SITE_NAME, type OgImageMetadata } from "./seo";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { cwd } from "node:process";
+import { OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH, SITE_NAME, SITE_URL, type OgImageMetadata } from "./seo";
 
 type OgElement = {
   $$typeof: symbol;
@@ -12,6 +15,7 @@ type OgElement = {
 type Style = Record<string, string | number>;
 
 const reactElement = Symbol.for("react.element");
+const roderIcon = `data:image/png;base64,${readFileSync(join(cwd(), "public", "roder-icon.png")).toString("base64")}`;
 
 function element(type: string, props: Record<string, unknown> = {}, ...children: unknown[]): OgElement {
   const style = props.style && typeof props.style === "object" ? (props.style as Style) : undefined;
@@ -32,18 +36,20 @@ function element(type: string, props: Record<string, unknown> = {}, ...children:
   };
 }
 
-function markBlock(style: Style) {
-  return element("div", { style: { position: "absolute", width: 34, height: 34, borderRadius: 8, ...style } });
-}
-
 function roderMark() {
   return element(
-    "div",
-    { style: { position: "relative", display: "flex", width: 92, height: 86 } },
-    markBlock({ left: 0, top: 18, background: "#ff4d00" }),
-    markBlock({ left: 29, top: 0, background: "#ff6a2a" }),
-    markBlock({ left: 29, top: 52, background: "#e33300" }),
-    markBlock({ left: 58, top: 18, background: "#111316" }),
+    "img",
+    {
+      src: roderIcon,
+      width: 116,
+      height: 116,
+      style: {
+        display: "flex",
+        width: 116,
+        height: 116,
+        objectFit: "contain",
+      },
+    },
   );
 }
 
@@ -184,7 +190,7 @@ export function renderOgImage(metadata: OgImageMetadata): Response {
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
         },
       },
-      element("div", {}, "roder.cc"),
+      element("div", {}, new URL(SITE_URL).hostname),
       element("div", {}, "tools · policy · state · replay"),
     ),
   );
