@@ -51,8 +51,12 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <h2>Current benchmark signal</h2>
   <p>
-    The latest documented strict-medium Terminal-Bench run was Harbor-clean across 89
-    trials and improved from 47 to 50 passes after deadline and reliability work. The
-    plan-first xhigh rerun converted four previously failing tasks in a 28-task subset.
+    The latest documented full run is a non-submittable Terminal-Bench 2.1 local
+    development pass with <code>codex/gpt-5.5</code> at xhigh reasoning. Harbor reported
+    53 reward-1 tasks and 36 reward-0 scored failures across all 89 tasks, with 0 Harbor
+    exceptions. The local analyzer marked the run clean with no harness error classes.
+    It used an access-token-only auth file and an agent timeout multiplier to keep Roder
+    finalization inside Harbor's outer timeout, so it is trajectory evidence rather than
+    a leaderboard-valid submission.
   </p>
 </DocsLayout>

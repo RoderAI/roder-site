@@ -32,6 +32,7 @@ const fullSuiteRows = fullSuiteRuns.map((run, index) => ({
   ...run,
   lift: index === 0 ? 0 : run.passes - fullSuiteRuns[index - 1].passes,
 }));
+const formatLift = (lift: number) => (lift === 0 ? "baseline" : lift > 0 ? `+${lift}` : `${lift}`);
 ---
 
 <Layout
@@ -75,8 +76,7 @@ const fullSuiteRows = fullSuiteRuns.map((run, index) => ({
           If the latest in-development full-suite result were compared directly against the
           current <a href={leaderboardContext.sourceUrl} rel="noopener">{leaderboardContext.sourceLabel}</a>,
           its {latestFullSuitePercent}% pass rate would theoretically place around
-          <strong> #{leaderboardContext.theoreticalRank}</strong> of {leaderboardContext.totalEntries}
-          entries.
+          <strong> #{leaderboardContext.theoreticalRank}</strong> of {leaderboardContext.totalEntries} entries.
         </p>
         <p class="leaderboard-caveat">
           {leaderboardContext.caveat}
@@ -103,7 +103,7 @@ const fullSuiteRows = fullSuiteRuns.map((run, index) => ({
 
     <section class="trend-card score-panel" aria-labelledby="full-suite-trend">
       <h2 id="full-suite-trend">Full-suite trend</h2>
-      <svg class="trend-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label="Roder full-suite pass rate increased from 48.3 percent to 56.2 percent">
+      <svg class="trend-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label={`Roder full-suite pass rate increased from ${scorePercent(firstFullSuiteRun.passes, firstFullSuiteRun.trials)} percent to ${latestFullSuitePercent} percent`}>
         <line class="trend-axis" x1={chartPadding} y1={chartHeight - chartPadding} x2={chartWidth - chartPadding} y2={chartHeight - chartPadding} />
         <line class="trend-axis" x1={chartPadding} y1={chartPadding} x2={chartPadding} y2={chartHeight - chartPadding} />
         <polyline class="trend-line" points={trendPolyline} />
@@ -157,7 +157,7 @@ const fullSuiteRows = fullSuiteRuns.map((run, index) => ({
                 <span class="eval-card-meta">{run.reportPath}</span>
               </td>
               <td>{scorePercent(run.passes, run.trials)}%</td>
-              <td>{run.lift === 0 ? "baseline" : `+${run.lift}`}</td>
+              <td>{formatLift(run.lift)}</td>
               <td>{run.softTimeouts ?? "n/a"} total, {run.softTimeoutFails ?? "n/a"} failed</td>
               <td>{run.providerPolicyBlocks ?? "n/a"}</td>
               <td>{run.clean ? "clean" : "needs triage"}</td>
