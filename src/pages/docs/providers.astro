@@ -23,7 +23,9 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><code>roder-ext-claude-code</code> - the local Claude Code CLI, with resumable sessions and optional Claude-in-Chrome browser tools.</li>
     <li><code>roder-ext-gemini</code> - Gemini through the configured Google-compatible API-key path.</li>
     <li><code>roder-ext-vertex</code> - Gemini-on-Vertex through service-account OAuth and regional Vertex AI endpoints.</li>
-    <li><code>roder-ext-cursor</code> - Cursor Composer and proxied frontier models through Cursor AgentService.</li>
+    <li><code>roder-ext-xai</code> - SuperGrok OAuth and direct xAI API-key inference, with Grok 4.5 as the default model.</li>
+    <li><code>roder-ext-cursor</code> - Cursor Composer and proxied frontier models, including Claude Fable 5, through Cursor AgentService.</li>
+    <li><code>roder-ext-kimi-code</code> - Kimi Code through subscription OAuth or API-key auth.</li>
     <li><code>roder-ext-openrouter</code> - OpenRouter API-key provider, including the Grok Build catalog entry.</li>
     <li><code>roder-ext-roder-cloud</code> - roder.cloud hosted inference using a roder_ team key exchanged for short-lived JWTs.</li>
     <li><code>roder-core::fake_provider</code> - deterministic mock behavior for tests and offline work.</li>
@@ -58,14 +60,46 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   </p>
 
   <p>
-    The catalog includes <code>composer-2.5-fast</code> and <code>gpt-5.5-fast</code>.
-    Reasoning selections map to Cursor's <code>effort</code>, <code>thinking</code>, and
-    <code>fast</code> request parameters, while a stable per-thread conversation id keeps
-    multi-turn context attached to the right Roder thread.
+    The catalog includes <code>composer-2.5-fast</code>, <code>gpt-5.5-fast</code>, and
+    <code>claude-fable-5</code>. Fable 5 is exposed as a 1M-context Cursor-routed model
+    with high reasoning by default and the full Opus-style effort range up to
+    <code>xhigh</code> and <code>max</code>. Reasoning selections map to Cursor's
+    <code>effort</code>, <code>thinking</code>, and <code>fast</code> request parameters,
+    while a stable per-thread conversation id keeps multi-turn context attached to the
+    right Roder thread.
   </p>
 
   <pre><code>export CURSOR_API_KEY="..."
 RODER_PROVIDER=cursor RODER_MODEL=cursor/composer-2.5 cargo run -p roder-cli</code></pre>
+
+  <h2>Kimi Code auth</h2>
+  <p>
+    Kimi Code can use the managed subscription OAuth flow or a saved API key. The CLI
+    supports both through <code>roder auth login kimi-code</code>; pass
+    <code>--api-key</code> to paste or provide a key directly, or <code>--oauth</code> to force
+    the browser-based subscription flow. Status reports API-key configuration, and logout
+    clears the saved provider key.
+  </p>
+
+  <pre><code>roder auth login kimi-code --api-key
+roder auth status kimi-code
+roder auth logout kimi-code</code></pre>
+
+  <h2>xAI and SuperGrok</h2>
+  <p>
+    The <code>roder-ext-xai</code> provider installs both the direct <code>xai</code>
+    API-key surface and the OAuth-backed <code>supergrok</code> surface. Both catalogs
+    default to <code>grok-4.5</code>, exposed with a 500k context window, high reasoning
+    by default, and explicit <code>low</code>, <code>medium</code>, and <code>high</code>
+    reasoning choices. Older Grok 4.3, Grok 4.20, SuperGrok Build, and SuperGrok
+    Composer entries remain selectable for pinned workflows.
+  </p>
+
+  <pre><code>export XAI_API_KEY="..."
+RODER_PROVIDER=xai RODER_MODEL=grok-4.5 cargo run -p roder-cli
+
+roder auth login supergrok
+RODER_PROVIDER=supergrok RODER_MODEL=grok-4.5 cargo run -p roder-cli</code></pre>
 
   <h2>OpenRouter and Grok Build</h2>
   <p>
