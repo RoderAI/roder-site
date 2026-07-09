@@ -52,7 +52,7 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-xai",
         provides: ["InferenceEngine(supergrok)", "InferenceEngine(xai)"],
-        how: "Always registers the SuperGrok OAuth engine; when an xAI API key is declared it additionally installs a direct xAI surface built on the OpenAI Responses engine pointed at api.x.ai/v1.",
+        how: "Always registers the SuperGrok OAuth engine; when an xAI API key is declared it additionally installs a direct xAI surface built on the OpenAI Responses engine pointed at api.x.ai/v1. Both catalogs default to grok-4.5 with 500k context and high reasoning.",
         install: "Default · SuperGrok",
       },
       {
@@ -64,8 +64,14 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-cursor",
         provides: ["InferenceEngine(cursor)"],
-        how: "Talks directly to Cursor's AgentService backend APIs for Composer-style agent turns, including fast model variants, reasoning parameters, and stable per-thread conversation ids. Live turns require a Cursor User API key.",
+        how: "Talks directly to Cursor's AgentService backend APIs for Composer-style agent turns, including fast model variants, Claude Fable 5, reasoning parameters, and stable per-thread conversation ids. Live turns require a Cursor User API key.",
         install: "Default",
+      },
+      {
+        crate: "roder-ext-kimi-code",
+        provides: ["InferenceEngine(kimi-code)"],
+        how: "Kimi Code provider for Kimi subscription OAuth or API-key auth. The CLI can save keys with roder auth login kimi-code --api-key, and app-server auth status reports configured API-key state.",
+        install: "Default · OAuth or key",
       },
       {
         crate: "roder-ext-fireworks",

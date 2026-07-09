@@ -303,9 +303,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <h2>Provider and settings methods</h2>
 
   <p>
-    Provider methods let a client show available backends, configure a provider, and
-    select the default model for future work. Settings methods expose web-search mode
-    and default policy mode.
+    Provider methods let a client show available backends, configure a provider, and select the default model for future work. Auth methods expose Codex, SuperGrok, and Kimi Code sign-in state. Settings methods expose web-search mode and default policy mode.
   </p>
 
   <pre><code>{`{"jsonrpc":"2.0","id":40,"method":"providers/list"}
@@ -461,7 +459,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <ul>
     <li><strong>Handshake:</strong> <code>initialize</code>.</li>
     <li><strong>Discovery:</strong> <code>extensions/list</code>, <code>providers/list</code>, <code>model/list</code>, <code>tools/list</code>, <code>agents/list</code>, <code>discovery/refresh</code>, <code>discovery/groups</code>, and <code>discovery/search</code>.</li>
-    <li><strong>Providers/auth/settings:</strong> <code>providers/configure</code>, <code>providers/select</code>, <code>auth/codex/login</code>, <code>auth/codex/status</code>, <code>auth/codex/logout</code>, <code>auth/supergrok/login</code>, <code>auth/supergrok/status</code>, <code>auth/supergrok/logout</code>, <code>settings/get</code>, <code>settings/set_web_search</code>, <code>settings/set_default_mode</code>.</li>
+    <li><strong>Providers/auth/settings:</strong> <code>providers/configure</code>, <code>providers/select</code>, <code>auth/codex/login</code>, <code>auth/codex/status</code>, <code>auth/codex/logout</code>, <code>auth/supergrok/login</code>, <code>auth/supergrok/status</code>, <code>auth/supergrok/logout</code>, <code>auth/kimi-code/login</code>, <code>auth/kimi-code/status</code>, <code>auth/kimi-code/logout</code>, <code>settings/get</code>, <code>settings/set_web_search</code>, <code>settings/set_default_mode</code>.</li>
     <li><strong>Threads/turns/goals:</strong> <code>thread/start</code>, <code>thread/list</code>, <code>thread/read</code>, <code>thread/archive</code>, <code>thread/goal/get</code>, <code>thread/goal/set</code>, <code>thread/goal/clear</code>, <code>turn/start</code>, <code>turn/steer</code>, <code>turn/interrupt</code>, <code>thread/state</code>, <code>thread/set_mode</code>, <code>thread/set_agent_swarm_mode</code>, <code>thread/exit_plan</code>, <code>thread/resolve_approval</code>, and <code>thread/resolve_user_input</code>.</li>
     <li><strong>Filesystem/process/tools:</strong> <code>fs/readFile</code>, <code>fs/readDirectory</code>, <code>command/exec</code>, <code>commands/list</code>, <code>commands/expand</code>, <code>commands/run</code>, <code>tools/call</code>.</li>
     <li><strong>Runners/tasks:</strong> <code>runners/list</code>, <code>runners/select</code>, <code>runners/session</code>, <code>runners/snapshot</code>, <code>runners/delete</code>, <code>runners/ports</code>, <code>runners/pause</code>, <code>runners/resume</code>, <code>runners/detach</code>, <code>runners/rejoin</code>, <code>tasks/submit</code>, <code>tasks/list</code>, <code>tasks/get</code>, <code>tasks/cancel</code>, <code>tasks/subscribe</code>. The lifecycle methods are included in the checked-in schema and generated TypeScript and Python client types.</li>

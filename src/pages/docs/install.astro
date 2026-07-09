@@ -27,14 +27,16 @@ cargo run -p roder-cli</code></pre>
   </p>
 
   <pre><code>RODER_PROVIDER=openai RODER_MODEL=gpt-5.5 cargo run -p roder-cli
+RODER_PROVIDER=xai RODER_MODEL=grok-4.5 cargo run -p roder-cli
 RODER_PROVIDER=openrouter RODER_MODEL=x-ai/grok-build-0.1 cargo run -p roder-cli
 RODER_PROVIDER=mock cargo run -p roder-cli</code></pre>
 
   <p>
     Provider API keys can be set through config or the provider-specific environment keys.
-    The default distribution resolves OpenAI, Anthropic, Gemini, OpenRouter, Codex OAuth,
-    web search, subagent, JSONL session, memory, embedding, and built-in tool extensions
-    from that configuration.
+    The default distribution resolves OpenAI, Anthropic, Gemini, xAI, SuperGrok,
+    OpenRouter, Codex OAuth, Kimi Code, web search, subagent, JSONL session, memory,
+    embedding, and built-in tool extensions from that configuration. Kimi Code can also save a key through
+    <code>roder auth login kimi-code --api-key</code>.
   </p>
 
   <h2>Policy modes</h2>
