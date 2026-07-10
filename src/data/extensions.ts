@@ -22,7 +22,7 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-openai-responses",
         provides: ["InferenceEngine({provider_id})"],
-        how: "Generic OpenAI Responses API engine: streams /v1/responses and maps output items and deltas to inference events, including reasoning summaries and hosted web search. Reused as the engine for xAI API-key, OpenRouter, Codex OAuth, and custom OpenAI-compatible providers, registering as roder-ext-openai-responses-{provider_id}.",
+        how: "Generic OpenAI Responses API engine: streams /v1/responses and maps output items and deltas to inference events, including reasoning summaries and hosted web search. Reused as the engine for xAI API-key, OpenRouter, Codex OAuth, and custom OpenAI-compatible providers. Codex exposes GPT-5.6 Sol/Terra/Luna, defaults to Sol, and maps Roder's Ultra effort to the provider's max reasoning value.",
         install: "When configured",
       },
       {
