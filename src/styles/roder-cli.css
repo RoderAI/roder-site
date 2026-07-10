@@ -1,0 +1,435 @@
+.cli-page {
+  --cli-bg: #f7f8f6;
+  --cli-paper: #ffffff;
+  --cli-ink: #101215;
+  --cli-muted: #606864;
+  --cli-soft: #eef1ed;
+  --cli-line: rgba(16, 18, 21, 0.1);
+  --cli-orange: #ff4d00;
+  --cli-orange-dark: #d63f00;
+  --cli-teal: #0a9b8d;
+  --cli-terminal: #272b33;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 248, 246, 1) 38rem),
+    var(--cli-bg);
+  overflow: hidden;
+}
+
+.cli-container {
+  width: min(1180px, calc(100% - 3rem));
+  margin: 0 auto;
+}
+
+.cli-hero {
+  padding: clamp(4.5rem, 7vw, 7rem) 0 clamp(4rem, 7vw, 6.5rem);
+}
+
+.cli-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(390px, 0.9fr);
+  gap: clamp(2rem, 4vw, 3.6rem);
+  align-items: center;
+}
+
+.cli-hero-copy h1,
+.cli-section-head h2,
+.provider-layout h2,
+.workflow-copy h2,
+.cli-final h2 {
+  margin: 0;
+  color: var(--cli-ink);
+  font-family: var(--mono);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.02;
+}
+
+.cli-hero-copy h1 {
+  font-size: 3.85rem;
+  max-width: 760px;
+}
+
+.cli-hero-copy p {
+  max-width: 660px;
+  margin: 1.55rem 0 0;
+  color: var(--cli-muted);
+  font-size: clamp(1.08rem, 1.7vw, 1.32rem);
+  line-height: 1.58;
+}
+
+.cli-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+
+.cli-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.1rem;
+  padding: 0.75rem 1.08rem;
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    transform 260ms ease,
+    box-shadow 260ms ease,
+    background 260ms ease,
+    color 260ms ease;
+}
+
+.cli-button:hover {
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.cli-button-primary {
+  color: #fff;
+  background: var(--cli-orange);
+  box-shadow: 0 18px 38px rgba(214, 63, 0, 0.2);
+}
+
+.cli-button-primary:hover {
+  background: var(--cli-orange-dark);
+}
+
+.cli-button-secondary {
+  color: var(--cli-ink);
+  background: var(--cli-paper);
+  box-shadow: inset 0 0 0 1px var(--cli-line);
+}
+
+.cli-hero-points {
+  display: grid;
+  gap: 0.52rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--cli-muted);
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.cli-hero-points li {
+  display: flex;
+  gap: 0.55rem;
+  align-items: baseline;
+}
+
+.cli-hero-points li::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.48rem;
+  height: 0.48rem;
+  margin-top: 0.38rem;
+  border-radius: 999px;
+  background: var(--cli-teal);
+}
+
+.cli-hero-shot,
+.screenshot-card {
+  margin: 0;
+}
+
+.cli-hero-shot img,
+.screenshot-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: var(--cli-terminal);
+  box-shadow:
+    0 34px 90px rgba(16, 18, 21, 0.18),
+    0 0 0 1px rgba(16, 18, 21, 0.12);
+}
+
+.cli-hero-shot figcaption {
+  margin-top: 0.75rem;
+  color: var(--cli-muted);
+  font-size: 0.88rem;
+}
+
+.cli-install,
+.cli-section,
+.cli-final {
+  padding: clamp(4rem, 7vw, 6rem) 0;
+  border-top: 1px solid var(--cli-line);
+}
+
+.cli-section-head {
+  max-width: 780px;
+  margin-bottom: 1.7rem;
+}
+
+.cli-section-head h2,
+.provider-layout h2,
+.workflow-copy h2,
+.cli-final h2 {
+  font-size: 3.1rem;
+}
+
+.cli-section-head p,
+.provider-layout p,
+.workflow-copy p,
+.cli-final p {
+  margin: 0.85rem 0 0;
+  color: var(--cli-muted);
+  font-size: 1.04rem;
+}
+
+.install-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.36fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.install-commands {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.install-command,
+.install-card,
+.feature-card,
+.config-panel,
+.cli-final-inner {
+  border: 1px solid var(--cli-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.install-command {
+  padding: 1rem;
+}
+
+.install-command h3,
+.install-card h3,
+.feature-card h3,
+.config-panel h3 {
+  margin: 0;
+  color: var(--cli-ink);
+  font-family: var(--mono);
+  font-size: 0.96rem;
+}
+
+.install-command p,
+.install-card p,
+.feature-card p {
+  margin: 0.3rem 0 0;
+  color: var(--cli-muted);
+  font-size: 0.93rem;
+}
+
+.install-command pre,
+.config-panel pre,
+.workflow-commands pre {
+  margin: 0.9rem 0 0;
+  border-color: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: #111316;
+}
+
+.install-command pre code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.install-card {
+  padding: 1.1rem;
+}
+
+.install-card ol {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.install-card li {
+  padding-left: 0.2rem;
+  color: var(--cli-muted);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.feature-card {
+  min-height: 13rem;
+  padding: 1.15rem;
+}
+
+.feature-card h3 {
+  font-size: 1rem;
+}
+
+.feature-card p {
+  line-height: 1.58;
+}
+
+.screenshots-section {
+  background:
+    linear-gradient(180deg, rgba(238, 241, 237, 0.7), rgba(247, 248, 246, 0));
+}
+
+.screenshot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+}
+
+.screenshot-card {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.screenshot-card figcaption {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.screenshot-card strong {
+  color: var(--cli-ink);
+  font-family: var(--mono);
+  font-size: 1rem;
+}
+
+.screenshot-card span {
+  color: var(--cli-muted);
+  font-size: 0.95rem;
+}
+
+.provider-layout,
+.workflow-grid,
+.cli-final-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 0.7fr);
+  gap: clamp(1.2rem, 4vw, 3rem);
+  align-items: center;
+}
+
+.provider-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.52rem;
+  margin-top: 1.35rem;
+}
+
+.provider-list span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.1rem;
+  padding: 0.38rem 0.64rem;
+  border: 1px solid rgba(10, 155, 141, 0.22);
+  border-radius: 8px;
+  color: #075f58;
+  background: rgba(10, 155, 141, 0.07);
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.config-panel {
+  padding: 1rem;
+}
+
+.workflow-section {
+  background: #111316;
+}
+
+.workflow-section h2,
+.workflow-section p {
+  color: #f6f7f5;
+}
+
+.workflow-section p {
+  color: rgba(246, 247, 245, 0.72);
+}
+
+.workflow-commands pre {
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.26);
+}
+
+.cli-final {
+  padding-bottom: 2rem;
+}
+
+.cli-final-inner {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 1.25rem;
+}
+
+.cli-final p {
+  max-width: 720px;
+}
+
+@media (max-width: 980px) {
+  .cli-hero-grid,
+  .install-layout,
+  .provider-layout,
+  .workflow-grid,
+  .cli-final-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-grid,
+  .screenshot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cli-hero-copy h1,
+  .cli-section-head h2,
+  .provider-layout h2,
+  .workflow-copy h2,
+  .cli-final h2 {
+    font-size: 2.75rem;
+  }
+
+  .cli-final-inner {
+    align-items: start;
+  }
+}
+
+@media (max-width: 640px) {
+  .cli-container {
+    width: min(100% - 1rem, 1180px);
+  }
+
+  .cli-hero {
+    padding-top: 3.8rem;
+  }
+
+  .cli-hero-copy h1,
+  .cli-section-head h2,
+  .provider-layout h2,
+  .workflow-copy h2,
+  .cli-final h2 {
+    font-size: 2.18rem;
+  }
+
+  .feature-grid,
+  .screenshot-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cli-actions {
+    display: grid;
+  }
+
+  .cli-button {
+    width: 100%;
+  }
+
+  .install-command pre,
+  .config-panel pre,
+  .workflow-commands pre {
+    font-size: 0.76rem;
+  }
+}

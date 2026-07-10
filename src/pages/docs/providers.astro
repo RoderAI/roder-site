@@ -17,7 +17,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <h2>Default provider set</h2>
   <ul>
-    <li><code>roder-ext-openai-responses</code> - OpenAI Responses-style inference.</li>
+    <li><code>roder-ext-openai-responses</code> - OpenAI Responses-style inference, including Codex GPT-5.6 catalog entries and Ultra effort mapping.</li>
     <li><code>roder-ext-openai-chat-completions</code> - chat-completions-compatible endpoints.</li>
     <li><code>roder-ext-anthropic</code> - Anthropic Messages-style inference.</li>
     <li><code>roder-ext-claude-code</code> - the local Claude Code CLI, with resumable sessions and optional Claude-in-Chrome browser tools.</li>
@@ -29,7 +29,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><code>roder-ext-openrouter</code> - OpenRouter API-key provider, including the Grok Build catalog entry.</li>
     <li><code>roder-ext-roder-cloud</code> - roder.cloud hosted inference using a roder_ team key exchanged for short-lived JWTs.</li>
     <li><code>roder-core::fake_provider</code> - deterministic mock behavior for tests and offline work.</li>
-    <li><code>roder-codex-auth</code> and host wiring - Codex OAuth where enabled.</li>
+    <li><code>roder-codex-auth</code> and host wiring - Codex OAuth with GPT-5.6 Sol as the default Codex model where enabled.</li>
   </ul>
 
   <h2>Claude Code and Claude in Chrome</h2>
@@ -49,6 +49,23 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     OpenAI-compatible Responses adapter. Offline metadata keeps it visible in provider
     menus before a key is configured.
   </p>
+
+  <h2>Codex OAuth</h2>
+  <p>
+    The Codex provider catalog now exposes <code>gpt-5.6-sol</code>,
+    <code>gpt-5.6-terra</code>, <code>gpt-5.6-luna</code>, <code>gpt-5.5</code>,
+    <code>gpt-5.4</code>, <code>gpt-5.4-mini</code>, and
+    <code>gpt-5.3-codex-spark</code>. New Codex-backed sessions default to
+    <code>gpt-5.6-sol</code>. Sol and Terra support Roder's <code>ultra</code>
+    effort, which remains visible in Roder while the Responses transport maps it to
+    the provider's <code>max</code> reasoning effort. Ultra also turns on bounded
+    proactive delegation for those models; lower efforts keep teammate spawning
+    explicit-request-only.
+  </p>
+
+  <pre><code>roder auth login codex
+RODER_PROVIDER=codex RODER_MODEL=gpt-5.6-sol cargo run -p roder-cli
+RODER_PROVIDER=codex RODER_MODEL=gpt-5.6-terra RODER_REASONING=ultra cargo run -p roder-cli</code></pre>
 
   <h2>Cursor AgentService</h2>
   <p>
@@ -131,8 +148,8 @@ RODER_PROVIDER=openrouter RODER_MODEL=x-ai/grok-build-0.1 cargo run -p roder-cli
 
   <h2>Selecting defaults</h2>
   <pre><code># ~/.roder/config.toml
-provider = "openai"
-model = "gpt-5.5"
+provider = "codex"
+model = "gpt-5.6-sol"
 reasoning = "medium"</code></pre>
 
   <pre><code>RODER_PROVIDER=anthropic RODER_MODEL=claude-opus-4-5 cargo run -p roder-cli

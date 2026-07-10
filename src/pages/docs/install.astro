@@ -26,7 +26,7 @@ cargo run -p roder-cli</code></pre>
     common defaults.
   </p>
 
-  <pre><code>RODER_PROVIDER=openai RODER_MODEL=gpt-5.5 cargo run -p roder-cli
+  <pre><code>RODER_PROVIDER=codex RODER_MODEL=gpt-5.6-sol cargo run -p roder-cli
 RODER_PROVIDER=xai RODER_MODEL=grok-4.5 cargo run -p roder-cli
 RODER_PROVIDER=openrouter RODER_MODEL=x-ai/grok-build-0.1 cargo run -p roder-cli
 RODER_PROVIDER=mock cargo run -p roder-cli</code></pre>
@@ -37,6 +37,12 @@ RODER_PROVIDER=mock cargo run -p roder-cli</code></pre>
     OpenRouter, Codex OAuth, Kimi Code, web search, subagent, JSONL session, memory,
     embedding, and built-in tool extensions from that configuration. Kimi Code can also save a key through
     <code>roder auth login kimi-code --api-key</code>.
+  </p>
+
+  <p>
+    Codex OAuth exposes the current GPT-5.6 Sol, Terra, and Luna catalog. Sol is the
+    default Codex model, and Sol/Terra can use <code>RODER_REASONING=ultra</code> when
+    you want maximum provider reasoning plus Roder's bounded proactive delegation mode.
   </p>
 
   <h2>Policy modes</h2>

@@ -1,0 +1,264 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/roder-cli.css";
+
+const installCommands = [
+  {
+    title: "Quick install",
+    note: "Linux and Apple Silicon macOS",
+    command: "curl -fsSL https://github.com/RoderAI/roder/releases/download/latest/install.sh | bash",
+  },
+  {
+    title: "Install with Homebrew",
+    note: "Roder Homebrew tap",
+    command: "brew install RoderAI/tap/roder",
+  },
+  {
+    title: "Build from source",
+    note: "For local development",
+    command: "git clone https://github.com/RoderAI/roder.git\ncd roder\nmake install",
+  },
+];
+
+const featureCards = [
+  {
+    title: "Work in any repo",
+    body: "Open Roder in a project and it attaches the run to that workspace, local config, tools, and saved thread state.",
+  },
+  {
+    title: "Use interactive or headless mode",
+    body: "Start the terminal UI with `roder`, or run a one-shot task with `roder exec` when scripts, evals, or CI need plain output.",
+  },
+  {
+    title: "Resume the exact run",
+    body: "Threads are saved locally, including transcript items, workspace metadata, provider/model selection, and usage.",
+  },
+  {
+    title: "Connect clients to one runtime",
+    body: "The embedded app-server gives TUI, desktop, IDE, ACP, and eval clients a shared JSON-RPC control plane.",
+  },
+];
+
+const screenshots = [
+  {
+    image: "/product/roder-cli/ghostty-roder-demo.png",
+    title: "Real build demo",
+    body: "Captured from Ghostty after a Roder run in `~/tmp/roder-cli-product-demo` created `index.html` and `styles.css`.",
+  },
+  {
+    image: "/product/roder-cli/ghostty-resume.png",
+    title: "Resume saved work",
+    body: "The same thread reopens with the saved transcript, model, workspace, and input box ready for the next instruction.",
+  },
+  {
+    image: "/product/roder-cli/ghostty-providers.png",
+    title: "Provider and exec surfaces",
+    body: "Auth status, media providers, and `roder exec --help` are plain CLI surfaces for scripting and setup checks.",
+  },
+  {
+    image: "/product/roder-cli/ghostty-app-server.png",
+    title: "Control plane",
+    body: "`roder app-server --listen stdio://` exposes the same runtime to trusted local clients and protocol adapters.",
+  },
+];
+
+const providers = [
+  "OpenAI",
+  "Codex",
+  "Anthropic",
+  "Gemini",
+  "Vertex AI",
+  "xAI",
+  "OpenRouter",
+  "Fireworks AI",
+  "Cursor",
+  "Claude Code",
+  "Kimi Code",
+  "Roder Cloud",
+];
+---
+
+<Layout
+  title="Roder CLI - terminal coding agent"
+  description="Install the Roder CLI, run coding-agent sessions from your terminal, resume saved work, and connect provider-neutral agent infrastructure to local clients."
+  canonicalPath="/cli/"
+>
+  <div class="cli-page">
+    <section class="cli-hero">
+      <div class="cli-container cli-hero-grid">
+        <div class="cli-hero-copy">
+          <h1>Run a Rust-native coding agent from your terminal.</h1>
+          <p>
+            Install Roder, open it in a repo, and give it real work: inspect files,
+            edit code, run commands, call providers, resume sessions, and expose the
+            same runtime through a local app-server.
+          </p>
+          <div class="cli-actions" aria-label="Primary actions">
+            <a class="cli-button cli-button-primary" href="#install">Install Roder</a>
+            <a class="cli-button cli-button-secondary" href="/docs/install/">Read install docs</a>
+          </div>
+          <ul class="cli-hero-points" aria-label="Roder CLI highlights">
+            <li>Terminal UI and non-interactive `roder exec`</li>
+            <li>Provider-neutral model labels like `openai/gpt-5.5`</li>
+            <li>Local thread persistence, replay, and app-server control</li>
+          </ul>
+        </div>
+        <figure class="cli-hero-shot">
+          <img
+            src="/product/roder-cli/ghostty-roder-demo.png"
+            alt="Ghostty terminal showing Roder building a small Patchboard static site in a temporary repo"
+            width="1920"
+            height="1280"
+          />
+          <figcaption>
+            Real demo captured in Ghostty from `~/tmp/roder-cli-product-demo`.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="cli-install" id="install">
+      <div class="cli-container">
+        <div class="cli-section-head">
+          <h2>Install Roder</h2>
+          <p>
+            The installer downloads the latest release archive, verifies its SHA-256
+            checksum, and writes `roder` to `~/.local/bin` unless you override the
+            destination.
+          </p>
+        </div>
+        <div class="install-layout">
+          <div class="install-commands">
+            {installCommands.map((item) => (
+              <article class="install-command">
+                <div>
+                  <h3>{item.title}</h3>
+                  <p>{item.note}</p>
+                </div>
+                <pre><code>{item.command}</code></pre>
+              </article>
+            ))}
+          </div>
+          <aside class="install-card" aria-label="First run checklist">
+            <h3>First run</h3>
+            <ol>
+              <li><code>export PATH="$HOME/.local/bin:$PATH"</code></li>
+              <li><code>roder auth status</code></li>
+              <li><code>cd /path/to/your/repo</code></li>
+              <li><code>roder</code></li>
+            </ol>
+            <p>
+              Keep a separate profile with `--config-dir /tmp/lab-roder` when you
+              want clean config and thread state.
+            </p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="cli-section">
+      <div class="cli-container">
+        <div class="cli-section-head">
+          <h2>What the CLI gives you</h2>
+          <p>
+            Roder is the local product surface for the Rust harness: terminal UI,
+            one-shot automation, provider setup, saved sessions, and the embedded
+            control plane.
+          </p>
+        </div>
+        <div class="feature-grid">
+          {featureCards.map((feature) => (
+            <article class="feature-card">
+              <h3>{feature.title}</h3>
+              <p>{feature.body}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="cli-section screenshots-section" id="features">
+      <div class="cli-container">
+        <div class="cli-section-head">
+          <h2>Screenshots from a real Roder session</h2>
+          <p>
+            These captures use Ghostty. The build demo asked Roder to create a tiny
+            static product card in `~/tmp`, then resumed the saved thread and checked
+            provider/setup commands.
+          </p>
+        </div>
+        <div class="screenshot-grid">
+          {screenshots.map((shot) => (
+            <figure class="screenshot-card">
+              <img src={shot.image} alt={`${shot.title} screenshot`} loading="lazy" />
+              <figcaption>
+                <strong>{shot.title}</strong>
+                <span>{shot.body}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="cli-section provider-section">
+      <div class="cli-container provider-layout">
+        <div>
+          <h2>Use the model and provider you prefer.</h2>
+          <p>
+            Roder model labels use `provider/model`, and the default distribution
+            includes first-party provider integrations plus custom OpenAI-compatible
+            provider config.
+          </p>
+          <div class="provider-list" aria-label="Supported provider examples">
+            {providers.map((provider) => <span>{provider}</span>)}
+          </div>
+        </div>
+        <div class="config-panel">
+          <h3>Example config</h3>
+          <pre><code>{`provider = "synthetic"
+model = "syn:large:text"
+
+[providers.synthetic]
+api_key_env = "SYNTHETIC_API_KEY"
+base_url = "https://api.synthetic.new/openai/v1"`}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="cli-section workflow-section">
+      <div class="cli-container workflow-grid">
+        <div class="workflow-copy">
+          <h2>Interactive when you want it. Scriptable when you need it.</h2>
+          <p>
+            Use the full terminal UI for live development sessions. Use `roder exec`
+            for repeatable tasks, eval harnesses, and automation. Start
+            `roder app-server` when another local client should drive the same
+            runtime.
+          </p>
+        </div>
+        <div class="workflow-commands">
+          <pre><code>{`roder
+roder resume <thread-id>
+roder exec --mode bypass "inspect this repo"
+roder exec resume --last "continue"
+roder app-server --listen stdio://
+roder media providers`}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="cli-final">
+      <div class="cli-container cli-final-inner">
+        <div>
+          <h2>Install Roder and start in your repo.</h2>
+          <p>
+            One command gets the CLI onto your path. From there, run `roder` in a
+            workspace or use `roder exec` for direct terminal automation.
+          </p>
+        </div>
+        <a class="cli-button cli-button-primary" href="#install">Install Roder</a>
+      </div>
+    </section>
+  </div>
+</Layout>
