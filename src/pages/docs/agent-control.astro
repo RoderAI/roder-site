@@ -1,0 +1,98 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Agent control"
+  eyebrow="Capabilities"
+  description="Coordinate long-lived teammate agents with canonical paths, follow-up turns, waiting, and interruption."
+  prev={{ href: "/docs/agent-swarm/", title: "Agent swarm" }}
+  next={{ href: "/docs/tui/", title: "TUI" }}
+>
+  <p>
+    Agent control is the model-facing surface for long-lived teammates. It is separate
+    from the one-shot <code>task</code> tool and from <a href="/docs/agent-swarm/">agent
+    swarm</a>: a teammate is backed by a normal Roder thread, keeps a canonical path,
+    and can receive later messages or follow-up work during the parent session.
+  </p>
+
+  <h2>Tool surface</h2>
+  <ul>
+    <li><code>spawn_agent</code> creates a teammate, starts its first turn, and returns a canonical path such as <code>/root/reviewer</code>.</li>
+    <li><code>send_message</code> queues coordination for an existing teammate without starting a new idle turn.</li>
+    <li><code>followup_task</code> assigns work and starts or wakes the teammate when it is idle or completed.</li>
+    <li><code>wait_agent</code> yields on completion, mailbox activity, or user steering instead of forcing blind polling.</li>
+    <li><code>list_agents</code> lists the accessible live task tree.</li>
+    <li><code>interrupt_agent</code> interrupts the active teammate turn while keeping the identity available for later follow-up work.</li>
+  </ul>
+
+  <h2>Context inheritance</h2>
+  <p>
+    Spawning a teammate can copy all parent turns, copy none, or copy only the most
+    recent N turns. With copied history, the child inherits the parent agent type and
+    live model selection. With a fresh or last-N fork, the spawn may either inherit the
+    parent provider, model, reasoning effort, workspace, policy, tools, runner, and
+    developer context, or provide an explicit compatible model selection.
+  </p>
+
+  <pre><code>{`{
+  "task_name": "reviewer",
+  "message": "Review the current patch and report blocking risks.",
+  "fork_turns": "all"
+}`}</code></pre>
+
+  <pre><code>{`{
+  "task_name": "fast_search",
+  "message": "Locate the relevant implementation and report file paths.",
+  "fork_turns": "none",
+  "model_provider": "codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "high"
+}`}</code></pre>
+
+  <h2>Canonical task paths</h2>
+  <p>
+    A local task name becomes one path segment. A lead spawning <code>reviewer</code>
+    creates <code>/root/reviewer</code>; if that worker spawns <code>tests</code>, the nested
+    path is <code>/root/reviewer/tests</code>. Roder supports at most five nested levels
+    below <code>/root</code> and rejects deeper spawns before creating thread state.
+  </p>
+
+  <h2>Messages and follow-ups</h2>
+  <p>
+    <code>send_message</code> and <code>followup_task</code> deliberately behave differently.
+    Use <code>send_message</code> when a running teammate should see more context at a safe
+    boundary. Use <code>followup_task</code> when the teammate should start or continue a
+    turn. Inter-agent messages use typed <code>MESSAGE</code>, <code>NEW_TASK</code>, and
+    <code>FINAL_ANSWER</code> envelopes with canonical sender and recipient paths.
+  </p>
+
+  <h2>Waiting and interruption</h2>
+  <p>
+    <code>wait_agent</code> can wait for one teammate or any accessible teammate. A terminal
+    result includes completed, failed, interrupted, or closed status plus optional final
+    text and terminal error. The same terminal result is delivered automatically to the
+    direct parent mailbox, so the parent can continue from the next inference round.
+  </p>
+
+  <p>
+    <code>interrupt_agent</code> targets only the active turn. It does not delete the
+    teammate, clean up the team, or invalidate the canonical path. Assign later work with
+    <code>followup_task</code>.
+  </p>
+
+  <h2>Client control plane</h2>
+  <p>
+    App-server clients use the matching <code>team/*</code> methods: <code>team/start</code>,
+    <code>team/read</code>, <code>team/member/start</code>, <code>team/member/message</code>,
+    <code>team/member/interrupt</code>, and <code>team/cleanup</code>. Team notifications
+    include started members, status changes, message deltas, and completed-member payloads
+    with optional <code>finalMessage</code> and <code>error</code>.
+  </p>
+
+  <div class="callout">
+    <strong>Policy still applies.</strong> Teammate messages are never treated as user
+    approval. Tool calls from child agents still flow through the active policy, runner,
+    and workspace boundary.
+  </div>
+</DocsLayout>

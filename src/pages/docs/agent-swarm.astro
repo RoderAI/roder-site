@@ -7,7 +7,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   eyebrow="Capabilities"
   description="Run one task shape across many items with bounded parallel agents."
   prev={{ href: "/docs/tools/", title: "Tools & policy" }}
-  next={{ href: "/docs/tui/", title: "TUI" }}
+  next={{ href: "/docs/agent-control/", title: "Agent control" }}
 >
   <p>
     Agent-swarm mode lets a lead model apply one prompt template to many items, run the
@@ -83,4 +83,9 @@ rate_limit_base_backoff_ms = 3000`}</code></pre>
     sandbox rules. When the current TUI policy would gate parallel child work, Roder asks
     for the policy switch before entering the mode.
   </div>
+
+  <p>
+    For durable teammate threads, canonical task paths, follow-up work, and
+    non-destructive interruption, see <a href="/docs/agent-control/">agent control</a>.
+  </p>
 </DocsLayout>
