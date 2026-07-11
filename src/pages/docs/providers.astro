@@ -59,7 +59,9 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <code>gpt-5.6-sol</code>. Sol and Terra support Roder's <code>ultra</code>
     effort, which remains visible in Roder while the Responses transport maps it to
     the provider's <code>max</code> reasoning effort. Ultra also turns on bounded
-    proactive delegation for those models; lower efforts keep teammate spawning
+    proactive delegation for those models. Spawned teammates inherit the live Codex
+    model, Ultra effort, policy, runner, tools, and workspace unless the spawn requests
+    a fresh-context compatible override; lower efforts keep teammate spawning
     explicit-request-only.
   </p>
 

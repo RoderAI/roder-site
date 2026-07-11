@@ -359,7 +359,7 @@ export const categories: ExtensionCategory[] = [
           "ToolProvider(roder-subagents-task)",
           "ToolProvider(agent_swarm)",
         ],
-        how: "An in-process dispatcher for child turns against the parent tool registry. Exposes task and bounded agent_swarm fanout with pacing, concurrency limits, rate-limit backoff, cancellation, live progress, and ordered results.",
+        how: "An in-process dispatcher for child turns against the parent tool registry. Exposes task, bounded agent_swarm fanout, and Codex V2-style agent-control lifecycles with canonical paths, context forks, follow-up turns, mailbox-aware waiting, and non-destructive interruption.",
         install: "When enabled",
       },
     ],

@@ -254,7 +254,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><code>item/started</code> and <code>item/completed</code></li>
     <li><code>item/agentMessage/delta</code> for streamed model text and reasoning deltas</li>
     <li><code>command/exec/outputDelta</code> for command output when streaming is requested</li>
-    <li><code>agentSwarm/started</code>, <code>agentSwarm/progress</code>, and <code>agentSwarm/completed</code> for fanout work</li>
+    <li><code>agentSwarm/*</code> for fanout work and <code>team/*</code> notifications for teammate roster, status, deltas, and terminal results</li>
   </ul>
 
   <pre><code>{`{
@@ -394,16 +394,21 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <h2>Teams and subagents</h2>
 
   <p>
-    Team methods expose multi-agent orchestration over the same control plane. Use
-    <code>team/start</code> to create a team, <code>team/member/start</code> to add members,
-    <code>team/member/message</code> to send a prompt to a member, and interrupt/focus
-    methods to manage active work. Split-pane methods currently return an unsupported
-    error in the app server.
+    Team methods expose long-lived teammate orchestration over the same control plane as
+    model-facing agent control. Use <code>team/start</code> to create a team,
+    <code>team/member/start</code> to add members, <code>team/member/message</code> to start
+    or steer a member turn, and <code>team/member/interrupt</code> to stop only that
+    member's active turn. <code>team/read</code> mailbox entries include
+    <code>MESSAGE</code>, <code>NEW_TASK</code>, or <code>FINAL_ANSWER</code> kind, and
+    completion notifications can include both <code>finalMessage</code> and
+    <code>error</code>. Split-pane methods currently return an unsupported error in the
+    app server.
   </p>
 
   <pre><code>{`{"jsonrpc":"2.0","id":70,"method":"team/start","params":{"leadThreadId":"THREAD_ID","members":[{"name":"reviewer"}]}}
 {"jsonrpc":"2.0","id":71,"method":"team/list","params":{"limit":10}}
-{"jsonrpc":"2.0","id":72,"method":"turn/subagentTraces/list","params":{"threadId":"THREAD_ID","turnId":"TURN_ID"}}`}</code></pre>
+{"jsonrpc":"2.0","id":72,"method":"team/read","params":{"teamId":"TEAM_ID"}}
+{"jsonrpc":"2.0","id":73,"method":"turn/subagentTraces/list","params":{"threadId":"THREAD_ID","turnId":"TURN_ID"}}`}</code></pre>
 
   <h2>Review, workflows, media, and memory</h2>
 
