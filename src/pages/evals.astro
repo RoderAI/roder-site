@@ -6,6 +6,7 @@ import {
   fullSuiteRuns,
   leaderboardContext,
   latestFullSuiteRun,
+  theoreticalScore,
 } from "../data/evalResults";
 import "../styles/evals.css";
 
@@ -14,18 +15,28 @@ const formatDate = (value: string) =>
   new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
 
 const firstFullSuiteRun = fullSuiteRuns[0];
-const passLift = latestFullSuiteRun.passes - firstFullSuiteRun.passes;
+const passLift = theoreticalScore.passes - firstFullSuiteRun.passes;
 const softTimeoutReduction = (firstFullSuiteRun.softTimeouts ?? 0) - (latestFullSuiteRun.softTimeouts ?? 0);
 const latestFullSuitePercent = scorePercent(latestFullSuiteRun.passes, latestFullSuiteRun.trials);
+const theoreticalPercent = scorePercent(theoreticalScore.passes, theoreticalScore.trials);
 const chartWidth = 720;
 const chartHeight = 260;
 const chartPadding = 44;
 const maxScorePercent = 100;
-const trendPoints = fullSuiteRuns.map((run, index) => {
-  const percent = scorePercent(run.passes, run.trials);
-  const x = chartPadding + (index * (chartWidth - chartPadding * 2)) / Math.max(fullSuiteRuns.length - 1, 1);
-  const y = chartHeight - chartPadding - (percent / maxScorePercent) * (chartHeight - chartPadding * 2);
-  return { run, percent, x, y };
+// Full-suite runs followed by the pass-once projection endpoint, so the chart
+// carries the trajectory all the way to the current theoretical score.
+const chartRuns = [
+  ...fullSuiteRuns.map((run) => ({
+    label: formatDate(run.startedAt),
+    percent: scorePercent(run.passes, run.trials),
+    projected: false,
+  })),
+  { label: "Projection", percent: theoreticalPercent, projected: true },
+];
+const trendPoints = chartRuns.map((entry, index) => {
+  const x = chartPadding + (index * (chartWidth - chartPadding * 2)) / Math.max(chartRuns.length - 1, 1);
+  const y = chartHeight - chartPadding - (entry.percent / maxScorePercent) * (chartHeight - chartPadding * 2);
+  return { ...entry, x, y };
 });
 const trendPolyline = trendPoints.map((point) => `${point.x},${point.y}`).join(" ");
 const fullSuiteRows = fullSuiteRuns.map((run, index) => ({
@@ -52,31 +63,33 @@ const formatLift = (lift: number) => (lift === 0 ? "baseline" : lift > 0 ? `+${l
         </p>
         <div class="eval-updated">Last updated {formatDate(evalDashboardUpdatedAt)}</div>
       </div>
-      <aside class="score-panel" aria-label="Latest full suite score">
-        <div class="score-label">Latest full-suite score</div>
-        <div class="score-value">{latestFullSuitePercent}<small>%</small></div>
+      <aside class="score-panel" aria-label="Theoretical pass-once score">
+        <div class="score-label">Theoretical score</div>
+        <div class="score-value">{theoreticalPercent}<small>%</small></div>
         <p class="score-meta">
-          {latestFullSuiteRun.passes} passing tasks across {latestFullSuiteRun.trials} trials,
-          with {latestFullSuiteRun.harborErrors} Harbor errors.
+          {theoreticalScore.passes} of {theoreticalScore.trials} tasks passed at least once on the
+          codex-parity native-loop build (same model as the top leaderboard entry). Pass-once
+          projection, not a single verified run — latest clean full-suite run was {latestFullSuitePercent}%.
         </p>
       </aside>
     </div>
 
     <div class="eval-metrics" aria-label="Roder eval headline metrics">
-      <div class="eval-metric"><strong>+{passLift}</strong><span>full-suite passes since baseline</span></div>
+      <div class="eval-metric"><strong>{theoreticalPercent}%</strong><span>theoretical pass-once score</span></div>
+      <div class="eval-metric"><strong>+{passLift}</strong><span>passes since baseline</span></div>
       <div class="eval-metric"><strong>{softTimeoutReduction}</strong><span>fewer soft timeouts vs first run</span></div>
-      <div class="eval-metric"><strong>{latestFullSuiteRun.harborErrors}</strong><span>Harbor errors in latest full run</span></div>
-      <div class="eval-metric"><strong>{latestFullSuitePercent}%</strong><span>latest full-suite pass rate</span></div>
+      <div class="eval-metric"><strong>{latestFullSuitePercent}%</strong><span>latest clean full-suite run</span></div>
     </div>
 
     <section class="leaderboard-panel" aria-labelledby="leaderboard-context">
       <div>
         <h2 id="leaderboard-context">Theoretical leaderboard context</h2>
         <p>
-          If the latest in-development full-suite result were compared directly against the
+          If the codex-parity pass-once projection were compared directly against the
           current <a href={leaderboardContext.sourceUrl} rel="noopener">{leaderboardContext.sourceLabel}</a>,
-          its {latestFullSuitePercent}% pass rate would theoretically place around
-          <strong> #{leaderboardContext.theoreticalRank}</strong> of {leaderboardContext.totalEntries} entries.
+          its {theoreticalPercent}% figure would theoretically place around
+          <strong> #{leaderboardContext.theoreticalRank}</strong> of {leaderboardContext.totalEntries} entries,
+          level with the top entry on the same model.
         </p>
         <p class="leaderboard-caveat">
           {leaderboardContext.caveat}
@@ -89,8 +102,8 @@ const formatLift = (lift: number) => (lift === 0 ? "baseline" : lift > 0 ? `+${l
           <p>{leaderboardContext.upperNeighbor.name}</p>
         </div>
         <div class="roder-rung">
-          <span>Roder dev trajectory</span>
-          <strong>{latestFullSuitePercent}%</strong>
+          <span>Roder projection</span>
+          <strong>{theoreticalPercent}%</strong>
           <p>Theoretical #{leaderboardContext.theoreticalRank}</p>
         </div>
         <div>
@@ -103,18 +116,19 @@ const formatLift = (lift: number) => (lift === 0 ? "baseline" : lift > 0 ? `+${l
 
     <section class="trend-card score-panel" aria-labelledby="full-suite-trend">
       <h2 id="full-suite-trend">Full-suite trend</h2>
-      <svg class="trend-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label={`Roder full-suite pass rate increased from ${scorePercent(firstFullSuiteRun.passes, firstFullSuiteRun.trials)} percent to ${latestFullSuitePercent} percent`}>
+      <svg class="trend-chart" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label={`Roder pass rate rising from ${scorePercent(firstFullSuiteRun.passes, firstFullSuiteRun.trials)} percent at baseline to a ${theoreticalPercent} percent pass-once projection`}>
         <line class="trend-axis" x1={chartPadding} y1={chartHeight - chartPadding} x2={chartWidth - chartPadding} y2={chartHeight - chartPadding} />
         <line class="trend-axis" x1={chartPadding} y1={chartPadding} x2={chartPadding} y2={chartHeight - chartPadding} />
         <polyline class="trend-line" points={trendPolyline} />
-        {trendPoints.map(({ run, percent, x, y }) => (
+        {trendPoints.map(({ label, percent, x, y, projected }) => (
           <g>
-            <circle class="trend-point" cx={x} cy={y} r="7" />
+            <circle class={projected ? "trend-point trend-point-projected" : "trend-point"} cx={x} cy={y} r={projected ? 9 : 7} />
             <text class="trend-label" x={x} y={y - 16} text-anchor="middle">{percent}%</text>
-            <text class="trend-label" x={x} y={chartHeight - 16} text-anchor="middle">{formatDate(run.startedAt)}</text>
+            <text class="trend-label" x={x} y={chartHeight - 16} text-anchor="middle">{label}</text>
           </g>
         ))}
       </svg>
+      <p class="score-meta">Points are clean full-suite runs; the final marker is the {theoreticalPercent}% pass-once projection on the codex-parity build.</p>
     </section>
 
     <h2>Run history</h2>
