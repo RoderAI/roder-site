@@ -7,11 +7,10 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   eyebrow="Capabilities"
   description="The built-in tool surface, tool contributors, and policy modes."
   prev={{ href: "/docs/openrouter/", title: "OpenRouter" }}
-  next={{ href: "/docs/tool-search/", title: "Provider tool search" }}
+  next={{ href: "/docs/codex-parity-tools/", title: "Codex-parity tools" }}
 >
   <p>
-    Tools are registered through <code>ToolContributor</code> and executed through
-    <code>ToolExecutor</code>. Providers only see <code>ToolSpec</code> schemas; the runtime
+    Tools are registered through <code>ToolContributor</code> and executed through <code>ToolExecutor</code>. Providers only see <code>ToolSpec</code> schemas; the runtime
     owns policy checks, approval events, execution context, and result routing.
   </p>
 
@@ -20,7 +19,8 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><code>read_file</code> and <code>list_files</code> for scoped filesystem reads.</li>
     <li><code>grep</code> and <code>glob</code> for workspace discovery. With unrestricted filesystem access, <code>glob</code> also accepts absolute patterns outside the workspace.</li>
     <li><code>write_file</code>, <code>edit</code>, and <code>multi_edit</code> for edit-oriented models.</li>
-    <li><code>apply_patch</code> for patch-oriented models.</li>
+    <li><code>apply_patch</code> for patch-oriented models, including the Responses freeform custom-tool channel for GPT-5.5.</li>
+    <li><code>view_image</code> for validated local or remote-runner image inspection by vision-capable models.</li>
     <li><code>echo</code> for deterministic tests and simple harness checks.</li>
   </ul>
 
@@ -28,6 +28,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <ul>
     <li><code>exec_command</code> starts an interactive command session and returns either output or a session id.</li>
     <li><code>write_stdin</code> sends input to an existing command session and polls recent output.</li>
+    <li><code>unified_exec</code> exposes the Codex-shaped single-tool session contract over the same persistent process pool.</li>
     <li><code>shell</code> runs a single shell command and returns aggregated output.</li>
   </ul>
 
@@ -84,5 +85,9 @@ cargo run -p roder-cli -- --yolo</code></pre>
     editing or direct edit tools for a model request, not both, to keep model behavior predictable.
     See <a href="/docs/edit-tools/">the edit tools package</a> for the reusable
     JavaScript package boundary.
+  </div>
+
+  <div class="callout">
+    <strong>Codex-trained tool shapes.</strong> See <a href="/docs/codex-parity-tools/">Codex-parity tools</a> for <code>view_image</code>, <code>unified_exec</code>, freeform <code>apply_patch</code>, and eval-profile persistence knobs.
   </div>
 </DocsLayout>

@@ -156,6 +156,13 @@ export const staticOgPages: OgImageMetadata[] = [
     accent: "orange",
   },
   {
+    slug: "docs/codex-parity-tools",
+    title: "Codex-parity tools",
+    description: "Native tool shapes and eval-loop behavior for Codex-trained coding models.",
+    eyebrow: "Documentation",
+    accent: "orange",
+  },
+  {
     slug: "docs/cursor-sdk-agents",
     title: "Cursor SDK agents",
     description: "Launch and resume Cursor cloud agents through a process extension.",
