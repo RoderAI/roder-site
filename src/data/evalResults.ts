@@ -325,6 +325,18 @@ export const leaderboardContext: LeaderboardContext = {
     "The 76/89 (85.4%) figure is a pass-once oracle union across several local codex-parity development runs on the same model as the top leaderboard entry (gpt-5.5 xhigh) — not a single verified run. Individual passing trials come from different local configs, some used access-token-only auth and a modified agent timeout multiplier, and 13 remaining tasks are still being confirmed after a Docker disk-pressure infra failure. It is published to show trajectory, not as a submittable Terminal-Bench leaderboard result.",
 };
 
+// Pass-once oracle union across the codex-parity development runs: every task
+// that has scored reward 1.0 at least once on the current native-loop build,
+// on the same model as the top leaderboard entry (gpt-5.5 xhigh). This is a
+// projection, not a single verified run — see leaderboardContext.caveat.
+export const theoreticalScore = {
+  passes: 76,
+  trials: 89,
+  percent: 85.4,
+  label: "Pass-once projection",
+  startedAt: "2026-07-14T02:52:00+02:00",
+};
+
 export const fullSuiteRuns = evalRuns.filter((run) => run.kind === "full-suite");
 export const latestFullSuiteRun = fullSuiteRuns.at(-1)!;
 export const latestEvalRun = evalRuns.at(-1)!;

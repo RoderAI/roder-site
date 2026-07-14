@@ -197,6 +197,12 @@
   stroke-width: 3;
 }
 
+.trend-point-projected {
+  fill: var(--teal-dark);
+  stroke: var(--teal-dark);
+  stroke-dasharray: 3 2;
+}
+
 .trend-label {
   fill: var(--graphite);
   font-family: var(--mono);
