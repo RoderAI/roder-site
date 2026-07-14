@@ -1,0 +1,72 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Codex-parity tools"
+  eyebrow="Capabilities"
+  description="Native tool shapes and eval-loop behavior for Codex-trained coding models."
+  prev={{ href: "/docs/tools/", title: "Tools & policy" }}
+  next={{ href: "/docs/tool-search/", title: "Provider tool search" }}
+>
+  <p>
+    Roder now includes native tool shapes that match the channels and process model used by
+    Codex-trained coding models. The goal is practical compatibility: models can inspect
+    images, drive long-running terminal sessions, and emit patches through the format they
+    already know, while Roder keeps the same policy, workspace, and event-recording boundary.
+  </p>
+
+  <h2>Image inspection</h2>
+  <p>
+    <code>view_image(path)</code> reads a workspace image file, validates that it is a real
+    PNG, JPEG, GIF, or WebP, applies a 10 MiB cap, and returns the pixels to vision-capable
+    providers as an image content block. It works through the active workspace backend, so
+    local workspaces and remote-runner workspaces use the same tool contract.
+  </p>
+
+  <p>
+    This gives agents a direct way to inspect screenshots, diagrams, and generated assets
+    during coding tasks. When older media attachment calls do not include raw image bytes,
+    Roder now returns actionable guidance pointing the model to <code>view_image</code> instead of consuming the turn's tool-failure budget with a hard error.
+  </p>
+
+  <h2>Unified exec sessions</h2>
+  <p>
+    <code>unified_exec</code> wraps the same persistent process-session manager as <code>exec_command</code> and <code>write_stdin</code>, but exposes the Codex-style
+    single-tool shape: a command or stdin <code>input</code>, an optional{" "}
+    <code>session_id</code>, and an output-wait <code>timeout_ms</code>. Starting a command
+    and continuing that session both use the same tool, which reduces tool-selection
+    friction for models trained on persistent terminal loops.
+  </p>
+
+  <h2>Freeform patches</h2>
+  <p>
+    For GPT-5.5 on OpenAI Responses, <code>apply_patch</code> is advertised on the
+    provider's freeform custom-tool channel. The model can emit the raw patch body rather
+    than wrapping it in JSON, and Roder still routes the call through the normal patch
+    executor, policy path, transcript, and tool-result replay. Other providers and models
+    keep the standard function-tool shape.
+  </p>
+
+  <h2>Eval-profile persistence</h2>
+  <p>
+    The eval runtime profile enables safer persistence defaults for non-interactive runs:
+    it can continue after the consecutive tool-failure limit by nudging the model, and it
+    can nudge once when a turn tries to finalize without using tools. Hard caps still bound
+    the run, and interactive or ordinary non-interactive sessions keep the conservative
+    defaults unless configured otherwise.
+  </p>
+
+  <pre><code>{`[reliability]
+continue_on_failure_limit = true
+empty_tool_call_nudges = 1
+max_consecutive_tool_failures = 16
+max_model_calls_per_turn = 400`}</code></pre>
+
+  <div class="callout">
+    <strong>Current eval signal.</strong> On the four-task Codex-pass/minimal-Roder-fail
+    Terminal-Bench slice, the native tool surface moved the subset from 0/4 to 4/4 reward
+    in local development runs. The published eval history keeps that as targeted trajectory
+    evidence rather than a new full-suite headline.
+  </div>
+</DocsLayout>

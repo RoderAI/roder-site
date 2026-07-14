@@ -22,6 +22,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li>Harbor launches <code>roder exec --json --profile eval</code> inside each task container.</li>
     <li>The adapter records <code>roder-events.jsonl</code>, final assistant text, stderr diagnostics, and <code>roder-run-summary.json</code>.</li>
     <li>Smoke and full-run configs preserve Docker task images by default so offline image preflight and targeted reruns can reuse them.</li>
+    <li>Minimal parity configs can pin <code>[tools].allowlist</code> to the native coding surface, including <code>unified_exec</code>, freeform <code>apply_patch</code>, and <code>view_image</code>.</li>
     <li>Analyzer scripts separate harness/setup/provider failures from ordinary reward-0 scored failures.</li>
   </ul>
 
@@ -41,6 +42,12 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     the failure.
   </p>
 
+  <p>
+    The eval profile also enables loop-persistence defaults that keep a task moving after
+    recoverable tool-failure loops or empty no-tool finalization. The safeguards remain
+    bounded by per-turn tool-failure, model-call, and tool-round caps.
+  </p>
+
   <h2>Plan-first reruns</h2>
   <p>
     The Harbor adapter can run a planning turn first, store <code>roder-plan.md</code> and
@@ -58,5 +65,12 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     It used an access-token-only auth file and an agent timeout multiplier to keep Roder
     finalization inside Harbor's outer timeout, so it is trajectory evidence rather than
     a leaderboard-valid submission.
+  </p>
+
+  <p>
+    The newest targeted parity slice covers four tasks that Codex passed while the
+    previous minimal Roder setup failed. With the native Codex-parity tool surface and
+    eval-loop persistence enabled, all four scored reward 1.0; two still reported Harbor <code>AgentTimeoutError</code> exceptions, so the result is published as targeted
+    trajectory evidence rather than a clean full-suite result.
   </p>
 </DocsLayout>
