@@ -1,0 +1,67 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Lifecycle recovery"
+  eyebrow="Architecture"
+  description="Inspect interrupted turns, cleanup proof, restart recovery, and bounded shutdown diagnostics."
+  prev={{ href: "/docs/sessions/", title: "Sessions & state" }}
+  next={{ href: "/docs/workspace-forks/", title: "Workspace forks" }}
+>
+  <p>
+    Roder records a small durable lifecycle history for each turn. The history tells
+    clients whether a turn finished, was interrupted, failed, or needs recovery after
+    a restart, without exposing provider command lines, PIDs, prompts, or credentials.
+  </p>
+
+  <h2>Inspect a thread</h2>
+  <pre><code>{`roder thread lifecycle <thread-id>
+roder thread lifecycle <thread-id> --json`}</code></pre>
+
+  <p>
+    App-server clients can call <code>thread/read</code> with
+    <code>includeTurns: false</code> and inspect the additive <code>lifecycle</code>
+    field. The TUI shows a durable warning when a resumed thread includes
+    <code>recovery_needed</code> records or redacted lifecycle-corruption diagnostics.
+  </p>
+
+  <h2>States and cleanup proof</h2>
+  <ul>
+    <li><code>running</code> and <code>interrupt_requested</code> reconcile to <code>recovery_needed</code> after restart when no matching local turn remains.</li>
+    <li><code>completed</code>, <code>failed</code>, and <code>interrupted</code> are terminal runtime states, but they do not disclose provider internals.</li>
+    <li><code>cleanup</code> records whether cleanup was not requested, requested, completed, timed out, or unknown.</li>
+    <li><code>ownership</code> reports the proof level: runtime task only, provider cleanup pending, or provider cleanup confirmed.</li>
+  </ul>
+
+  <p>
+    This distinction matters because interrupting Roder's async runtime task is not
+    proof that every provider child process or remote job exited. Claude Code uses a
+    supervised SDK cleanup path; local process tasks drain through graceful signal,
+    forced kill, and reap; remote tasks call the selected runner's cancellation API.
+  </p>
+
+  <h2>Shutdown and metrics</h2>
+  <p>
+    <code>runtime/drain</code> stops admitting new turns, requests interruption for
+    locally owned work, waits within a bounded deadline, and reports
+    <code>clean</code>, <code>deadline_exceeded</code>, or
+    <code>persistence_failed</code>. The shared <code>[lifecycle]</code> configuration
+    controls shutdown drain time, process grace and kill windows, session-end
+    cancellation, and bounded process diagnostics.
+  </p>
+
+  <pre><code>{`[lifecycle]
+shutdown_drain_timeout_ms = 5000
+process_grace_timeout_ms = 250
+process_kill_timeout_ms = 1000
+cancel_tasks_on_session_end = true
+max_completed_process_diagnostics = 64`}</code></pre>
+
+  <p>
+    Native app-server clients can call <code>lifecycle/metrics</code> for redacted
+    process-local counters covering drain outcomes, persistence failures, restart
+    reconciliation, and provider cleanup proof totals. Use a thread's lifecycle record
+    when deciding whether a particular turn needs inspection or retry.
+  </p>
+</DocsLayout>

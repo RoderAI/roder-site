@@ -7,7 +7,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   eyebrow="Architecture"
   description="How Roder models threads, turns, snapshots, session stores, and persisted extension state."
   prev={{ href: "/docs/event-bus/", title: "Events & replay" }}
-  next={{ href: "/docs/providers/", title: "Inference providers" }}
+  next={{ href: "/docs/lifecycle-recovery/", title: "Lifecycle recovery" }}
 >
   <p>
     A Roder session is a thread of turns, messages, tool calls, policy events, and
@@ -48,6 +48,8 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <div class="callout">
     <strong>Durability boundary.</strong> Context sent to a model can be compacted or
-    reassembled. The session record is the durable source of what happened.
+    reassembled. The session record is the durable source of what happened, and
+    lifecycle extension state records whether interrupted turns need recovery after
+    restart. Read next: <a href="/docs/lifecycle-recovery/">lifecycle recovery</a>.
   </div>
 </DocsLayout>

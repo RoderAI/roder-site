@@ -47,6 +47,9 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     deliberately narrower: <code>get_goal</code>, <code>create_goal</code>, and
     <code>update_goal</code> let the agent inspect, create, complete, or mark a goal blocked,
     while pause/resume, budget changes, and clearing remain user-controlled.
+    <code>create_goal</code> only fails while an active goal is still in progress; once a
+    goal is completed, blocked, paused, usage-limited, or budget-limited, a resumed
+    session can replace it with the next objective.
   </p>
 
   <pre><code>{`{"jsonrpc":"2.0","id":3,"method":"thread/goal/set","params":{"threadId":"THREAD_ID","objective":"Ship docs parity","tokenBudget":20000}}

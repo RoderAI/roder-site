@@ -15,6 +15,12 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     host tools, and connect either to a local app-server process or a remote WebSocket.
   </p>
 
+  <p>
+    Hosted clients default to browser-safe bearer subprotocol auth, while native
+    WebSocket transports can keep using authorization headers. The SDK never needs
+    credentials in query strings.
+  </p>
+
   <h2>Agent host</h2>
   <p>
     <code>RoderAgent.create()</code> accepts local process, remote WebSocket, or custom

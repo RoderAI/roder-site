@@ -81,19 +81,11 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <pre><code>RODER_REMOTE_TOKEN=dev-token cargo run -p roder-cli -- app-server --remote --auth-token env:RODER_REMOTE_TOKEN</code></pre>
 
   <p>
-    Remote mode uses bearer-token authentication. The server accepts the token either
-    as an <code>Authorization: Bearer ...</code> header or through a WebSocket subprotocol of
-    the form <code>bearer.&lt;token&gt;</code>. Clients should also offer the
-    <code>roder.remote.v1</code> subprotocol; if present, the server echoes it in the
-    WebSocket handshake.
-  </p>
-
-  <p>
-    Remote WebSocket authorization is token-only: connected clients must present the
-    configured bearer token, including Chrome bridge clients and sandbox-hosted nodes.
-    Sprites remote runners can bootstrap a headless <code>remote-roder</code> distribution
-    and run <code>roder app-server --remote</code> as a managed service inside the forked
-    workspace.
+    Remote mode uses bearer-token authentication. The server accepts
+    <code>Authorization: Bearer ...</code> or a <code>bearer.&lt;token&gt;</code> WebSocket
+    subprotocol. Clients should also offer <code>roder.remote.v1</code>, which the server
+    echoes in the handshake. Hosted browser clients use the same subprotocol shape and
+    revalidate open sockets before request dispatch; query-string credentials are rejected.
   </p>
 
   <pre><code>{`const socket = new WebSocket(
@@ -171,7 +163,8 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <p>
     The desktop-oriented protocol uses <code>thread/*</code> and <code>turn/*</code> methods.
     A thread is the long-lived conversation/session shown by clients. A turn is one
-    model interaction within that thread.
+    model interaction within that thread. <code>thread/read</code> can include redacted
+    lifecycle state for interrupted-turn recovery without loading every turn item.
   </p>
 
   <h3>Create or list threads</h3>
@@ -215,7 +208,9 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     Eval and automation clients can set <code>taskLedgerRequired</code> on
     <code>turn/start</code>. The runtime then treats the task ledger as part of
     finalization and asks the model to checkpoint scoreable outputs before the deadline
-    reserve closes.
+    reserve closes. Clients can also refresh a volatile thread-scoped
+    <code>mcpAuthToken</code> on <code>turn/start</code> without persisting the credential
+    in thread metadata.
   </p>
 
   <pre><code>{`{
@@ -403,6 +398,11 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     completion notifications can include both <code>finalMessage</code> and
     <code>error</code>. Split-pane methods currently return an unsupported error in the
     app server.
+  </p>
+
+  <p>
+    Subagent role and lane compatibility is validated before child work starts. Lane-as-role,
+    incompatible-tool, and native full-history fork conflicts are rejected early.
   </p>
 
   <pre><code>{`{"jsonrpc":"2.0","id":70,"method":"team/start","params":{"leadThreadId":"THREAD_ID","members":[{"name":"reviewer"}]}}

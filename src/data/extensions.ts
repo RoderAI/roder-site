@@ -215,13 +215,13 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-jsonl-thread-store",
         provides: ["ThreadStore(jsonl-thread-store)"],
-        how: "Append-only JSONL event logs per thread under {roder_home}/threads/{thread_id}/, with a thread-index.json for listing, plus archive and restore support. The runtime keeps compaction boundaries in the transcript so resumes can continue from compact state without losing the durable pre-compaction record. The default store.",
+        how: "Append-only JSONL event logs per thread under {roder_home}/threads/{thread_id}/, with a thread-index.json for listing, plus archive and restore support. The runtime keeps compaction boundaries and redacted lifecycle extension records so resumes can continue from compact state and flag interrupted turns that need recovery. The default store.",
         install: "Default",
       },
       {
         crate: "roder-ext-postgres-session",
         provides: ["ThreadStore(postgres-session)"],
-        how: "Tenant-scoped PostgreSQL persistence for threads and context artifacts over async SQL, configured with a database_url. Built for multi-tenant hosted deployments.",
+        how: "Tenant-scoped PostgreSQL persistence for threads, context artifacts, and lifecycle extension state over async SQL, configured with a database_url. Built for multi-tenant hosted deployments.",
         install: "When configured",
       },
     ],
@@ -359,7 +359,7 @@ export const categories: ExtensionCategory[] = [
           "ToolProvider(roder-subagents-task)",
           "ToolProvider(agent_swarm)",
         ],
-        how: "An in-process dispatcher for child turns against the parent tool registry. Exposes task, bounded agent_swarm fanout, and Codex V2-style agent-control lifecycles with canonical paths, context forks, follow-up turns, mailbox-aware waiting, and non-destructive interruption.",
+        how: "An in-process dispatcher for child turns against the parent tool registry. Exposes task, bounded agent_swarm fanout, and Codex V2-style agent-control lifecycles with canonical paths, context forks, follow-up turns, mailbox-aware waiting, non-destructive interruption, and role/lane validation before child work starts.",
         install: "When enabled",
       },
     ],
@@ -411,7 +411,7 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-runner-blaxel",
         provides: ["RemoteRunnerProvider(blaxel)"],
-        how: "First-party Blaxel Sandboxes provider over the control-plane plus per-sandbox process, filesystem, and preview APIs. It routes coding tools into the selected sandbox and supports pause/resume plus durable detach/rejoin across Roder restarts.",
+        how: "First-party Blaxel Sandboxes provider over the control-plane plus per-sandbox process, filesystem, and preview APIs. It lazily initializes runner-bound threads on first approved workspace tool, routes coding tools into the selected sandbox, supports pause/resume plus durable detach/rejoin, and force-kills remote process groups on cancellation.",
         install: "Default · needs API key and workspace",
       },
       {
@@ -467,7 +467,7 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-runner-hosted-common",
         provides: ["Support library (no manifest)"],
-        how: "The shared HTTP client implementing the hosted-runner session protocol (sessions, commands, files) used by the Cloudflare, Daytona, E2B, Modal, Runloop, and Vercel runner crates. Blaxel now uses its provider-specific sandbox APIs.",
+        how: "The shared HTTP client implementing the hosted-runner session protocol (sessions, commands, files) used by the Cloudflare, Daytona, E2B, Modal, Runloop, and Vercel runner crates. Hosted runner commands can carry cancellation leases; Blaxel uses its provider-specific sandbox APIs.",
         install: "Library",
       },
       {

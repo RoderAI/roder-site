@@ -54,7 +54,9 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     it can continue after the consecutive tool-failure limit by nudging the model, and it
     can nudge once when a turn tries to finalize without using tools. Hard caps still bound
     the run, and interactive or ordinary non-interactive sessions keep the conservative
-    defaults unless configured otherwise.
+    defaults unless configured otherwise. Completed, blocked, paused, or limited goals can
+    also be replaced with a fresh <code>create_goal</code> call, so resumed eval sessions
+    can move to the next explicit objective.
   </p>
 
   <pre><code>{`[reliability]
