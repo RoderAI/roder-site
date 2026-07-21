@@ -1,0 +1,285 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/roder-desktop.css";
+
+const macosDmgUrl =
+  "https://github.com/RoderAI/roder-desktop/releases/latest/download/Roder-macos-arm64.dmg";
+const macosZipUrl =
+  "https://github.com/RoderAI/roder-desktop/releases/latest/download/Roder-macos-arm64.zip";
+const checksumsUrl =
+  "https://github.com/RoderAI/roder-desktop/releases/latest/download/SHA256SUMS";
+const releasesUrl = "https://github.com/RoderAI/roder-desktop/releases";
+
+const installCommands = [
+  {
+    title: "macOS (Apple silicon)",
+    note: "Signed and notarized DMG from GitHub Releases",
+    command: macosDmgUrl,
+    href: macosDmgUrl,
+  },
+  {
+    title: "macOS zip + checksums",
+    note: "Same build as a zip archive, plus SHA256SUMS",
+    command: `${macosZipUrl}\n${checksumsUrl}`,
+    href: releasesUrl,
+  },
+  {
+    title: "Windows (preview)",
+    note: "x64 installer ships on tagged builds as Roder-windows-x64-installer.exe",
+    command: releasesUrl,
+    href: releasesUrl,
+  },
+];
+
+const featureCards = [
+  {
+    title: "Orchestrate subagents",
+    body: "Spawn parallel subagents from one thread. Watch Active/Done status in the Subagents panel, and see lifecycle chips inline in the transcript. Toggle agent-swarm mode when the task needs a crew.",
+  },
+  {
+    title: "Local-first desktop shell",
+    body: "An embedded `roder` harness binary powers every run. Threads are saved locally, including transcript items, workspace metadata, provider/model selection, and usage.",
+  },
+  {
+    title: "Workspace panels",
+    body: "Keep Terminal, Browser, Canvas, Design canvas, Review (changed files), Extensions, Files, and Subagents beside the chat—scoped to the project you opened.",
+  },
+  {
+    title: "Composer with skills and MCP",
+    body: "`$` completes skills, `@` targets MCP servers, plan mode and agent swarm sit next to the model picker, and voice, sketches, and file attachments ride with the turn.",
+  },
+];
+
+const screenshots = [
+  {
+    image: "/product/roder-desktop/desktop-new-agent.png",
+    title: "Start a new agent",
+    body: "Project-grouped threads in the sidebar, a project picker on the start screen, Recent threads, and a composer with model and reasoning selectors.",
+  },
+  {
+    image: "/product/roder-desktop/desktop-subagents-panel.png",
+    title: "Live subagent orchestration",
+    body: "Transcript lifecycle chips for finished and updated members, plus a Subagents panel listing Done · 3 with status blurbs and timestamps.",
+  },
+  {
+    image: "/product/roder-desktop/desktop-model-picker.png",
+    title: "Every model, one picker",
+    body: "The full provider catalog from the local app-server — GPT-5.6, Claude, Grok 4.5, Gemini, and more — searchable mid-run without leaving the thread.",
+  },
+];
+
+const providers = [
+  "Codex",
+  "Cursor",
+  "SuperGrok",
+  "OpenRouter",
+  "Fireworks",
+  "Gemini",
+  "OpenAI",
+  "Claude Code",
+  "Kimi Code",
+  "Anthropic",
+  "xAI",
+  "DeepSeek",
+  "Composer",
+  "Vertex AI",
+  "Roder Cloud",
+];
+---
+
+<Layout
+  title="Roder Desktop - local coding agent app"
+  description="Download Roder Desktop for macOS. Spawn parallel subagents, pick models from the local app-server catalog, and keep threads, workspace panels, MCP, and skills on your machine."
+  canonicalPath="/desktop/"
+>
+  <div class="desktop-page">
+    <section class="desktop-hero">
+      <div class="desktop-container desktop-hero-grid">
+        <div class="desktop-hero-copy">
+          <h1>A local desktop shell for the Roder agent harness.</h1>
+          <p>
+            Install Roder Desktop, open it in a repo, and give it real work: spawn
+            parallel subagents, pick models from the full app-server catalog, keep
+            threads on disk, and drive Terminal, Browser, Canvas, and Review from one
+            window. Alpha software—signed builds ship today for Apple silicon.
+          </p>
+          <div class="desktop-actions" aria-label="Primary actions">
+            <a class="desktop-button desktop-button-primary" href="#install">Download Desktop</a>
+            <a
+              class="desktop-button desktop-button-secondary"
+              href={releasesUrl}
+              rel="noopener noreferrer"
+            >
+              All releases
+            </a>
+          </div>
+          <ul class="desktop-hero-points" aria-label="Roder Desktop highlights">
+            <li>Embedded `roder` harness with local thread persistence</li>
+            <li>Subagents panel + inline lifecycle chips for parallel work</li>
+            <li>Composer: `$` skills, `@` MCP, plan mode, swarm, voice</li>
+          </ul>
+        </div>
+        <figure class="desktop-hero-shot">
+          <img
+            src="/product/roder-desktop/desktop-new-agent.png"
+            alt="Roder Desktop start screen with project-grouped threads, Start a new agent pane, and composer set to Grok 4.5 High"
+            width="2880"
+            height="1880"
+          />
+          <figcaption>
+            Start screen: pick a project, reopen a recent thread, or send work from the composer.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="desktop-install" id="install">
+      <div class="desktop-container">
+        <div class="desktop-section-head">
+          <h2>Download Roder Desktop</h2>
+          <p>
+            macOS builds are signed and notarized. Download the DMG, drag Roder into
+            Applications, then launch—Gatekeeper should accept the notarized app.
+            Verify the artifact against `SHA256SUMS` on the release if you want a
+            checksum check first.
+          </p>
+        </div>
+        <div class="desktop-install-layout">
+          <div class="desktop-install-commands">
+            {installCommands.map((item) => (
+              <article class="desktop-install-command">
+                <div>
+                  <h3>
+                    <a href={item.href} rel="noopener noreferrer">{item.title}</a>
+                  </h3>
+                  <p>{item.note}</p>
+                </div>
+                <pre><code>{item.command}</code></pre>
+              </article>
+            ))}
+          </div>
+          <aside class="desktop-install-card" aria-label="First run checklist">
+            <h3>First run</h3>
+            <ol>
+              <li>Download `Roder-macos-arm64.dmg`</li>
+              <li>Drag Roder into Applications</li>
+              <li>Open a project (or Add Project)</li>
+              <li>Start a new agent and send a turn</li>
+            </ol>
+            <p>
+              Windows x64 installers appear on tagged releases as
+              `Roder-windows-x64-installer.exe`—use the releases page until a
+              latest/download link is always present.
+            </p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="desktop-section">
+      <div class="desktop-container">
+        <div class="desktop-section-head">
+          <h2>What the desktop gives you</h2>
+          <p>
+            Same Rust harness as the CLI, wrapped in a workspace UI: threads,
+            providers, subagents, panels, MCP, skills, and extensions without leaving
+            the project folder.
+          </p>
+        </div>
+        <div class="desktop-feature-grid">
+          {featureCards.map((feature) => (
+            <article class="desktop-feature-card">
+              <h3>{feature.title}</h3>
+              <p>{feature.body}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="desktop-section desktop-screenshots-section" id="features">
+      <div class="desktop-container">
+        <div class="desktop-section-head">
+          <h2>Screenshots from a real Desktop session</h2>
+          <p>
+            Captured in `roder-subagent-demo` on the shipping alpha: start a thread,
+            spawn parallel subagents, and pick models from the local catalog.
+          </p>
+        </div>
+        <div class="desktop-screenshot-grid">
+          {screenshots.map((shot) => (
+            <figure class="desktop-screenshot-card">
+              <img src={shot.image} alt={`${shot.title} screenshot`} loading="lazy" width="2880" height="1880" />
+              <figcaption>
+                <strong>{shot.title}</strong>
+                <span>{shot.body}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="desktop-section desktop-provider-section">
+      <div class="desktop-container desktop-provider-layout">
+        <div>
+          <h2>Use the model and provider you prefer.</h2>
+          <p>
+            The desktop surfaces the full model catalog from the local app-server:
+            GPT-5.6 (Sol/Terra/Luna), Claude (Fable 5, Opus 4.8, Sonnet), Grok 4.5,
+            Gemini, Composer, DeepSeek, Kimi, and more. Reasoning efforts go up to
+            Ultra. Wire credentials for 15+ providers and keep selection with the thread.
+          </p>
+          <div class="desktop-provider-list" aria-label="Supported provider examples">
+            {providers.map((provider) => <span>{provider}</span>)}
+          </div>
+        </div>
+        <div class="desktop-config-panel">
+          <h3>Composer surface</h3>
+          <pre><code>{`model: Grok 4.5 · reasoning: High
+$ skills completion
+@ MCP server targeting
+plan mode · agent swarm
+voice · sketch · file attach`}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="desktop-section desktop-workflow-section">
+      <div class="desktop-container desktop-workflow-grid">
+        <div class="desktop-workflow-copy">
+          <h2>One window for chat, tools, and workspace evidence.</h2>
+          <p>
+            Keep the agent transcript next to the panels that matter for the turn.
+            Open Terminal or Browser when the agent needs a shell or a page. Use
+            Review for changed files, Canvas and Design canvas for visual work, and
+            Subagents when the swarm is running.
+          </p>
+        </div>
+        <div class="desktop-workflow-commands">
+          <pre><code>{`Panels
+  Terminal · Browser · Canvas
+  Design canvas · Review
+  Extensions · Files · Subagents
+
+Composer
+  $ skill · @ mcp · plan · swarm
+  voice · attach · reasoning`}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="desktop-final">
+      <div class="desktop-container desktop-final-inner">
+        <div>
+          <h2>Download Desktop and open a project.</h2>
+          <p>
+            Grab the Apple silicon DMG, drag it into Applications, and start an agent
+            in a real repo. Windows preview builds live on the same releases page.
+          </p>
+        </div>
+        <a class="desktop-button desktop-button-primary" href="#install">Download Desktop</a>
+      </div>
+    </section>
+  </div>
+</Layout>

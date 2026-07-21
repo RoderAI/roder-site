@@ -100,6 +100,13 @@ export const staticOgPages: OgImageMetadata[] = [
     accent: "orange",
   },
   {
+    slug: "desktop",
+    title: "Roder Desktop",
+    description: "Local coding-agent app with subagents, workspace panels, MCP, skills, and the full model catalog.",
+    eyebrow: "Desktop app",
+    accent: "orange",
+  },
+  {
     slug: "font-lab",
     title: "Roder font lab",
     description: "Internal wordmark studies for the Roder brand system.",
@@ -238,6 +245,13 @@ export const staticOgPages: OgImageMetadata[] = [
     description: "Markdown-backed project documents the agent can search and revise.",
     eyebrow: "Documentation",
     accent: "mint",
+  },
+  {
+    slug: "docs/lifecycle-recovery",
+    title: "Lifecycle recovery",
+    description: "Interrupted-turn records, cleanup proof, runtime drain, and restart diagnostics.",
+    eyebrow: "Documentation",
+    accent: "graphite",
   },
   {
     slug: "docs/mcp",

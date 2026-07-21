@@ -1,0 +1,444 @@
+.desktop-page {
+  --desktop-bg: #f7f8f6;
+  --desktop-paper: #ffffff;
+  --desktop-ink: #101215;
+  --desktop-muted: #606864;
+  --desktop-soft: #eef1ed;
+  --desktop-line: rgba(16, 18, 21, 0.1);
+  --desktop-orange: #ff4d00;
+  --desktop-orange-dark: #d63f00;
+  --desktop-teal: #0a9b8d;
+  --desktop-terminal: #272b33;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 248, 246, 1) 38rem),
+    var(--desktop-bg);
+  overflow: hidden;
+}
+
+.desktop-container {
+  width: min(1180px, calc(100% - 3rem));
+  margin: 0 auto;
+}
+
+.desktop-hero {
+  padding: clamp(4.5rem, 7vw, 7rem) 0 clamp(4rem, 7vw, 6.5rem);
+}
+
+.desktop-hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(390px, 0.9fr);
+  gap: clamp(2rem, 4vw, 3.6rem);
+  align-items: center;
+}
+
+.desktop-hero-copy h1,
+.desktop-section-head h2,
+.desktop-provider-layout h2,
+.desktop-workflow-copy h2,
+.desktop-final h2 {
+  margin: 0;
+  color: var(--desktop-ink);
+  font-family: var(--mono);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.02;
+}
+
+.desktop-hero-copy h1 {
+  font-size: 3.85rem;
+  max-width: 760px;
+}
+
+.desktop-hero-copy p {
+  max-width: 660px;
+  margin: 1.55rem 0 0;
+  color: var(--desktop-muted);
+  font-size: clamp(1.08rem, 1.7vw, 1.32rem);
+  line-height: 1.58;
+}
+
+.desktop-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+
+.desktop-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.1rem;
+  padding: 0.75rem 1.08rem;
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition:
+    transform 260ms ease,
+    box-shadow 260ms ease,
+    background 260ms ease,
+    color 260ms ease;
+}
+
+.desktop-button:hover {
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.desktop-button-primary {
+  color: #fff;
+  background: var(--desktop-orange);
+  box-shadow: 0 18px 38px rgba(214, 63, 0, 0.2);
+}
+
+.desktop-button-primary:hover {
+  background: var(--desktop-orange-dark);
+}
+
+.desktop-button-secondary {
+  color: var(--desktop-ink);
+  background: var(--desktop-paper);
+  box-shadow: inset 0 0 0 1px var(--desktop-line);
+}
+
+.desktop-hero-points {
+  display: grid;
+  gap: 0.52rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--desktop-muted);
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.desktop-hero-points li {
+  display: flex;
+  gap: 0.55rem;
+  align-items: baseline;
+}
+
+.desktop-hero-points li::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 0.48rem;
+  height: 0.48rem;
+  margin-top: 0.38rem;
+  border-radius: 999px;
+  background: var(--desktop-teal);
+}
+
+.desktop-hero-shot,
+.desktop-screenshot-card {
+  margin: 0;
+}
+
+.desktop-hero-shot img,
+.desktop-screenshot-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  background: var(--desktop-terminal);
+  box-shadow:
+    0 34px 90px rgba(16, 18, 21, 0.18),
+    0 0 0 1px rgba(16, 18, 21, 0.12);
+}
+
+.desktop-hero-shot figcaption {
+  margin-top: 0.75rem;
+  color: var(--desktop-muted);
+  font-size: 0.88rem;
+}
+
+.desktop-install,
+.desktop-section,
+.desktop-final {
+  padding: clamp(4rem, 7vw, 6rem) 0;
+  border-top: 1px solid var(--desktop-line);
+}
+
+.desktop-section-head {
+  max-width: 780px;
+  margin-bottom: 1.7rem;
+}
+
+.desktop-section-head h2,
+.desktop-provider-layout h2,
+.desktop-workflow-copy h2,
+.desktop-final h2 {
+  font-size: 3.1rem;
+}
+
+.desktop-section-head p,
+.desktop-provider-layout p,
+.desktop-workflow-copy p,
+.desktop-final p {
+  margin: 0.85rem 0 0;
+  color: var(--desktop-muted);
+  font-size: 1.04rem;
+}
+
+.desktop-install-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.36fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.desktop-install-commands {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.desktop-install-command,
+.desktop-install-card,
+.desktop-feature-card,
+.desktop-config-panel,
+.desktop-final-inner {
+  border: 1px solid var(--desktop-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.desktop-install-command {
+  padding: 1rem;
+}
+
+.desktop-install-command h3,
+.desktop-install-card h3,
+.desktop-feature-card h3,
+.desktop-config-panel h3 {
+  margin: 0;
+  color: var(--desktop-ink);
+  font-family: var(--mono);
+  font-size: 0.96rem;
+}
+
+.desktop-install-command p,
+.desktop-install-card p,
+.desktop-feature-card p {
+  margin: 0.3rem 0 0;
+  color: var(--desktop-muted);
+  font-size: 0.93rem;
+}
+
+.desktop-install-command pre,
+.desktop-config-panel pre,
+.desktop-workflow-commands pre {
+  margin: 0.9rem 0 0;
+  border-color: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: #111316;
+}
+
+.desktop-install-command pre code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.desktop-install-command a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.desktop-install-command a:hover {
+  color: var(--desktop-orange);
+}
+
+.desktop-install-card {
+  padding: 1.1rem;
+}
+
+.desktop-install-card ol {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.desktop-install-card li {
+  padding-left: 0.2rem;
+  color: var(--desktop-muted);
+}
+
+.desktop-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.desktop-feature-card {
+  min-height: 13rem;
+  padding: 1.15rem;
+}
+
+.desktop-feature-card h3 {
+  font-size: 1rem;
+}
+
+.desktop-feature-card p {
+  line-height: 1.58;
+}
+
+.desktop-screenshots-section {
+  background:
+    linear-gradient(180deg, rgba(238, 241, 237, 0.7), rgba(247, 248, 246, 0));
+}
+
+.desktop-screenshot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+}
+
+.desktop-screenshot-card {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.desktop-screenshot-card figcaption {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.desktop-screenshot-card strong {
+  color: var(--desktop-ink);
+  font-family: var(--mono);
+  font-size: 1rem;
+}
+
+.desktop-screenshot-card span {
+  color: var(--desktop-muted);
+  font-size: 0.95rem;
+}
+
+.desktop-provider-layout,
+.desktop-workflow-grid,
+.desktop-final-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 0.7fr);
+  gap: clamp(1.2rem, 4vw, 3rem);
+  align-items: center;
+}
+
+.desktop-provider-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.52rem;
+  margin-top: 1.35rem;
+}
+
+.desktop-provider-list span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.1rem;
+  padding: 0.38rem 0.64rem;
+  border: 1px solid rgba(10, 155, 141, 0.22);
+  border-radius: 8px;
+  color: #075f58;
+  background: rgba(10, 155, 141, 0.07);
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.desktop-config-panel {
+  padding: 1rem;
+}
+
+.desktop-workflow-section {
+  background: #111316;
+}
+
+.desktop-workflow-section h2,
+.desktop-workflow-section p {
+  color: #f6f7f5;
+}
+
+.desktop-workflow-section p {
+  color: rgba(246, 247, 245, 0.72);
+}
+
+.desktop-workflow-commands pre {
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.26);
+}
+
+.desktop-final {
+  padding-bottom: 2rem;
+}
+
+.desktop-final-inner {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 1.25rem;
+}
+
+.desktop-final p {
+  max-width: 720px;
+}
+
+@media (max-width: 980px) {
+  .desktop-hero-grid,
+  .desktop-install-layout,
+  .desktop-provider-layout,
+  .desktop-workflow-grid,
+  .desktop-final-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .desktop-feature-grid,
+  .desktop-screenshot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .desktop-hero-copy h1,
+  .desktop-section-head h2,
+  .desktop-provider-layout h2,
+  .desktop-workflow-copy h2,
+  .desktop-final h2 {
+    font-size: 2.75rem;
+  }
+
+  .desktop-final-inner {
+    align-items: start;
+  }
+}
+
+@media (max-width: 640px) {
+  .desktop-container {
+    width: min(100% - 1rem, 1180px);
+  }
+
+  .desktop-hero {
+    padding-top: 3.8rem;
+  }
+
+  .desktop-hero-copy h1,
+  .desktop-section-head h2,
+  .desktop-provider-layout h2,
+  .desktop-workflow-copy h2,
+  .desktop-final h2 {
+    font-size: 2.18rem;
+  }
+
+  .desktop-feature-grid,
+  .desktop-screenshot-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .desktop-actions {
+    display: grid;
+  }
+
+  .desktop-button {
+    width: 100%;
+  }
+
+  .desktop-install-command pre,
+  .desktop-config-panel pre,
+  .desktop-workflow-commands pre {
+    font-size: 0.76rem;
+  }
+}
