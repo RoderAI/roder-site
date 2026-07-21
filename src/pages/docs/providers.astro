@@ -12,7 +12,9 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <p>
     Providers are native extensions that implement <code>InferenceEngine</code>. The runtime
     selects an engine by provider id, sends it a canonical Roder turn, and receives
-    canonical inference events back.
+    canonical inference events back. Long sessions respect provider compaction boundaries
+    so compacted state stays compact instead of replaying the full pre-compact history on
+    later turns.
   </p>
 
   <h2>Default provider set</h2>
@@ -63,6 +65,14 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     model, Ultra effort, policy, runner, tools, and workspace unless the spawn requests
     a fresh-context compatible override; lower efforts keep teammate spawning
     explicit-request-only.
+  </p>
+
+  <p>
+    Codex and other OpenAI Responses-backed providers preserve opaque provider-side
+    compaction items in the transcript. Once a compaction item appears, Roder treats it as
+    the next turn's context boundary: the compact state and new work are sent forward, while
+    older conversation and tool output stay in the durable session record instead of being
+    re-sent to the model.
   </p>
 
   <pre><code>roder auth login codex
@@ -173,9 +183,25 @@ roder memory providers set zeroentropy --model zembed-1</code></pre>
   <ul>
     <li>Advertise metadata, auth type, capabilities, and model descriptors.</li>
     <li>Stream text, tool calls, errors, and completion as canonical <code>InferenceEvent</code> values.</li>
+    <li>Mark local or provider-side compaction records as hard context boundaries for future turns.</li>
     <li>Preserve tool-call ids across the turn so the runtime can route results back correctly.</li>
     <li>Handle cancellation promptly when the active turn is interrupted.</li>
   </ul>
+
+  <h2>Compaction behavior</h2>
+  <p>
+    Roder recognizes both local <code>ContextCompaction</code> summaries and OpenAI
+    Responses provider metadata items whose output contains a compaction record. The runtime
+    trims future provider requests to the latest boundary, preventing repeated server-side
+    compaction loops in very long sessions.
+  </p>
+
+  <p>
+    The Anthropic adapter also maps local context summaries into Messages API input on the
+    emergency client-side path. That keeps the summary visible to Claude models while
+    dropping older pre-summary chat, tool calls, and tool output from the active request
+    window.
+  </p>
 
   <h2>Media providers</h2>
   <p>

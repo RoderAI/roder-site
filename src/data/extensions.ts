@@ -22,7 +22,7 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-openai-responses",
         provides: ["InferenceEngine({provider_id})"],
-        how: "Generic OpenAI Responses API engine: streams /v1/responses and maps output items and deltas to inference events, including reasoning summaries and hosted web search. Reused as the engine for xAI API-key, OpenRouter, Codex OAuth, and custom OpenAI-compatible providers. Codex exposes GPT-5.6 Sol/Terra/Luna, defaults to Sol, and maps Roder's Ultra effort to the provider's max reasoning value.",
+        how: "Generic OpenAI Responses API engine: streams /v1/responses and maps output items and deltas to inference events, including reasoning summaries, hosted web search, and opaque provider compaction items. Reused as the engine for xAI API-key, OpenRouter, Codex OAuth, and custom OpenAI-compatible providers. Codex exposes GPT-5.6 Sol/Terra/Luna, defaults to Sol, and maps Roder's Ultra effort to the provider's max reasoning value.",
         install: "When configured",
       },
       {
@@ -34,7 +34,7 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-anthropic",
         provides: ["InferenceEngine(anthropic)"],
-        how: "Maps harness turns to Anthropic Messages API request bodies and streams SSE from api.anthropic.com, translating tool_use content blocks into harness tool-call events. Resolves the API key at call time from config or environment.",
+        how: "Maps harness turns to Anthropic Messages API request bodies and streams SSE from api.anthropic.com, translating tool_use content blocks into harness tool-call events. Local context summaries are sent as post-compaction input while older pre-summary history is dropped from the active request. Resolves the API key at call time from config or environment.",
         install: "When configured",
       },
       {
@@ -215,7 +215,7 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-jsonl-thread-store",
         provides: ["ThreadStore(jsonl-thread-store)"],
-        how: "Append-only JSONL event logs per thread under {roder_home}/threads/{thread_id}/, with a thread-index.json for listing, plus archive and restore support. The default store.",
+        how: "Append-only JSONL event logs per thread under {roder_home}/threads/{thread_id}/, with a thread-index.json for listing, plus archive and restore support. The runtime keeps compaction boundaries in the transcript so resumes can continue from compact state without losing the durable pre-compaction record. The default store.",
         install: "Default",
       },
       {

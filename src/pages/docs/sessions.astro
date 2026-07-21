@@ -29,6 +29,15 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     Extension-owned state can also be persisted through the session-store contract.
   </p>
 
+  <h2>Compaction boundaries</h2>
+  <p>
+    Session history remains durable even when the active model context is compacted. Roder
+    treats local <code>ContextCompaction</code> records and OpenAI Responses provider
+    compaction metadata as hard boundaries for future inference requests. New turns keep the
+    compact state plus later work, while older chat and tool output stay available for
+    inspection and replay instead of being re-sent to the provider.
+  </p>
+
   <h2>Resume flow</h2>
   <ol>
     <li>The client requests a session list or supplies a thread id.</li>
