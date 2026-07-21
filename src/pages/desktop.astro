@@ -1,33 +1,65 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/roder-desktop.css";
+import {
+  DESKTOP_APPCAST_URL,
+  DESKTOP_CHECKSUMS_URL,
+  DESKTOP_MACOS_DMG_URL,
+  DESKTOP_MACOS_ZIP_URL,
+  DESKTOP_RELEASES_URL,
+  DESKTOP_UPDATES_JSON_URL,
+  DESKTOP_WINDOWS_EXE_URL,
+  assetUrl,
+  fetchLatestDesktopRelease,
+  githubFallbackUrl,
+  primaryDownloadForPlatform,
+} from "../lib/desktop-downloads";
 
-const macosDmgUrl =
-  "https://github.com/RoderAI/roder-desktop/releases/latest/download/Roder-macos-arm64.dmg";
-const macosZipUrl =
-  "https://github.com/RoderAI/roder-desktop/releases/latest/download/Roder-macos-arm64.zip";
-const checksumsUrl =
-  "https://github.com/RoderAI/roder-desktop/releases/latest/download/SHA256SUMS";
-const releasesUrl = "https://github.com/RoderAI/roder-desktop/releases";
+const release = await fetchLatestDesktopRelease();
+const versionLabel = release ? release.tagName : "latest";
+const downloadSource = release?.source === "r2" ? "dl.roder.sh" : "GitHub Releases";
+const macosDmgUrl = assetUrl(
+  release,
+  "Roder-macos-arm64.dmg",
+  release ? githubFallbackUrl("Roder-macos-arm64.dmg") : DESKTOP_MACOS_DMG_URL,
+);
+const macosZipUrl = assetUrl(
+  release,
+  "Roder-macos-arm64.zip",
+  release ? githubFallbackUrl("Roder-macos-arm64.zip") : DESKTOP_MACOS_ZIP_URL,
+);
+const windowsExeUrl = assetUrl(
+  release,
+  "Roder-windows-x64-installer.exe",
+  release ? githubFallbackUrl("Roder-windows-x64-installer.exe") : DESKTOP_WINDOWS_EXE_URL,
+);
+const checksumsUrl = assetUrl(
+  release,
+  "SHA256SUMS",
+  release ? githubFallbackUrl("SHA256SUMS") : DESKTOP_CHECKSUMS_URL,
+);
+const releasesUrl = DESKTOP_RELEASES_URL;
+const defaultPrimary = {
+  ...primaryDownloadForPlatform("mac"),
+  href: macosDmgUrl,
+};
 
-const installCommands = [
+const platformDownloads = [
   {
+    id: "mac",
     title: "macOS (Apple silicon)",
-    note: "Signed and notarized DMG from GitHub Releases",
-    command: macosDmgUrl,
+    note: "Signed and notarized DMG. Drag Roder into Applications, then launch.",
     href: macosDmgUrl,
+    fileName: "Roder-macos-arm64.dmg",
+    cta: "Download DMG",
   },
   {
-    title: "macOS zip + checksums",
-    note: "Same build as a zip archive, plus SHA256SUMS",
-    command: `${macosZipUrl}\n${checksumsUrl}`,
-    href: releasesUrl,
-  },
-  {
-    title: "Windows (preview)",
-    note: "x64 installer ships on tagged builds as Roder-windows-x64-installer.exe",
-    command: releasesUrl,
-    href: releasesUrl,
+    id: "windows",
+    title: "Windows (x64)",
+    note: "One-click Squirrel installer. Run the .exe and follow the prompts.",
+    href: windowsExeUrl,
+    fileName: "Roder-windows-x64-installer.exe",
+    cta: "Download installer",
   },
 ];
 
@@ -50,29 +82,30 @@ const featureCards = [
   },
 ];
 
+const productImageBase = "https://dl.roder.sh/desktop/product";
 const screenshots = [
   {
-    image: "/product/roder-desktop/desktop-new-agent.png",
+    image: `${productImageBase}/desktop-new-agent.png`,
     title: "Start a new agent",
     body: "Project-grouped threads in the sidebar, a project picker on the start screen, Recent threads, and a composer with model and reasoning selectors.",
   },
   {
-    image: "/product/roder-desktop/desktop-subagents-panel.png",
+    image: `${productImageBase}/desktop-subagents-panel.png`,
     title: "Live subagent orchestration",
     body: "Transcript lifecycle chips for finished and updated members, plus a Subagents panel listing Done · 3 with status blurbs and timestamps.",
   },
   {
-    image: "/product/roder-desktop/desktop-model-picker.png",
+    image: `${productImageBase}/desktop-model-picker.png`,
     title: "Every model, one picker",
     body: "The full provider catalog from the local app-server — GPT-5.6, Claude, Grok 4.5, Gemini, and more — searchable mid-run without leaving the thread.",
   },
   {
-    image: "/product/roder-desktop/desktop-providers.png",
+    image: `${productImageBase}/desktop-providers.png`,
     title: "Providers, configured in-app",
     body: "OAuth and API-key setup for every provider, with per-model access toggles that control exactly what shows up in the composer.",
   },
   {
-    image: "/product/roder-desktop/desktop-settings.png",
+    image: `${productImageBase}/desktop-settings.png`,
     title: "Defaults that stick",
     body: "Set the default model, reasoning effort, and policy mode for new work — plus appearance, skills, MCP servers, git, and usage in one settings surface.",
   },
@@ -99,7 +132,7 @@ const providers = [
 
 <Layout
   title="Roder Desktop - local coding agent app"
-  description="Download Roder Desktop for macOS. Spawn parallel subagents, pick models from the local app-server catalog, and keep threads, workspace panels, MCP, and skills on your machine."
+  description="One-click download of Roder Desktop for macOS or Windows. Spawn parallel subagents, pick models from the local app-server catalog, and keep threads, workspace panels, MCP, and skills on your machine."
   canonicalPath="/desktop/"
 >
   <div class="desktop-page">
@@ -111,10 +144,24 @@ const providers = [
             Install Roder Desktop, open it in a repo, and give it real work: spawn
             parallel subagents, pick models from the full app-server catalog, keep
             threads on disk, and drive Terminal, Browser, Canvas, and Review from one
-            window. Alpha software—signed builds ship today for Apple silicon.
+            window. Alpha software—signed builds ship today for Apple silicon and Windows.
           </p>
           <div class="desktop-actions" aria-label="Primary actions">
-            <a class="desktop-button desktop-button-primary" href="#install">Download Desktop</a>
+            <a
+              class="desktop-button desktop-button-primary"
+              id="desktop-primary-download"
+              data-mac-href={macosDmgUrl}
+              data-mac-label="Download for Mac"
+              data-windows-href={windowsExeUrl}
+              data-windows-label="Download for Windows"
+              href={defaultPrimary.href}
+              rel="noopener noreferrer"
+            >
+              {defaultPrimary.label}
+            </a>
+            <a class="desktop-button desktop-button-secondary" href="#install">
+              Other platforms
+            </a>
             <a
               class="desktop-button desktop-button-secondary"
               href={releasesUrl}
@@ -123,15 +170,22 @@ const providers = [
               All releases
             </a>
           </div>
+          <p
+            class="desktop-download-meta"
+            id="desktop-download-meta"
+            data-version={versionLabel}
+          >
+            Latest {versionLabel} · macOS DMG or Windows installer · one click
+          </p>
           <ul class="desktop-hero-points" aria-label="Roder Desktop highlights">
             <li>Embedded `roder` harness with local thread persistence</li>
             <li>Subagents panel + inline lifecycle chips for parallel work</li>
-            <li>Composer: `$` skills, `@` MCP, plan mode, swarm, voice</li>
+            <li>macOS updates via Sparkle-compatible feed · Check for Updates in-app</li>
           </ul>
         </div>
         <figure class="desktop-hero-shot">
           <img
-            src="/product/roder-desktop/desktop-new-agent.png"
+            src={`${productImageBase}/desktop-new-agent.png`}
             alt="Roder Desktop start screen with project-grouped threads, Start a new agent pane, and composer set to Grok 4.5 High"
             width="2880"
             height="1880"
@@ -146,40 +200,69 @@ const providers = [
     <section class="desktop-install" id="install">
       <div class="desktop-container">
         <div class="desktop-section-head">
-          <h2>Download Roder Desktop</h2>
+          <h2>One-click install</h2>
           <p>
-            macOS builds are signed and notarized. Download the DMG, drag Roder into
-            Applications, then launch—Gatekeeper should accept the notarized app.
-            Verify the artifact against `SHA256SUMS` on the release if you want a
-            checksum check first.
+            Pick your platform. macOS builds are signed and notarized; Windows ships a
+            Squirrel x64 installer. After install, open a project and start an agent.
+            Optional: verify against `SHA256SUMS` on the release.
           </p>
         </div>
-        <div class="desktop-install-layout">
-          <div class="desktop-install-commands">
-            {installCommands.map((item) => (
-              <article class="desktop-install-command">
+        <div class="desktop-download-grid" role="list">
+          {
+            platformDownloads.map((item) => (
+              <article class="desktop-download-card" data-platform={item.id} role="listitem">
                 <div>
-                  <h3>
-                    <a href={item.href} rel="noopener noreferrer">{item.title}</a>
-                  </h3>
+                  <h3>{item.title}</h3>
                   <p>{item.note}</p>
+                  <p class="desktop-download-file">{item.fileName}</p>
                 </div>
-                <pre><code>{item.command}</code></pre>
+                <a
+                  class="desktop-button desktop-button-primary"
+                  href={item.href}
+                  rel="noopener noreferrer"
+                >
+                  {item.cta}
+                </a>
               </article>
-            ))}
+            ))
+          }
+        </div>
+        <div class="desktop-install-layout desktop-install-secondary">
+          <div class="desktop-install-commands">
+            <article class="desktop-install-command">
+              <div>
+                <h3>
+                  <a href={macosZipUrl} rel="noopener noreferrer">macOS zip + checksums</a>
+                </h3>
+                <p>Same Apple silicon build as a zip, plus SHA256SUMS for verification.</p>
+              </div>
+              <pre><code>{`${macosZipUrl}\n${checksumsUrl}`}</code></pre>
+            </article>
+            <article class="desktop-install-command">
+              <div>
+                <h3>
+                  <a href={DESKTOP_APPCAST_URL} rel="noopener noreferrer">Sparkle feeds (R2)</a>
+                </h3>
+                <p>
+                  macOS auto-updates read Cloudflare R2 feeds published by release CI
+                  (`updates.json` + Sparkle `appcast.xml` on dl.roder.sh).
+                </p>
+              </div>
+              <pre><code>{`${DESKTOP_UPDATES_JSON_URL}\n${DESKTOP_APPCAST_URL}`}</code></pre>
+            </article>
           </div>
           <aside class="desktop-install-card" aria-label="First run checklist">
             <h3>First run</h3>
             <ol>
-              <li>Download `Roder-macos-arm64.dmg`</li>
-              <li>Drag Roder into Applications</li>
-              <li>Open a project (or Add Project)</li>
-              <li>Start a new agent and send a turn</li>
+              <li>Click Download for your OS</li>
+              <li>macOS: drag Roder into Applications</li>
+              <li>Windows: run the installer</li>
+              <li>Open a project and start a new agent</li>
             </ol>
             <p>
-              Windows x64 installers appear on tagged releases as
-              `Roder-windows-x64-installer.exe`—use the releases page until a
-              latest/download link is always present.
+              Artifacts from {downloadSource}. On Mac, use{" "}
+              <strong>Check for Updates…</strong> — feed{" "}
+              <a href={DESKTOP_UPDATES_JSON_URL} rel="noopener noreferrer">updates.json</a>.
             </p>
           </aside>
         </div>
@@ -197,35 +280,36 @@ const providers = [
           </p>
         </div>
         <div class="desktop-feature-grid">
-          {featureCards.map((feature) => (
-            <article class="desktop-feature-card">
-              <h3>{feature.title}</h3>
-              <p>{feature.body}</p>
-            </article>
-          ))}
+          {
+            featureCards.map((card) => (
+              <article class="desktop-feature-card">
+                <h3>{card.title}</h3>
+                <p>{card.body}</p>
+              </article>
+            ))
+          }
         </div>
       </div>
     </section>
 
-    <section class="desktop-section desktop-screenshots-section" id="features">
+    <section class="desktop-section">
       <div class="desktop-container">
         <div class="desktop-section-head">
-          <h2>Screenshots from a real Desktop session</h2>
-          <p>
-            Captured in `roder-subagent-demo` on the shipping alpha: start a thread,
-            spawn parallel subagents, and pick models from the local catalog.
-          </p>
+          <h2>In the product</h2>
+          <p>Fresh captures from the signed desktop build.</p>
         </div>
         <div class="desktop-screenshot-grid">
-          {screenshots.map((shot) => (
-            <figure class="desktop-screenshot-card">
-              <img src={shot.image} alt={`${shot.title} screenshot`} loading="lazy" width="2880" height="1880" />
-              <figcaption>
-                <strong>{shot.title}</strong>
-                <span>{shot.body}</span>
-              </figcaption>
-            </figure>
-          ))}
+          {
+            screenshots.map((shot) => (
+              <figure class="desktop-screenshot-card">
+                <img src={shot.image} alt={shot.title} width="1440" height="940" loading="lazy" />
+                <figcaption>
+                  <strong>{shot.title}</strong>
+                  <span>{shot.body}</span>
+                </figcaption>
+              </figure>
+            ))
+          }
         </div>
       </div>
     </section>
@@ -233,20 +317,18 @@ const providers = [
     <section class="desktop-section desktop-provider-section">
       <div class="desktop-container desktop-provider-layout">
         <div>
-          <h2>Use the model and provider you prefer.</h2>
+          <h2>Bring your providers.</h2>
           <p>
-            The desktop surfaces the full model catalog from the local app-server:
-            GPT-5.6 (Sol/Terra/Luna), Claude (Fable 5, Opus 4.8, Sonnet), Grok 4.5,
-            Gemini, Composer, DeepSeek, Kimi, and more. Reasoning efforts go up to
-            Ultra. Wire credentials for 15+ providers and keep selection with the thread.
+            Sign in or paste keys in Settings. The composer model list mirrors what the
+            local app-server reports—including Ultra reasoning where the provider supports it.
           </p>
-          <div class="desktop-provider-list" aria-label="Supported provider examples">
-            {providers.map((provider) => <span>{provider}</span>)}
-          </div>
         </div>
         <div class="desktop-config-panel">
-          <h3>Composer surface</h3>
-          <pre><code>{`model: Grok 4.5 · reasoning: High
+          <h3>Works with</h3>
+          <ul class="desktop-provider-list">
+            {providers.map((name) => <li>{name}</li>)}
+          </ul>
+          <pre><code>{`Composer
 $ skills completion
 @ MCP server targeting
 plan mode · agent swarm
@@ -284,12 +366,68 @@ Composer
         <div>
           <h2>Download Desktop and open a project.</h2>
           <p>
-            Grab the Apple silicon DMG, drag it into Applications, and start an agent
-            in a real repo. Windows preview builds live on the same releases page.
+            One click for macOS DMG or Windows installer. Then open a repo and start an
+            agent—updates on Mac check the Sparkle-compatible feed automatically.
           </p>
         </div>
-        <a class="desktop-button desktop-button-primary" href="#install">Download Desktop</a>
+        <a
+          class="desktop-button desktop-button-primary"
+          id="desktop-final-download"
+          data-mac-href={macosDmgUrl}
+          data-mac-label="Download for Mac"
+          data-windows-href={windowsExeUrl}
+          data-windows-label="Download for Windows"
+          href={defaultPrimary.href}
+          rel="noopener noreferrer"
+        >
+          {defaultPrimary.label}
+        </a>
       </div>
     </section>
   </div>
+
+  <script>
+    const detectPlatform = (userAgent: string): "mac" | "windows" | "other" => {
+      const ua = userAgent.toLowerCase();
+      if (ua.includes("windows") || ua.includes("win32") || ua.includes("win64")) {
+        return "windows";
+      }
+      if (ua.includes("mac os") || ua.includes("macintosh") || ua.includes("mac_powerpc")) {
+        return "mac";
+      }
+      return "other";
+    };
+
+    const applyPrimaryDownload = (anchor: HTMLAnchorElement, platform: "mac" | "windows" | "other") => {
+      const href =
+        platform === "windows"
+          ? anchor.dataset.windowsHref
+          : anchor.dataset.macHref;
+      const label =
+        platform === "windows"
+          ? anchor.dataset.windowsLabel
+          : anchor.dataset.macLabel;
+      if (href) anchor.href = href;
+      if (label) anchor.textContent = label;
+    };
+
+    const platform = detectPlatform(navigator.userAgent);
+    document
+      .querySelectorAll<HTMLAnchorElement>("#desktop-primary-download, #desktop-final-download")
+      .forEach((anchor) => applyPrimaryDownload(anchor, platform));
+
+    const meta = document.getElementById("desktop-download-meta");
+    if (meta) {
+      const version = meta.dataset.version || "latest";
+      if (platform === "windows") {
+        meta.textContent = `Latest ${version} · Windows x64 installer · one click`;
+      } else if (platform === "mac") {
+        meta.textContent = `Latest ${version} · macOS Apple silicon DMG · one click`;
+      }
+    }
+
+    document.querySelectorAll<HTMLElement>(".desktop-download-card").forEach((card) => {
+      card.classList.toggle("is-preferred", card.dataset.platform === platform);
+    });
+  </script>
 </Layout>
