@@ -67,6 +67,12 @@ config = { image = "blaxel/base-image:latest", memory = 4096, region = "eu-lon-1
   </p>
 
   <h2>Pause, resume, detach, and rejoin</h2>
+  <p>
+    Runner-bound threads initialize lazily. Roder creates or resumes the Blaxel
+    session only when an approved native workspace tool first executes, then reuses
+    that live session across later tools and turns. Text-only turns and host-executed
+    MCP work do not wake the sandbox.
+  </p>
   <ul>
     <li><strong>Pause</strong> marks standby intent so the sandbox can scale to zero; a later command can wake it.</li>
     <li><strong>Resume</strong> wakes a standby sandbox immediately.</li>
@@ -102,5 +108,13 @@ roder runners rejoin <thread-id> --sandbox <name>`}</code></pre>
     Exposing a sandbox port returns a Blaxel preview URL. Bind the service to
     <code>0.0.0.0</code> inside the sandbox so the preview can reach it. Blaxel preview
     connections currently have a 15-minute timeout.
+  </p>
+
+  <h2>Command cancellation</h2>
+  <p>
+    Remote commands run as uniquely named Blaxel processes with finite leases. Tool
+    timeouts, turn interruption, or dropped transports request force-kill through the
+    Blaxel process API, while the server-side lease is the backstop if Roder cannot
+    deliver the cancellation request.
   </p>
 </DocsLayout>

@@ -44,4 +44,12 @@ scopes = ["read", "write", "admin"]`}</code></pre>
     role, records redacted audit JSONL, and supports tenant webhooks with HMAC
     signatures, retries, circuit breakers, and dead-letter records.
   </p>
+
+  <h2>Request security</h2>
+  <ul>
+    <li>Browser WebSockets authenticate with the <code>roder.remote.v1</code> and <code>bearer.&lt;token&gt;</code> subprotocols; native clients can use bearer headers.</li>
+    <li>Open sockets revalidate credentials before dispatch and while idle, so expiry or service-account revocation stops requests and notifications.</li>
+    <li>Deployment request policy can rewrite or deny JSON-RPC calls before runtime dispatch, while health probes remain open for schedulers.</li>
+    <li>Externally resolved tenant ids use collision-resistant data directories; existing lowercase slug tenants keep their current paths.</li>
+  </ul>
 </DocsLayout>

@@ -44,7 +44,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   </p>
   <ul>
     <li><code>crates/roder-api</code> — extension traits, canonical events, tools, inference, sessions, policy, and shared types.</li>
-    <li><code>crates/roder-core</code> — runtime loop, event bus, policy gate, tool execution, cancellation, media artifacts, forks, knowledge recall, compaction boundaries, agent-control lifecycles, and provider orchestration.</li>
+    <li><code>crates/roder-core</code> — runtime loop, event bus, policy gate, tool execution, cancellation, media artifacts, forks, knowledge recall, compaction boundaries, lifecycle recovery, agent-control lifecycles, and provider orchestration.</li>
     <li><code>crates/roder-extension-host</code> — default distribution wiring for providers, web search, subagents, sessions, tools, media, knowledge, process extensions, and TUI services.</li>
     <li><code>crates/roder-app-server</code> and <code>crates/roder-protocol</code> — local, remote-node, and hosted JSON-RPC control planes plus typed protocol shapes.</li>
     <li><code>crates/roder-dynamic-workflows</code> and <code>crates/roder-roadmap</code> — approval-gated workflow scripts, child-agent orchestration, roadmap boards, loop orchestration, checkpoints, and reports.</li>
@@ -65,6 +65,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><a href="/docs/knowledge/">Project knowledge</a> — markdown requirements, decisions, runbooks, links, revisions, and recall.</li>
     <li><a href="/docs/agent-swarm/">Agent swarm</a> — bounded, rate-limit-aware fanout with live progress and ordered results.</li>
     <li><a href="/docs/agent-control/">Agent control</a> — long-lived teammates with canonical paths, follow-up turns, waiting, and non-destructive interruption.</li>
+    <li><a href="/docs/lifecycle-recovery/">Lifecycle recovery</a> — interrupted-turn records, cleanup proof, runtime drain, and restart diagnostics.</li>
     <li><a href="/docs/blaxel-runner/">Blaxel sandbox runner</a> — isolated remote coding workspaces with pause, resume, detach, and rejoin.</li>
     <li><a href="/docs/workspace-forks/">Workspace forks</a> — branch a thread or task into isolated writable workspaces.</li>
     <li><a href="/docs/media-generation/">Media generation</a> — OpenAI and Google image providers with artifact persistence.</li>

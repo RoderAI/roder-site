@@ -35,6 +35,14 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     developer context, or provide an explicit compatible model selection.
   </p>
 
+  <p>
+    Configured subagent roles are advertised to the model and validated before a child
+    starts. Roder rejects lane names used as roles and reports lane/tool
+    incompatibilities early, so orchestration mistakes fail before consuming a teammate
+    turn. Native full-history forks may use <code>agent_type</code> as an advisory role
+    label, while model, provider, and reasoning overrides remain rejected for that mode.
+  </p>
+
   <pre><code>{`{
   "task_name": "reviewer",
   "message": "Review the current patch and report blocking risks.",
