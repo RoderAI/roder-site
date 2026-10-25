@@ -5,34 +5,68 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 <DocsLayout
   title="ACP compatibility"
   eyebrow="Protocols"
-  description="How Agent Client Protocol fits into Roder's compatibility roadmap."
+  description="Run Roder as an Agent Client Protocol agent over stdio."
   prev={{ href: "/docs/app-server/", title: "App server" }}
 >
   <p>
-    The older implementation in this repository includes an Agent Client Protocol server.
-    The Rust Roder runtime is app-server-first today, with ACP compatibility tracked as a
-    protocol parity surface once the Rust session, tools, policy, and transport contracts
-    settle.
+    <code>roder acp</code> starts a native Rust
+    <a href="https://agentclientprotocol.com/">Agent Client Protocol</a> endpoint over
+    stdio JSON-RPC. It uses the same app-server runtime, tools, and policy decisions as
+    other Roder clients and implements the stable ACP v1 wire protocol.
   </p>
 
-  <h2>Compatibility target</h2>
+  <h2>Start the agent</h2>
+  <p>
+    <a href="/docs/install/">Install Roder</a> and configure your
+    <a href="/docs/providers/">inference provider</a> before starting the agent.
+    Configure your ACP client to launch the <code>roder</code> executable with
+    <code>acp</code> as its argument. The executable must be available on the client's
+    <code>PATH</code>; otherwise, use its absolute path.
+  </p>
+
+  <pre><code>roder acp</code></pre>
+
+  <p>To run from a source checkout:</p>
+  <pre><code>cargo run -p roder -- acp</code></pre>
+
+  <h2>Sessions and prompt turns</h2>
   <ul>
-    <li>Expose Roder as an ACP agent over stdio JSON-RPC.</li>
-    <li>Map ACP sessions to Roder threads and turns.</li>
-    <li>Translate ACP prompt blocks into canonical Roder input messages.</li>
-    <li>Surface tool progress, assistant deltas, and permission requests as ACP session updates.</li>
-    <li>Attach stdio MCP servers through the ACP session contract where supported.</li>
+    <li><code>initialize</code> negotiates ACP v1 and reports baseline session support.</li>
+    <li><code>session/new</code> creates a Roder thread for an absolute <code>cwd</code>.</li>
+    <li><code>session/prompt</code> accepts text and resource links and starts a turn.</li>
+    <li><code>session/cancel</code> interrupts the active turn.</li>
   </ul>
 
-  <h2>Current guidance</h2>
   <p>
-    Use <a href="/docs/app-server/">the Roder app server</a> for new Rust integrations. Use
-    the legacy implementation only when you specifically need the existing ACP behavior as
-    a reference or bridge during the rewrite.
+    During a prompt turn, <code>session/update</code> notifications stream assistant
+    text, reasoning text, and tool-call progress. Protected tool calls send
+    <code>session/request_permission</code> requests to the client with
+    <code>allow_once</code> and <code>reject_once</code> options.
   </p>
 
-  <div class="callout">
-    <strong>Protocol rule.</strong> ACP should translate into the same runtime events,
-    tools, sessions, and policy decisions as every other client surface.
-  </div>
+  <p>
+    Send <code>session/cancel</code> as a notification. The outstanding
+    <code>session/prompt</code> request returns <code>stopReason: "cancelled"</code>
+    after the turn ends.
+  </p>
+
+  <h2>Current limits</h2>
+  <p>
+    Roder does not advertise session loading, listing, deletion, resumption, or closing
+    through ACP. Unsupported optional methods return JSON-RPC method-not-found.
+    <code>session/new</code> rejects nonempty <code>additionalDirectories</code> and
+    <code>mcpServers</code> lists. MCP servers cannot be attached through ACP.
+  </p>
+
+  <p>
+    Image, audio, and embedded-resource prompt blocks are unsupported. Tool updates can
+    include screenshots when computer-use tools are enabled; this does not enable image
+    prompts.
+  </p>
+
+  <p>
+    Use <a href="/docs/app-server/">the native app-server JSON-RPC API</a> for Roder's
+    lifecycle, recovery, drain, and ownership diagnostics. Those details are not exposed
+    as ACP capabilities.
+  </p>
 </DocsLayout>
