@@ -3,45 +3,213 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 ---
 
 <DocsLayout
-  title="Desktop clients"
+  title="Roder Desktop"
   eyebrow="Surfaces"
-  description="How native desktop shells should integrate with the Roder app-server control plane."
+  description="Use project threads, local issues, persistent agents, browser and design panels, and execution profiles in Roder Desktop."
   prev={{ href: "/docs/chrome/", title: "Chrome browser control" }}
-  next={{ href: "/docs/app-server/", title: "App server" }}
+  next={{ href: "/docs/persistent-agents/", title: "Persistent agents" }}
 >
   <p>
-    A desktop app should treat Roder as a local harness process and speak the app-server
-    protocol. The desktop owns windows, terminal panes, web views, file drag-and-drop, and
-    OS affordances; Roder owns turns, providers, tools, policy, sessions, and events.
+    Roder Desktop keeps a project's conversation, terminal, browser, files, and code
+    review in one window. It runs the same Roder harness as the CLI through a local
+    app-server process. This guide covers desktop workflows available through
+    <strong>Desktop v0.1.11</strong>, which embeds <strong>Roder v0.4.1</strong>.
+    Desktop and harness versions are separate release numbers.
   </p>
 
-  <h2>Expected desktop shape</h2>
+  <h2>Start with a project</h2>
+  <ol>
+    <li>Install the app from the <a href="/desktop/">desktop downloads page</a> and open a project folder.</li>
+    <li>Connect an inference provider in Settings, then choose a model and supported reasoning effort.</li>
+    <li>Start a thread in that project. Choose its policy mode before asking the agent to work.</li>
+    <li>Use adjacent panels to inspect files, run terminal commands, preview pages, and review changed code.</li>
+  </ol>
+  <p>
+    Threads are saved locally and can be reopened. The sidebar groups them by project
+    and keeps child-agent threads out of the top-level project list. Open the
+    <strong>Overview</strong> panel to inspect thread activity and subagents instead.
+    Provider credentials and inference subscriptions are separate from the desktop app;
+    see <a href="/docs/providers/">providers</a> for supported backends.
+  </p>
+
+  <h2>Panels beside the conversation</h2>
   <ul>
-    <li>Main process starts <code>roder app-server</code> over stdio.</li>
-    <li>Renderer uses typed protocol methods for sessions, turns, tools, providers, and approvals.</li>
-    <li>Transcript, tool timeline, diff viewer, command palette, terminal, and browser panels render app-server state.</li>
-    <li>Provider selection and reasoning settings persist through app-server config methods.</li>
+    <li><strong>Terminal:</strong> run commands in a project terminal without switching applications.</li>
+    <li><strong>Files:</strong> browse the workspace and open project files.</li>
+    <li><strong>Review:</strong> inspect changed files and diffs alongside the thread.</li>
+    <li><strong>Browser:</strong> open a local preview or let the agent inspect and interact with a page.</li>
+    <li><strong>Canvas:</strong> sketch and annotate.</li>
+    <li><strong>Design:</strong> edit a structured design with layers, shapes, text, tokens, and agent assistance.</li>
+    <li><strong>Extensions:</strong> open installed extension panels.</li>
+    <li><strong>Overview:</strong> follow thread activity and subagents.</li>
   </ul>
-
-  <h2>Why this boundary</h2>
   <p>
-    Desktop clients need native affordances, but they should not fork the agent runtime.
-    Keeping the harness in Roder lets the TUI, desktop, and automation surfaces share
-    sessions and feature work.
+    Design documents live in project-specific <code>~/.roder/design/*.roderdesign</code>
+    files. The Design panel can inspect layout and export selected nodes when the
+    connected harness advertises those methods. SVG is the design export format.
+    Scoped design-agent planning does not itself launch a worker: the active agent
+    still needs an available delegation tool.
   </p>
 
-  <h2>Remote controller path</h2>
+  <h2>Choose the browser deliberately</h2>
   <p>
-    Remote mode keeps desktop and TUI clients on the app-server client abstraction. A
-    local controller can connect to a remote Roder node, render the remote runtime's
-    threads and notifications, and leave sessions, tools, commands, provider auth, and
-    artifacts owned by the remote machine. Sprites-hosted nodes use the same remote
-    app-server transport.
+    The built-in browser is the desktop default. Invoke <code>$browser</code> to
+    choose it explicitly. Use <code>$chrome</code> to route the thread to the paired
+    Chrome extension instead, including a Chrome session in which you are already
+    signed in. If the extension is disconnected, Roder reports that state rather
+    than silently switching browsers.
+  </p>
+  <ol>
+    <li>Open <strong>Settings &gt; Browser</strong> and choose <strong>Turn on bridge</strong>.</li>
+    <li>Copy the connection URL and bearer token into the Roder Browser Bridge extension's settings.</li>
+    <li>Connect the extension, then invoke <code>$chrome</code> in the thread.</li>
+  </ol>
+  <p>
+    The bridge listens on localhost and generates a fresh token whenever it starts.
+    Regenerating the token invalidates the old one. Keep the token private and do not
+    expose the bridge publicly. The extension's site permissions and control settings
+    still apply. See <a href="/docs/chrome/">Chrome browser control</a> for tool
+    permissions and <a href="/docs/browser-decisions/">browser decisions</a> for
+    bounded Jev or OpenAI Decisions goals; those are separate browser workflows.
   </p>
 
+  <h2>Keep long threads usable</h2>
+  <p>
+    The transcript groups tool history between user messages, with up to five live
+    tools shown while work is running. Older content is virtualized and loaded from
+    indexed history as you scroll or seek a conversation section. A short rendered
+    window is not a deleted conversation: earlier turns remain in persisted history.
+    History navigation and code-review loading are separate from the agent's model
+    context window.
+  </p>
+  <p>
+    In v0.1.11, a project's sidebar menu offers <strong>Archive project (keeps
+    conversations)</strong>. Switch to archived projects to restore it later.
+    This hides a project group without deleting its folder or conversations. It is
+    separate from archiving an individual thread and from archiving an Issues project.
+  </p>
+
+  <h2>Track local projects and issues</h2>
+  <p>
+    Open <strong>Issues</strong> and choose <strong>New project</strong>. Link an
+    existing desktop workspace if you want to launch work from its issues. An Issues
+    project is an organizational record; a workspace is the folder context where a
+    thread runs. Creating one does not create the other.
+  </p>
+  <p>
+    Create an issue, then edit its title, description, project, status, and assigned
+    thread. Statuses are <code>backlog</code>, <code>todo</code>,
+    <code>in_progress</code>, <code>blocked</code>, <code>done</code>, and
+    <code>cancelled</code>. Filter by project, status, assignment, or text. Done and
+    Cancelled groups start collapsed; matching filters reveal their rows.
+  </p>
+  <p>
+    Save an issue, reopen it, and choose <strong>Save &amp; launch work</strong> to
+    start a thread in its linked workspace. An already-assigned issue opens its
+    existing thread rather than launching a duplicate. Unassign it explicitly if
+    you need another thread. Saving edits precedes launch, so a launch failure does
+    not discard the edits.
+  </p>
   <div class="callout">
-    <strong>Rename note.</strong> The existing sibling desktop repository is still named
-    <code>gode-desktop</code> in the local workspace. Product-facing docs now call the
-    harness and future desktop distribution Roder.
+    Issues are local, with no GitHub or Linear synchronization. Assignment is a link,
+    not a scheduler: changing status does not stop a thread, and thread completion
+    does not automatically close an issue. Archive an Issues project to retain its
+    history while preventing new issues and launches.
   </div>
+  <p>
+    Agents can use the same records through <code>projects_list</code>,
+    <code>projects_read</code>, <code>projects_create</code>,
+    <code>projects_update</code>, <code>projects_delete</code>, and the corresponding
+    <code>issues_*</code> tools, including <code>issues_launch</code>, when advertised
+    to the thread. These desktop tools are not a hosted issue service.
+  </p>
+
+  <h2>Persistent agents and execution machines</h2>
+  <p>
+    A <a href="/docs/persistent-agents/">persistent agent</a> keeps a mission, editable
+    memory, and one durable thread across check-ins. New agents are paused; creating
+    one does not enable proactive work. Run allowances and time limits bound its work
+    while the desktop is running.
+  </p>
+  <p>
+    <a href="/docs/cloud-machines/">Cloud Machines</a> profiles select the execution
+    environment for a new thread's native coding tools. They do not upload the
+    repository or move desktop panels to the cloud. A profile is fixed when the
+    thread is created; changing the selector does not migrate existing work.
+  </p>
+
+  <h2>Configure Roder from chat</h2>
+  <p>
+    Desktop v0.1.10 added the built-in <code>$roder-config</code> skill and
+    <code>desktop_config</code> tool. Ask for a supported settings change in a thread
+    that advertises the tool. The agent should read current settings, change only
+    the requested values, and verify the result.
+  </p>
+  <ul>
+    <li>Choose the inference provider, model, and reasoning effort.</li>
+    <li>Set web search, indexed search, shell, default policy mode, or file-backed dynamic context.</li>
+    <li>Read and enable skills, adjust their exposure, or inspect and refresh workflow integrations.</li>
+  </ul>
+  <p>
+    This is an allowlisted app-server bridge, not arbitrary desktop automation or a
+    way to change every Electron preference. Do not paste credentials into tool
+    arguments. Enabling executable MCP or workflow integrations requires explicit
+    approval; a pasted configuration is not approval to execute it. Restart-only
+    changes still require a restart. Older threads without the tool need a new chat.
+  </p>
+
+  <h2>Understand usage and cost estimates</h2>
+  <p>
+    The thread usage popover combines recorded thread tokens with discovered subagent
+    descendants, avoiding duplicate inherited history. It offers thread and model
+    breakdowns, refresh, and a <strong>Scan more history</strong> action when a bounded
+    scan leaves gaps.
+  </p>
+  <p>
+    API cost estimates use a dated bundled pricing snapshot. Missing model rates,
+    incomplete analytics, cache attribution, and undiscovered descendants can make
+    the total partial. Usage refreshes after completion rather than providing a live
+    per-token meter. These estimates are not provider invoices, subscription usage,
+    machine charges, or a hard spending cap.
+    See <a href="/docs/usage-analytics/">usage analytics</a> for harness-level reporting.
+  </p>
+
+  <h2>Install updates</h2>
+  <p>
+    Use <strong>Check for Updates</strong> in the app. Desktop v0.1.11 also shows an
+    actionable update pill beside sidebar settings when an update is available.
+    Follow the offered download or installation action for your platform.
+    Official release builds currently target macOS Apple silicon and Windows x64;
+    macOS releases use the published update feed. See the
+    <a href="/desktop/">download page</a> for current installers and platform notes.
+  </p>
+
+  <h2>How desktop integration works</h2>
+  <p>
+    The main process starts <code>roder app-server</code> over stdio. The renderer uses
+    typed protocol methods for threads, turns, tools, providers, and approvals. The
+    desktop owns native windows, terminals, web views, and drag-and-drop; the harness
+    owns inference, tool policy, sessions, and events. Desktop-only tools extend
+    that boundary without forking the runtime.
+  </p>
+  <p>
+    A remote app-server controller is a different architecture from a Cloud Machines
+    execution profile. In the remote-controller model, the remote node owns sessions,
+    tool execution, provider auth, and artifacts. A local Cloud Machines profile
+    keeps the desktop's app-server connection and routes native coding execution
+    through a runner. See <a href="/docs/app-server/">app server</a> for the protocol.
+  </p>
+
+  <h2>Release references</h2>
+  <p>
+    Persistent agents and local issues entered the v0.1.5 release line; v0.1.9 added
+    Cloud Machines, indexed history, and accounting improvements. v0.1.10 added
+    chat configuration and persistent-agent creation tools. v0.1.11 added sidebar
+    project archives, the update pill, and full-history virtualization.
+    Reference the
+    <a href="https://github.com/RoderAI/roder-desktop/releases/tag/v0.1.11">v0.1.11 release</a>,
+    <a href="https://github.com/RoderAI/roder-desktop/blob/v0.1.11/docs/issues.md">local issues guide</a>,
+    and <a href="https://github.com/RoderAI/roder-desktop/blob/v0.1.11/docs/thread-accounting.md">accounting contract</a>.
+    Unreleased desktop work is not included in this guide.
+  </p>
 </DocsLayout>

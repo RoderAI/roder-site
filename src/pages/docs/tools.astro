@@ -7,7 +7,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   eyebrow="Capabilities"
   description="The built-in tool surface, tool contributors, and policy modes."
   prev={{ href: "/docs/openrouter/", title: "OpenRouter" }}
-  next={{ href: "/docs/codex-parity-tools/", title: "Codex-parity tools" }}
+  next={{ href: "/docs/local-hooks/", title: "Local hooks" }}
 >
   <p>
     Tools are registered through <code>ToolContributor</code> and executed through <code>ToolExecutor</code>. Providers only see <code>ToolSpec</code> schemas; the runtime
@@ -16,11 +16,11 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <h2>Built-in coding tools</h2>
   <ul>
-    <li><code>read_file</code> and <code>list_files</code> for scoped filesystem reads.</li>
-    <li><code>grep</code> and <code>glob</code> for workspace discovery. With unrestricted filesystem access, <code>glob</code> also accepts absolute patterns outside the workspace.</li>
-    <li><code>write_file</code>, <code>edit</code>, and <code>multi_edit</code> for edit-oriented models.</li>
+    <li><code>read_file</code> and <code>list_files</code> for scoped filesystem reads. Relative paths resolve from the workspace root; <code>user://</code> maps to <code>$HOME</code> and <code>workspace://</code> maps to the workspace root.</li>
+    <li><code>grep</code> and <code>glob</code> for workspace discovery. With unrestricted filesystem access, <code>glob</code> also accepts absolute patterns outside the workspace. Both tools understand <code>user://...</code> and <code>workspace://...</code> paths.</li>
+    <li><code>write_file</code>, <code>edit</code>, and <code>multi_edit</code> for edit-oriented models, using the same relative, absolute, home, <code>user://</code>, and <code>workspace://</code> path handling as the read tools.</li>
     <li><code>apply_patch</code> for patch-oriented models, including the Responses freeform custom-tool channel for GPT-5.5.</li>
-    <li><code>view_image</code> for validated local or remote-runner image inspection by vision-capable models.</li>
+    <li><code>view_image</code> for validated local or remote-runner image inspection by vision-capable models, including canonical skill and workspace image paths.</li>
     <li><code>echo</code> for deterministic tests and simple harness checks.</li>
   </ul>
 
@@ -38,7 +38,23 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     the model can still write a final answer or scoreable output.
   </p>
 
+  <p>
+    Runner-bound workspaces use the same timeout semantics. Remote one-shot
+    {" "}<code>exec_command</code> calls are normalized to a finite effective deadline before
+    the provider request is built, so the outer wait, remote process lease, and returned
+    timeout metadata describe the same bound. Shared remote-runner sessions also serialize
+    workspace tool operations behind the provider's execution fence, preventing two agents
+    from interleaving a multi-step file or shell operation in the same sandbox.
+  </p>
+
   <h2>Tool allowlists</h2>
+  <p>
+    Canonical path aliases are accepted before tool policy is applied. This lets skills
+    hand a model paths such as <code>user://.codex/skills/review/SKILL.md</code> or
+    {" "}<code>workspace://.agents/skills/roadmap/SKILL.md</code> without hard-coding the
+    current machine's home directory or repo checkout.
+  </p>
+
   <p>
     Distributions can narrow the advertised tool set with <code>[tools].allowlist</code>.
     The runtime filters tool specs before they are sent to the model, which is useful for
@@ -48,9 +64,32 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <pre><code>{`[tools]
 allowlist = ["zerolang_skills_get", "zerolang_check", "zerolang_edit"]`}</code></pre>
 
+  <h2>Local hooks</h2>
+  <p>
+    Projects can add <a href="/docs/local-hooks/">local hooks</a> in
+    <code>.roder/hooks.json</code>, with <code>.codex/hooks.json</code> as a compatibility
+    fallback. Hooks can observe session start/end, prompts, permission requests, tool
+    calls, compaction, subagents, and stop events. <code>SessionStart</code> setup runs
+    once for the opened thread session, whether the session started fresh or resumed
+    saved state. <code>PreToolUse</code> hooks can deny a tool call or rewrite its input
+    before normal execution continues; hook failures are recorded as diagnostics and
+    fail open.
+  </p>
+
+  <h2>Browser goals and decisions</h2>
+  <p>
+    <a href="/docs/browser-decisions/">Jev and OpenAI Decisions</a> run bounded browser
+    goals in a thread's Chrome session. Results include semantic DOM structure, roles,
+    control states and action evidence. Opt-in DOM profiles can use viewport images
+    and completion audits; approvals, origin restrictions and secret handling remain
+    active. Add observable success conditions and inspect the final page before treating
+    a browser task as complete.
+  </p>
+
   <h2>Extension tools</h2>
   <ul>
     <li><code>web_search</code> from the web-search router extension.</li>
+    <li><code>parallel_search</code> and <code>parallel_extract</code> when Parallel.ai is the selected web-search provider or namespaced web tools are enabled.</li>
     <li><code>task</code> from the subagent extension, with optional per-agent namespaced tools.</li>
     <li><a href="/docs/agent-swarm/"><code>agent_swarm</code></a> for bounded fanout of one prompt template across many items.</li>
     <li><code>knowledge_*</code> tools for markdown-backed project knowledge documents.</li>
@@ -59,6 +98,33 @@ allowlist = ["zerolang_skills_get", "zerolang_check", "zerolang_edit"]`}</code><
     <li>MCP tools loaded by <code>roder-ext-mcp</code> from configured streamable HTTP servers.</li>
     <li>Provider or product-specific tools installed by custom extensions.</li>
   </ul>
+
+  <h2>Parallel web access</h2>
+  <p>
+    With <code>[web_search]</code> set to provider <code>parallel</code>, the canonical
+    {" "}<code>web_search</code> tool routes through Parallel.ai and Roder also installs
+    {" "}<code>parallel_extract</code>. Search requests send the objective, optional focused
+    keyword queries, max result count, domain include/exclude filters, location, and
+    mode through Parallel's current V1 <code>advanced_settings</code> request shape.
+  </p>
+
+  <pre><code>{`[web_search]
+enabled = true
+mode = "external"
+provider = "parallel"
+
+[web_search.parallel]
+enabled = true
+api_key = "..."`}</code></pre>
+
+  <p>
+    <code>parallel_extract</code> fetches clean markdown from known URLs after search has
+    found the best sources. It accepts <code>url</code> or <code>urls</code>, an
+    {" "}<code>objective</code> or <code>query</code>, optional search-query focus, and
+    bounded content limits. When these tools are present, Roder injects short developer
+    guidance telling the model to search first, extract the best sources when snippets are
+    not enough, and cite URLs for factual claims.
+  </p>
 
   <h2>Workspace and fork controls</h2>
   <p>

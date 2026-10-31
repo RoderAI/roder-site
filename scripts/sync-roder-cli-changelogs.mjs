@@ -26,14 +26,13 @@ const output = execFileSync(
     "--paginate",
     "--slurp",
   ],
-  { encoding: "utf8" },
+  { encoding: "utf8", maxBuffer: 10 * 1024 * 1024 },
 );
 
 const existingTags = existingCliTags();
 const releases = JSON.parse(output)
   .flat()
   .filter((release) => release.tag_name?.startsWith("roder/v"))
-  .slice(0, 10)
   .map((release) => ({
     tag: release.tag_name,
     version: release.tag_name.replace(/^roder\/v/, ""),

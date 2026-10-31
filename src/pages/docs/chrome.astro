@@ -47,6 +47,31 @@ roder chrome status</code></pre>
     untrusted and treated as data, never instructions.
   </div>
 
+  <h2>Desktop browser versus paired Chrome</h2>
+  <p>
+    Roder Desktop also exposes an integrated browser through the browser tools.
+    Use <code>$browser</code> for that panel and <code>$chrome</code> for the paired
+    external browser. They are different sessions; signing into one does not sign
+    into the other. Desktop bridge setup is described in the
+    <a href="/docs/desktop/">desktop guide</a>.
+  </p>
+  <p>
+    With <code>roder-ext-chrome</code> 0.3.1 or newer, the integrated browser permits
+    navigation and page evaluation in assist mode. Observe mode still blocks those
+    actions, and the paired extension still requires control mode plus its explicit
+    site permissions. Desktop's bundled harness may lag the standalone CLI; check
+    the installed version rather than assuming both expose the same behavior.
+    Restricted-origin desktop sessions can disable evaluation entirely.
+  </p>
+  <p>
+    Read integrated-browser page text with <code>chrome_page_snapshot</code> and act
+    through its element references. <code>chrome_page_text</code> and
+    <code>chrome_highlight</code> are paired-extension features, not integrated-browser
+    capabilities. Protected or unsupported controls should return a clear error;
+    switching browser drivers does not grant permission or override a site's refusal
+    of automated access.
+  </p>
+
   <h2>Using Claude Code's Chrome integration</h2>
   <p>
     Roder also supports Claude Code's native Claude-in-Chrome browser tools for

@@ -1,0 +1,130 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Local hooks"
+  eyebrow="Capabilities"
+  description="Run project-local Codex-compatible hooks around Roder sessions, prompts, tools, compaction, and subagents."
+  prev={{ href: "/docs/tools/", title: "Tools & policy" }}
+  next={{ href: "/docs/codex-parity-tools/", title: "Codex-parity tools" }}
+>
+  <p>
+    Roder can load project-local hook configuration from the active workspace and run
+    handlers around the same runtime events that drive tools, policy, session state, and
+    subagents. A project-specific <code>.roder/hooks.json</code> file takes precedence over
+    a copied <code>.codex/hooks.json</code> file, so teams can keep Codex-compatible hook
+    files while giving Roder its own workspace policy when needed.
+  </p>
+
+  <h2>Hook file lookup</h2>
+  <ul>
+    <li><code>.roder/hooks.json</code> is used first when present in the workspace root.</li>
+    <li><code>.codex/hooks.json</code> is used as a compatibility fallback.</li>
+    <li>Hook files are parsed on demand and cached until their modified time or length changes.</li>
+    <li>Invalid matcher regexes are recorded as hook diagnostics instead of silently disabling a hook.</li>
+  </ul>
+
+  <h2>Events</h2>
+  <p>
+    Hook groups live under a top-level <code>hooks</code> object. Roder recognizes{" "}
+    <code>PreToolUse</code>, <code>PermissionRequest</code>, <code>PostToolUse</code>,
+    <code>PreCompact</code>, <code>PostCompact</code>, <code>SessionStart</code>,
+    <code>SessionEnd</code>, <code>UserPromptSubmit</code>, <code>SubagentStart</code>,
+    <code>SubagentStop</code>, and <code>Stop</code>. A group can omit{" "}
+    <code>matcher</code> to run for every event instance, or provide a regex that is
+    matched against the tool name, session startup/resume marker, or subagent type.
+  </p>
+
+  <p>
+    <code>SessionStart</code> runs once for the thread session that opens the runtime.
+    Fresh threads use the <code>startup</code> matcher, resumed threads use{" "}
+    <code>resume</code>, and repeated thread-store reads do not re-run the setup hook.
+    This keeps environment setup, logging, and workspace checks from firing again after
+    a turn is already underway or stopped.
+  </p>
+
+  <pre><code>{`{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "shell|write_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .roder/hooks/check-tool.js",
+            "timeout": 5,
+            "statusMessage": "checking workspace policy"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/agent-session-start"
+          }
+        ]
+      }
+    ]
+  }
+}`}</code></pre>
+
+  <h2>Handlers</h2>
+  <ul>
+    <li><code>command</code> handlers run through the workspace shell, receive the hook payload on stdin, and record stdout on success or stderr on failure.</li>
+    <li><code>commandWindows</code> can override the command on Windows, while <code>timeout</code>, <code>statusMessage</code>, <code>async</code>, and <code>additionalContextLimit</code> match the copied Codex field names.</li>
+    <li><code>mcp_tool</code> handlers call an installed MCP tool by <code>server</code> and <code>tool</code>, with an optional JSON <code>input</code> object.</li>
+    <li><code>prompt</code> and <code>agent</code> handlers are accepted in unit-style Codex files. Roder records them as skipped diagnostics; it does not spawn model work from those handler types.</li>
+  </ul>
+
+  <p>
+    Command and MCP inputs can interpolate <code>{"${tool_name}"}</code> and{" "}
+    <code>{"${tool_input}"}</code>. Recorded hook output is capped globally at 8 KiB, and a
+    smaller <code>additionalContextLimit</code> can reduce how much command output is kept.
+  </p>
+
+  <h2>PreToolUse decisions</h2>
+  <p>
+    <code>PreToolUse</code> is the blocking hook point. Hook failures are diagnostics and
+    fail open, but an explicit deny blocks the tool call and records an errored tool result
+    in the transcript. A successful hook can also return updated tool input, and chained
+    hooks see the previous hook's rewrite rather than the model's original arguments.
+  </p>
+
+  <pre><code>{`{
+  "hookSpecificOutput": {
+    "permissionDecision": "deny",
+    "permissionDecisionReason": "shell commands must go through the repo script"
+  }
+}`}</code></pre>
+
+  <pre><code>{`{
+  "hookSpecificOutput": {
+    "permissionDecision": "allow",
+    "updatedInput": {
+      "command": "npm test -- --runInBand"
+    }
+  }
+}`}</code></pre>
+
+  <h2>Payload shape</h2>
+  <p>
+    Every hook receives a JSON payload with <code>hookEventName</code>,
+    <code>sessionId</code>, <code>turnId</code>, <code>cwd</code>,
+    <code>workspaceRoot</code>, <code>toolName</code>, <code>toolUseId</code>, and{" "}
+    <code>toolInput</code>. Session-scoped hooks use a synthetic{" "}
+    <code>turnId</code> of <code>session</code>; turn and tool hooks carry the active
+    turn id. For <code>SessionStart</code>, <code>toolInput.source</code> is either{" "}
+    <code>startup</code> or <code>resume</code>.
+  </p>
+
+  <div class="callout">
+    <strong>Runtime boundary.</strong> Local hooks complement Roder policy; they do not
+    replace it. Tool calls still pass through the configured policy mode, workspace runner,
+    transcript persistence, and event stream.
+  </div>
+</DocsLayout>

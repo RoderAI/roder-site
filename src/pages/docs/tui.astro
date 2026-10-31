@@ -16,11 +16,21 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     path a desktop or automation client can use.
   </p>
 
+  <h2>Model switching and failed follow-ups</h2>
+  <p>
+    The model picker avoids loading the full conversation history. Switching from
+    SuperGrok to OpenAI or Codex handles oversized history identifiers and incompatible
+    reasoning fields during replay. If a follow-up request is rejected, the TUI shows
+    the failure and keeps the input for <code>/retry</code>, so you can resolve the cause
+    and resend it without reconstructing the prompt.
+  </p>
+
   <h2>What it shows</h2>
   <ul>
     <li>Streaming assistant output and tool-call timeline.</li>
     <li>Approval prompts and policy-mode state.</li>
     <li>Provider, model, session, command, policy, and agent-mode choices through the command palette and composer title.</li>
+    <li>Multiline composer input with Shift+Enter, plus Ctrl+J and Alt+Enter fallbacks when the terminal cannot report modified Enter keys.</li>
     <li><code>/agent-swarm</code> and <code>/swarm</code> commands, live child-count progress, and compact ordered result grids for parallel agent work.</li>
     <li>Composer mention pickers for workspace files with <code>@</code> and skills with <code>$</code>.</li>
     <li>Knowledge browsing through <code>/knowledge</code> commands and command-palette entries.</li>
@@ -32,13 +42,13 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li>Native terminal progress indicators while turns run, pause for approval, or fail.</li>
     <li>Roadmap orchestration panels for plan rows, task status, worker activity, and validation evidence.</li>
     <li>Status segments contributed by built-ins and extensions.</li>
-    <li>Mouse selection, scroll, hover, and clickable timeline interactions as they land.</li>
+    <li>Mouse selection, scrolling, hover, and clickable timeline interactions.</li>
   </ul>
 
   <h2>Why it is a client</h2>
   <p>
     The TUI should not be the only owner of runtime state. Keeping it as a client of
-    <code>roder-app-server</code> means terminal, desktop, test harness, and future IDE
+    <code>roder-app-server</code> means terminal, desktop, test harness, and SDK
     surfaces can share protocol methods and event semantics.
   </p>
 
@@ -46,5 +56,71 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     Agent-swarm mode follows that rule: the TUI toggles per-thread runtime state and
     renders app-server events rather than owning a separate client-only mode. Entering
     swarm from a gating policy asks for the required policy switch before work starts.
+  </p>
+
+  <h2>Composer input</h2>
+  <p>
+    Press Enter to submit the current prompt. Press Shift+Enter to insert a newline
+    while staying in the composer, which is useful for multi-paragraph instructions,
+    pasted checklists, or context blocks. In terminals that cannot distinguish
+    Shift+Enter from Enter, use Ctrl+J or Alt+Enter for a newline.
+  </p>
+
+  <p>
+    When the TUI is running inside tmux, Roder enables CSI-u modified-key reporting for
+    the active pane when needed so Ghostty and other compatible terminals can send
+    Shift+Enter as a distinct key event.
+  </p>
+  <h2>Recover queued and steered prompts</h2>
+  <p>
+    The TUI retains submitted text and images until admission is known. Rejected
+    input stays available to <code>/retry</code> in submission order. Use
+    <code>/retry discard</code> to drop only the oldest retained input in the
+    current thread without clearing later follow-ups.
+  </p>
+  <p>
+    A timeout or lost response does not prove rejection. Roder does not
+    automatically resend uncertain input: inspect thread history before retrying.
+    Queues pause for active turns, settings or approval dialogs, plan-exit decisions,
+    and source-copy mode. This queue is TUI-session state, not a durable offline
+    outbox; closing the app cannot recover prompts the backend never accepted.
+  </p>
+  <h2>Read Markdown tables</h2>
+  <p>
+    Since CLI 0.4.4, assistant Markdown pipe tables render as aligned grids with a
+    header rule instead of raw pipe-delimited rows. Tables that fit the transcript
+    keep their columns aligned. When a table is too wide, the TUI switches to labeled
+    rows so wrapping does not mix neighboring columns. You do not need to widen the
+    terminal to separate the values.
+  </p>
+  <p>
+    This changes the rendered transcript, not the response source:
+    <code>/copy</code> still copies the original Markdown.
+  </p>
+  <h2>Copy original Markdown or code</h2>
+  <p>
+    Run <code>/copy</code> to select the latest assistant response or a fenced code
+    block. Use j/k, arrow keys, or Tab/Shift+Tab to move, Home/End for the first or
+    last target, and PageUp/PageDown to scroll the preview. Enter or y copies;
+    Escape, q, or Ctrl+C closes the dialog.
+  </p>
+  <p>
+    Whole-response copies include original Markdown. Code copies omit fences and
+    preserve tabs, whitespace, line endings, and missing final newlines. Terminal
+    wrapping and image placements never become clipboard text. Clipboard failures
+    leave the selection available for retry.
+  </p>
+  <h2>Links and inline image previews</h2>
+  <p>
+    Markdown links display their labels with clickable destinations. Supported
+    Kitty/Sixel terminals can preview local attached, viewed, and generated images
+    inline. Unsupported terminals or invalid images fall back to metadata and paths.
+    Decoding and rendering are bounded; overlays suspend image placements.
+    Remote or unknown paths are not treated as files on the host.
+  </p>
+  <p>
+    See the <a href="https://github.com/RoderAI/roder/blob/master/docs/prompt-admission.md">prompt recovery rules</a>
+    and <a href="https://github.com/RoderAI/roder/blob/master/docs/tui-source-copy.md">source-copy controls</a>
+    for details. Prompt recovery, source copy, and inline previews shipped in CLI 0.4.0.
   </p>
 </DocsLayout>

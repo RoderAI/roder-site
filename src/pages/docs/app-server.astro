@@ -265,9 +265,10 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <p>
     Feature-specific notifications are emitted for teams, subagent traces, plan
-    reviews, hunks, workflow imports, swarm mode, media artifacts, memory updates, and durable
-    thread goal changes. Treat notifications as an append-only stream: render what you
-    understand and ignore unknown methods until your client adds support.
+    reviews, hunks, workflow imports, swarm mode, Ultra mode, code reviews, media
+    artifacts, memory updates, and durable thread goal changes. Treat notifications as an
+    append-only stream: render what you understand and ignore unknown methods until your
+    client adds support.
   </p>
 
   <h2>Thread mode, approvals, and goals</h2>
@@ -281,7 +282,8 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <pre><code>{`{"jsonrpc":"2.0","id":30,"method":"thread/state"}
 {"jsonrpc":"2.0","id":31,"method":"thread/set_mode","params":{"mode":"ask","reason":"desktop toggle"}}
 {"jsonrpc":"2.0","id":32,"method":"thread/set_agent_swarm_mode","params":{"threadId":"THREAD_ID","enabled":true,"trigger":"manual"}}
-{"jsonrpc":"2.0","id":33,"method":"thread/goal/set","params":{"threadId":"THREAD_ID","objective":"Ship docs parity","tokenBudget":20000}}`}</code></pre>
+{"jsonrpc":"2.0","id":33,"method":"thread/set_ultra_mode","params":{"threadId":"THREAD_ID","enabled":true,"trigger":"manual"}}
+{"jsonrpc":"2.0","id":34,"method":"thread/goal/set","params":{"threadId":"THREAD_ID","objective":"Ship docs parity","tokenBudget":20000}}`}</code></pre>
 
   <p>
     When a turn requires approval, user input, or plan-mode exit, the runtime emits
@@ -298,7 +300,10 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <h2>Provider and settings methods</h2>
 
   <p>
-    Provider methods let a client show available backends, configure a provider, and select the default model for future work. Auth methods expose Codex, SuperGrok, and Kimi Code sign-in state. Settings methods expose web-search mode and default policy mode.
+    Provider methods let a client show available backends, configure a provider, and
+    select the default model for later work. Auth methods expose Codex, SuperGrok, and
+    Kimi Code sign-in state. Settings methods expose web-search mode, default policy
+    mode, agent-swarm mode, and the runtime-global Ultra mode default.
   </p>
 
   <pre><code>{`{"jsonrpc":"2.0","id":40,"method":"providers/list"}
@@ -386,6 +391,22 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <code>threadId</code>, <code>turnId</code>, and workspace context.
   </p>
 
+  <h2 id="inference-service-tiers">Inference service tiers</h2>
+  <p>
+    Pass <code>serviceTier</code> to <code>thread/start</code> to save a thread default,
+    or to <code>turn/start</code> for one turn. Precedence is turn override, thread default,
+    then provider configuration. A turn value of <code>default</code> requests standard
+    processing; omission or null inherits the thread setting.
+  </p>
+  <pre><code>{`{"jsonrpc":"2.0","id":68,"method":"thread/set_service_tier","params":{"threadId":"THREAD_ID","serviceTier":"ultrafast"}}
+{"jsonrpc":"2.0","id":69,"method":"thread/set_service_tier","params":{"threadId":"THREAD_ID","serviceTier":null}}`}</code></pre>
+  <p>
+    The setter changes subsequent turns; an active turn keeps its captured tier.
+    Null clears the saved default. Thread read/list expose a saved tier, server restarts
+    preserve it, and conversation forks inherit it. Both SDKs support creation defaults,
+    turn overrides and a thread setter. Provider availability still applies.
+  </p>
+
   <h2>Teams and subagents</h2>
 
   <p>
@@ -417,6 +438,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   </p>
 
   <ul>
+    <li><strong>Code review:</strong> <code>review/start</code>, <code>review/publish</code>, and <code>review/publishers/list</code> for read-only review turns and publisher-backed findings.</li>
     <li><strong>Plan review:</strong> <code>plan/review/read</code>, <code>plan/review/comment</code>, <code>plan/review/rewrite</code>, <code>plan/review/approve</code>, and <code>plan/review/reject</code>.</li>
     <li><strong>Hunks:</strong> <code>hunk/list</code>, <code>hunk/read</code>, and <code>hunk/rollback</code>.</li>
     <li><strong>Git change review:</strong> <code>git/changes/list</code>, <code>git/changes/read</code>, and observed shell/exec changes through <code>workspace/changes/list</code>.</li>
@@ -430,7 +452,9 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 {"jsonrpc":"2.0","id":81,"method":"media/list","params":{"threadId":"THREAD_ID"}}
 {"jsonrpc":"2.0","id":82,"method":"hunk/list","params":{"threadId":"THREAD_ID","turnId":"TURN_ID"}}
 {"jsonrpc":"2.0","id":83,"method":"git/changes/list","params":{"workspace":"/absolute/path/to/workspace"}}
-{"jsonrpc":"2.0","id":84,"method":"workflows/list","params":{"limit":10}}`}</code></pre>
+{"jsonrpc":"2.0","id":84,"method":"review/start","params":{"threadId":"THREAD_ID","target":{"kind":"baseBranch","branch":"main"},"delivery":"detached"}}
+{"jsonrpc":"2.0","id":85,"method":"review/publish","params":{"reviewId":"REVIEW_ID","publisherId":"github","dryRun":true}}
+{"jsonrpc":"2.0","id":86,"method":"workflows/list","params":{"limit":10}}`}</code></pre>
 
   <p>
     Git change review marks untracked binary files with <code>binary: true</code> and
@@ -465,7 +489,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><strong>Handshake:</strong> <code>initialize</code>.</li>
     <li><strong>Discovery:</strong> <code>extensions/list</code>, <code>providers/list</code>, <code>model/list</code>, <code>tools/list</code>, <code>agents/list</code>, <code>discovery/refresh</code>, <code>discovery/groups</code>, and <code>discovery/search</code>.</li>
     <li><strong>Providers/auth/settings:</strong> <code>providers/configure</code>, <code>providers/select</code>, <code>auth/codex/login</code>, <code>auth/codex/status</code>, <code>auth/codex/logout</code>, <code>auth/supergrok/login</code>, <code>auth/supergrok/status</code>, <code>auth/supergrok/logout</code>, <code>auth/kimi-code/login</code>, <code>auth/kimi-code/status</code>, <code>auth/kimi-code/logout</code>, <code>settings/get</code>, <code>settings/set_web_search</code>, <code>settings/set_default_mode</code>.</li>
-    <li><strong>Threads/turns/goals:</strong> <code>thread/start</code>, <code>thread/list</code>, <code>thread/read</code>, <code>thread/archive</code>, <code>thread/goal/get</code>, <code>thread/goal/set</code>, <code>thread/goal/clear</code>, <code>turn/start</code>, <code>turn/steer</code>, <code>turn/interrupt</code>, <code>thread/state</code>, <code>thread/set_mode</code>, <code>thread/set_agent_swarm_mode</code>, <code>thread/exit_plan</code>, <code>thread/resolve_approval</code>, and <code>thread/resolve_user_input</code>.</li>
+    <li><strong>Threads/turns/goals:</strong> <code>thread/start</code>, <code>thread/list</code>, <code>thread/read</code>, <code>thread/archive</code>, <code>thread/goal/get</code>, <code>thread/goal/set</code>, <code>thread/goal/clear</code>, <code>turn/start</code>, <code>turn/steer</code>, <code>turn/interrupt</code>, <code>thread/state</code>, <code>thread/set_mode</code>, <code>thread/set_agent_swarm_mode</code>, <code>thread/set_ultra_mode</code>, <code>thread/exit_plan</code>, <code>thread/resolve_approval</code>, and <code>thread/resolve_user_input</code>.</li>
     <li><strong>Filesystem/process/tools:</strong> <code>fs/readFile</code>, <code>fs/readDirectory</code>, <code>command/exec</code>, <code>commands/list</code>, <code>commands/expand</code>, <code>commands/run</code>, <code>tools/call</code>.</li>
     <li><strong>Runners/tasks:</strong> <code>runners/list</code>, <code>runners/select</code>, <code>runners/session</code>, <code>runners/snapshot</code>, <code>runners/delete</code>, <code>runners/ports</code>, <code>runners/pause</code>, <code>runners/resume</code>, <code>runners/detach</code>, <code>runners/rejoin</code>, <code>tasks/submit</code>, <code>tasks/list</code>, <code>tasks/get</code>, <code>tasks/cancel</code>, <code>tasks/subscribe</code>. The lifecycle methods are included in the checked-in schema and generated TypeScript and Python client types.</li>
     <li><strong>Teams/subagents:</strong> <code>team/start</code>, <code>team/list</code>, <code>team/read</code>, <code>team/member/start</code>, <code>team/member/message</code>, <code>team/member/interrupt</code>, <code>team/member/focus</code>, <code>team/cleanup</code>, <code>team/pane/focus</code>, <code>team/pane/cleanup</code>, <code>turn/subagentTraces/list</code>, <code>turn/subagentTrace/read</code>.</li>
@@ -496,4 +520,31 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     over bearer-authenticated WebSocket transport. Sprites can now run a managed
     <code>remote-roder</code> app-server service inside a forked sandbox workspace.
   </div>
+  <h2>Read bounded transcript history</h2>
+  <p>
+    Since CLI 0.4.1, interactive clients can use <code>thread/history/read</code>
+    instead of loading a full transcript through <code>thread/read</code>.
+  </p>
+  <pre><code>{`{"jsonrpc":"2.0","id":70,"method":"thread/history/read","params":{
+  "threadId":"THREAD_ID","limit":160,"maxBytes":2097152
+}}`}</code></pre>
+  <p>
+    Results contain <code>thread</code>, <code>before</code>, and <code>hasMore</code>.
+    Items and turns are chronological, but a page may contain part of a large turn.
+    To read older items, send the returned opaque cursor as <code>before</code>.
+    Merge by stable turn and item IDs, retaining newer live updates on overlap.
+  </p>
+  <p>
+    Defaults are 160 items on the initial page and 120 on older pages, with a
+    200-item maximum and 2 MiB serialized-item budget. A single oversized item can
+    be returned alone to guarantee progress. Cursors are exclusive and scoped to
+    the thread; invalid or stale cursors produce an error.
+  </p>
+  <p>
+    The default JSONL store maintains a disposable seek index rather than loading
+    complete snapshots for paging. Unsupported backends return an explicit error,
+    not a full-read fallback. Keep <code>thread/read</code> with
+    <code>includeTurns: true</code> for deliberate complete-snapshot operations.
+    See the <a href="https://github.com/RoderAI/roder/blob/master/docs/app-server/api.md#threadhistoryread">history API contract</a>.
+  </p>
 </DocsLayout>

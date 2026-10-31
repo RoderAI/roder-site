@@ -1,0 +1,112 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Ultra mode"
+  eyebrow="Capabilities"
+  description="Enable proactive multi-agent delegation for any Roder model with /ultra or the app-server control plane."
+  prev={{ href: "/docs/agent-swarm/", title: "Agent swarm" }}
+  next={{ href: "/docs/agent-control/", title: "Agent control" }}
+>
+  <p>
+    Ultra mode turns on proactive multi-agent delegation for the current Roder thread.
+    It is a runtime mode, so it works with any provider and model that can use Roder's
+    agent-control tools. The visible transcript stays exactly as typed; Roder injects the
+    delegation policy into the turn's developer instructions before the provider call.
+  </p>
+
+  <p>
+    Use Ultra when the task benefits from parallel search, review, implementation, or
+    verification. It does not relax sandboxing, policy mode, approval handling, tool
+    allowlists, workspace boundaries, or credential access.
+  </p>
+
+  <h2>TUI commands</h2>
+  <pre><code>/ultra
+/ultra on
+/ultra off
+/ultra status
+/ultra audit this change with parallel reviewers</code></pre>
+
+  <ul>
+    <li><code>/ultra</code> toggles persistent Ultra mode for the thread.</li>
+    <li><code>/ultra on</code> and <code>/ultra off</code> force the persistent state.</li>
+    <li><code>/ultra status</code> reports whether Ultra mode is active.</li>
+    <li><code>/ultra &lt;prompt&gt;</code> runs one Ultra task without changing the persistent toggle.</li>
+  </ul>
+
+  <p>
+    When persistent Ultra mode is enabled, the composer title includes
+    <strong>Ultra</strong>. If agent-swarm mode is also enabled, the label includes both
+    modes.
+  </p>
+
+  <h2>How it relates to Sol and Terra Ultra effort</h2>
+  <p>
+    Codex Sol and Terra still expose <code>ultra</code> as a reasoning effort. Selecting
+    that effort maps to the provider's <code>max</code> wire effort and enables proactive
+    delegation. Ultra mode is separate: it enables the same proactive delegation policy
+    without changing reasoning effort, and it works for models that do not advertise an
+    Ultra effort.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>State</th>
+        <th>Effect</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/ultra on</code></td>
+        <td>Proactive multi-agent policy for the active model.</td>
+      </tr>
+      <tr>
+        <td>Sol or Terra with <code>ultra</code> effort</td>
+        <td>Provider <code>max</code> effort plus proactive multi-agent policy.</td>
+      </tr>
+      <tr>
+        <td>Sol or Terra at a lower effort, Ultra mode off</td>
+        <td>Teammates remain explicit-request-only.</td>
+      </tr>
+      <tr>
+        <td>Other models with Ultra mode off</td>
+        <td>No proactive multi-agent policy is injected.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>App-server controls</h2>
+  <p>
+    Clients can drive the same state with <code>thread/set_ultra_mode</code>. Passing a
+    <code>threadId</code> stores a thread override; omitting it changes the runtime-global
+    default. <code>settings/get</code> exposes the global <code>ultraMode</code> setting,
+    and the notification stream emits <code>ultra/modeChanged</code> when the mode changes.
+  </p>
+
+  <pre><code>{`{
+  "method": "thread/set_ultra_mode",
+  "params": {
+    "threadId": "thread-123",
+    "enabled": true,
+    "trigger": "manual"
+  }
+}`}</code></pre>
+
+  <h2>Subagents and swarm work</h2>
+  <p>
+    Ultra mode uses the existing <a href="/docs/agent-control/">agent-control</a> tools
+    for open-ended teammate work. It also composes with
+    <a href="/docs/agent-swarm/">agent-swarm mode</a>, which nudges the model toward the
+    homogeneous <code>agent_swarm</code> fanout tool for many similarly shaped items.
+  </p>
+
+  <p>
+    Spawned <code>task</code> and <code>agent_swarm</code> children inherit the parent
+    thread's live provider and model unless an explicit compatible override is supplied.
+    Large fanouts can request a higher lane <code>max_concurrent</code>, still bounded by
+    dispatcher caps and policy.
+  </p>
+</DocsLayout>

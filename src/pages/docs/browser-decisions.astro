@@ -1,0 +1,211 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Browser decisions"
+  eyebrow="Capabilities"
+  description="Run browser goals with Jev or OpenAI Decisions, inspect semantic DOM evidence, and check the observed outcome."
+  prev={{ href: "/docs/tools/", title: "Tools & policy" }}
+  next={{ href: "/docs/chrome/", title: "Chrome browser control" }}
+>
+  <p>
+    <code>jev_browse</code> runs a bounded browser goal in Chrome over CDP and returns
+    an action trace and observed page. Calls in one thread share tabs and page state.
+    Use an empty <code>url</code> to continue the current page, or select
+    <code>tab</code> as <code>current</code>, <code>new</code>, <code>reset</code> or
+    <code>close</code>. A reported <code>done</code> is a model claim: check the returned
+    page against the task.
+  </p>
+
+  <h2>Semantic page evidence</h2>
+  <p>
+    Results include a bounded semantic DOM tree: page hierarchy, roles, control states
+    and observed node references. Form ownership and row or section context help
+    distinguish similar controls. Secret fields and typed secret echoes remain redacted.
+    This evidence describes the observed page; it does not prove a server-side transaction.
+  </p>
+
+  <h2>Viewport and screenshot coordinates</h2>
+  <p>
+    CLI 0.4.5 preserves windowed Chrome's natural viewport and Retina
+    scale instead of shrinking and restoring the page for each capture. Screenshot
+    pixels are scaled to CSS pixels in Roder, keeping action coordinates aligned
+    with the observed page. Headless Jev keeps a fixed 1120 by 780 viewport.
+    The fixes from <a href="https://github.com/RoderAI/roder/pull/209">PR #209</a>
+    are included in the
+    <a href="https://github.com/RoderAI/roder/blob/roder/v0.4.5/docs/jev-browser.md">0.4.5 release source</a>.
+  </p>
+
+  <h2>Research sources within one delegation</h2>
+  <p>
+    CLI 0.4.5 includes bounded browser research: shared semantic observations,
+    paginated document reads, retained source evidence, and an ordered requirements
+    checklist. Use <code>task_kind: "research"</code> for reading and comparing facts.
+    The default <code>interaction</code> mode is for tasks that must leave a particular
+    selection, form, or other UI state.
+  </p>
+  <pre><code>{`{
+  "url": "https://example.com/catalogue",
+  "task_kind": "research",
+  "goal": "Compare the published plans and verify their limits. Do not register or buy.",
+  "requirements": [
+    "Compare published prices and included features.",
+    "Open the plan details and verify the usage limits."
+  ]
+}`}</code></pre>
+  <p>
+    Supply up to 12 nonempty requirements, each at most 500 bytes. The native loop
+    works through them in order while retaining the overall constraints. A completion
+    claim advances one requirement; only the final requirement can finish the
+    delegation. Checkpoints share the existing action, provider-request, and time
+    budgets rather than resetting them.
+  </p>
+  <p>
+    Research mode reads a bounded document page on arrival. Its native
+    <code>READ_DOCUMENT</code> operation uses the same rendered-text extractor as
+    <code>jev_tab_look</code> with <code>text_scope: "document"</code>. This includes
+    observed HTTP(S) links and offscreen rendered text without scrolling the viewport.
+    Main-landmark content comes before repeated navigation when available.
+    Hidden content and field values are excluded.
+  </p>
+  <p>
+    Scrubbed document pages contain at most 6,000 characters and 100 lines.
+    Extraction scans at most 20,000 nodes and 100,000 characters and marks omissions.
+    Further native reads continue the document snapshot; dispatched content changes
+    or an external rescue invalidate it. Missing extracted text is not proof that a
+    fact is absent. Retained evidence is also paged within request and per-question
+    context budgets before it reaches the decision provider.
+  </p>
+  <p>
+    Inspect the result's <code>evidence</code> and source references when writing the
+    final answer. Evidence is historical source data, not instructions or proof of a
+    control's current state. Requirement events use
+    <code>verification: "driver_claim"</code>: they record what the driver claims,
+    not independent verification. Research completion checks that the same document
+    remains loaded; explicit <code>success_condition</code> predicates still run.
+    Actual clicks and form actions retain the stronger action and freshness guards.
+  </p>
+
+  <h2>Bounded navigation recovery</h2>
+  <p>
+    Stale actions report which fields changed without copying raw values. One
+    navigation can be revalidated without another model call only when fresh evidence
+    proves the exact node, label, target guard, document, URL, and form state unchanged;
+    input guards and hit testing run again. Roder does not substitute a different
+    control merely because it has the same label.
+  </p>
+  <p>
+    An uncertain repeated navigation is suppressed. Once per run, the native loop
+    can refresh and replan with that duplicate excluded. Commitment buttons and
+    high-risk irreversible actions retain their stop. Bounded
+    <code>recoveries</code> diagnostics explain the suppression and replan.
+    If this cannot make progress, the configured full fallback can continue in the
+    same call with the same scope, secrets, approvals, and action gates.
+  </p>
+
+  <h2>Choose a decision backend</h2>
+  <p>
+    Jev uses the TypeSafe decision service with <code>JEV_API_KEY</code>. The default
+    prompt remains Workflow. For an already configured Chrome environment, opt into
+    DOM-grounded decisions and optional images with:
+  </p>
+  <pre><code>{`JEV_PROMPT_PROFILE=dom JEV_IMAGES=1 roder`}</code></pre>
+  <p>
+    <code>JEV_IMAGES</code> is off by default. When enabled, viewport images are fitted
+    to TypeSafe's supported dimensions and candidate rectangles are scaled with them.
+    Experimental <code>dom_targets</code> routes clipped-field images into conditional
+    target questions; <code>activation</code> additionally checks whether a pending
+    click is required before accepting completion. These profiles add decision work
+    and remain opt-in.
+  </p>
+
+  <h2>OpenAI Decisions</h2>
+  <p>
+    Set <code>JEV_DECISION_PROVIDER=openai</code> to use native Decisions for the same
+    <code>jev_browse</code> and <code>jev_tab_*</code> tools. Supply
+    <code>OPENAI_API_KEY</code>, or configure the OpenAI provider key. An environment
+    key takes precedence. This endpoint requires an API key; Codex or ChatGPT sign-in
+    alone does not authenticate it. No Jev key is required for this backend.
+  </p>
+  <pre><code>{`export JEV_DECISION_PROVIDER=openai
+export JEV_DECISIONS_PROFILE=dom
+roder`}</code></pre>
+  <ul>
+    <li><code>vision</code> is the default Decisions profile, using fresh viewport images and action context.</li>
+    <li><code>dom</code> adds semantic page structure and form/workflow questions while retaining safe viewport screenshots.</li>
+    <li>Experimental <code>activation</code> adds clipped-field image routing and typed completion audits.</li>
+    <li><code>JEV_DECISIONS_TEXT_ONLY=1</code> disables images while preserving the selected profile.</li>
+  </ul>
+  <p>
+    Decisions selects actions and targets; the existing text helper still supplies
+    generated field values. Switching backends does not provision Chrome or configure
+    that helper. Use <code>JEV_CDP_URL</code> or the existing Chrome setup, and restart
+    the host process after changing its environment. Unset the selector or use
+    <code>JEV_DECISION_PROVIDER=jev</code> to return to TypeSafe.
+  </p>
+
+  <h2>Verify an observable outcome</h2>
+  <p>
+    Add <code>success_condition</code> to check a fresh observation after the driver
+    reports completion. Every nonempty predicate must hold. For example:
+  </p>
+  <pre><code>{`{
+  "url": "https://example.test/search",
+  "goal": "Search for hiking boots and stop when results appear",
+  "success_condition": {
+    "url_contains": "/search",
+    "text_contains": "search results",
+    "text_absent": "loading"
+  }
+}`}</code></pre>
+  <p>
+    Text checks normalize whitespace and ignore case; URL paths, queries and fragments
+    keep case. Field-value echoes cannot satisfy the text check merely because the agent
+    typed the success phrase. The check covers the bounded visible page text, so an
+    absence does not establish that text is absent elsewhere on the page. Empty strings
+    skip a predicate; whitespace-only predicates are refused.
+  </p>
+  <p>
+    A mismatch changes premature completion to <code>blocked</code> with
+    <code>outcome_mismatch</code>. The existing bounded fallback may try to continue,
+    but its completion is checked again. A failed observation cannot prove success.
+    Inspect <code>completion_verification</code> and the unmet predicates in the result.
+  </p>
+
+  <h2>Fallback, permissions and sensitive input</h2>
+  <p>
+    Full fallback remains the production policy for browser research. The smaller
+    one-tool rescue followed by native hand-back is an evaluation-only experiment,
+    not a production setting to enable. Native Decisions research still has documented
+    failures, including a completion claim after a forbidden write. These results do
+    not establish reliable native-only completion: inspect supporting evidence and
+    the observed outcome, and retain approval and action boundaries.
+  </p>
+  <p>
+    <code>JEV_FALLBACK=auto</code> can use the session model's full browser tools in the
+    same tab after a stall or unsupported action. Choose <code>handover</code> to give
+    control back to the caller or <code>off</code> to disable fallback. It does not run
+    after missing-input, confirmation or access-denied outcomes. Origin restrictions,
+    approvals and irreversible-action checks continue to apply.
+  </p>
+  <p>
+    Recognized password or code fields, and remembered typed secrets, suppress decision
+    screenshots. Text evidence stays scrubbed; this is not general sensitive-image
+    detection. Optional capture failures can use text instead. Keep credentials out of
+    goals and success predicates; embedded hosts can supply values through a resolver.
+    Component questions and audits share the remaining budget and count toward usage,
+    including billed-error paths. Missing provider token counts remain unknown.
+  </p>
+
+  <p>
+    Source references:
+    <a href="https://github.com/RoderAI/roder/blob/roder/v0.3.15/docs/jev-browser.md">Jev setup and result contract</a>
+    and <a href="https://github.com/RoderAI/roder/blob/roder/v0.3.15/docs/openai-decisions-browser.md">Decisions configuration and validation limits</a>.
+  </p>
+  <p>
+    For the released research contract and its limits, see
+    <a href="https://github.com/RoderAI/roder/blob/roder/v0.4.5/docs/jev-native-recovery.md">native browser recovery and research</a>
+    and the <a href="https://github.com/RoderAI/roder/blob/roder/v0.4.5/docs/validation/jev-native-recovery-2026-10-28.md">retained evaluation report</a>.
+  </p>
+</DocsLayout>

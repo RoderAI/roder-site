@@ -9,6 +9,22 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   prev={{ href: "/docs/", title: "Overview" }}
   next={{ href: "/docs/use-cases/", title: "Use cases" }}
 >
+  <h2>Install the CLI</h2>
+  <pre><code>{`npm install -g @roderai/roder
+roder --version
+roder
+
+# Or run without a global install:
+npx --yes @roderai/roder`}</code></pre>
+  <p>
+    The npm package bundles Linux x64, Linux ARM64, and signed macOS ARM64 binaries.
+    It requires no Rust compiler, postinstall scripts, or separate binary download.
+    Installation also works with <code>--ignore-scripts</code>. Update with
+    <code>npm install -g @roderai/roder@latest</code>.
+    For editor and other ACP hosts, run <code>roder acp</code>; see
+    <a href="/docs/acp/">ACP compatibility</a>.
+  </p>
+
   <h2>From source</h2>
   <p>
     Build from the Rust workspace in <code>~/w/roder</code>. The primary binary is
@@ -26,23 +42,25 @@ cargo run -p roder-cli</code></pre>
     common defaults.
   </p>
 
-  <pre><code>RODER_PROVIDER=codex RODER_MODEL=gpt-5.6-sol cargo run -p roder-cli
-RODER_PROVIDER=xai RODER_MODEL=grok-4.5 cargo run -p roder-cli
-RODER_PROVIDER=openrouter RODER_MODEL=x-ai/grok-build-0.1 cargo run -p roder-cli
+  <pre><code>RODER_PROVIDER=codex RODER_MODEL=gpt-6-astra cargo run -p roder-cli
+RODER_PROVIDER=xai RODER_MODEL=grok-4.6 cargo run -p roder-cli
+RODER_PROVIDER=deepseek RODER_MODEL=deepseek-chat cargo run -p roder-cli
+RODER_PROVIDER=openrouter RODER_MODEL=x-ai/grok-4.6 cargo run -p roder-cli
 RODER_PROVIDER=mock cargo run -p roder-cli</code></pre>
 
   <p>
     Provider API keys can be set through config or the provider-specific environment keys.
-    The default distribution resolves OpenAI, Anthropic, Gemini, xAI, SuperGrok,
-    OpenRouter, Codex OAuth, Kimi Code, web search, subagent, JSONL session, memory,
-    embedding, and built-in tool extensions from that configuration. Kimi Code can also save a key through
-    <code>roder auth login kimi-code --api-key</code>.
+    The default distribution resolves OpenAI, Anthropic, Gemini, DeepSeek Platform, xAI,
+    SuperGrok, OpenRouter, Codex OAuth, Kimi Code, web search, subagent, JSONL session,
+    memory, embedding, and built-in tool extensions from that configuration. Kimi Code can also save a key through
+    {" "}<code>roder auth login kimi-code --api-key</code>.
   </p>
 
   <p>
-    Codex OAuth exposes the current GPT-5.6 Sol, Terra, and Luna catalog. Sol is the
-    default Codex model, and Sol/Terra can use <code>RODER_REASONING=ultra</code> when
-    you want maximum provider reasoning plus Roder's bounded proactive delegation mode.
+    Codex OAuth includes <code>gpt-6.1-sol</code> and <code>gpt-6.1-terra</code>.
+    Sol is the default Codex model. Supported Astra, Sol, and Terra models can use
+    <code>RODER_REASONING=ultra</code> when you want maximum provider reasoning plus
+    Roder's bounded proactive delegation mode.
   </p>
 
   <h2>Policy modes</h2>

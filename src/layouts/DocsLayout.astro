@@ -26,56 +26,83 @@ const sections = [
     ],
   },
   {
-    label: "Architecture",
+    label: "Desktop & workspaces",
+    items: [
+      { href: "/docs/desktop/", title: "Desktop guide" },
+      { href: "/docs/persistent-agents/", title: "Persistent agents & issues" },
+      { href: "/docs/cloud-machines/", title: "Cloud Machines" },
+      { href: "/docs/tui/", title: "Terminal interface" },
+    ],
+  },
+  {
+    label: "Models & providers",
+    items: [
+      { href: "/docs/providers/", title: "Inference providers" },
+      { href: "/docs/claude-code/", title: "Claude Code provider" },
+      { href: "/docs/openrouter/", title: "OpenRouter" },
+      { href: "/docs/roder-cloud/", title: "roder.cloud provider" },
+      { href: "/docs/fireworks/", title: "Fireworks provider" },
+      { href: "/docs/vertex/", title: "Google Vertex AI" },
+      { href: "/docs/tool-search/", title: "Provider tool search" },
+    ],
+  },
+  {
+    label: "Agents & automation",
+    items: [
+      { href: "/docs/agent-control/", title: "Agent control" },
+      { href: "/docs/agent-swarm/", title: "Agent swarm" },
+      { href: "/docs/ultra-mode/", title: "Ultra mode" },
+      { href: "/docs/goal-mode/", title: "Plan mode & goals" },
+      { href: "/docs/thread-followups/", title: "Thread follow-ups" },
+      { href: "/docs/workflows/", title: "Dynamic workflows" },
+      { href: "/docs/roadmap-loop/", title: "Roadmap orchestration" },
+      { href: "/docs/local-hooks/", title: "Local hooks" },
+      { href: "/docs/code-review/", title: "Code review" },
+    ],
+  },
+  {
+    label: "Browser & media",
+    items: [
+      { href: "/docs/browser-decisions/", title: "Browser decisions" },
+      { href: "/docs/chrome/", title: "Chrome browser control" },
+      { href: "/docs/media-generation/", title: "Media generation" },
+      { href: "/docs/speech/", title: "Speech" },
+    ],
+  },
+  {
+    label: "Tools & remote execution",
+    items: [
+      { href: "/docs/tools/", title: "Tools & policy" },
+      { href: "/docs/codex-parity-tools/", title: "Codex-parity tools" },
+      { href: "/docs/edit-tools/", title: "Edit tools package" },
+      { href: "/docs/zerolang/", title: "Zerolang graph edits" },
+      { href: "/docs/blaxel-runner/", title: "Blaxel sandbox runner" },
+      { href: "/docs/remote-nodes/", title: "Remote agent nodes" },
+      { href: "/docs/hosted-service/", title: "Hosted service" },
+    ],
+  },
+  {
+    label: "State & observability",
+    items: [
+      { href: "/docs/event-bus/", title: "Events & replay" },
+      { href: "/docs/sessions/", title: "Sessions & state" },
+      { href: "/docs/lifecycle-recovery/", title: "Lifecycle recovery" },
+      { href: "/docs/workspace-forks/", title: "Workspace forks" },
+      { href: "/docs/memories/", title: "Memory & embeddings" },
+      { href: "/docs/knowledge/", title: "Project knowledge" },
+      { href: "/docs/usage-analytics/", title: "Usage analytics" },
+    ],
+  },
+  {
+    label: "Build on Roder",
     items: [
       { href: "/docs/architecture/", title: "Runtime architecture" },
       { href: "/docs/extensibility/", title: "Extension model" },
       { href: "/docs/sdk/", title: "TypeScript SDK" },
       { href: "/extensions/", title: "Extension directory" },
-      { href: "/docs/event-bus/", title: "Events & replay" },
-      { href: "/docs/sessions/", title: "Sessions & state" },
-      { href: "/docs/lifecycle-recovery/", title: "Lifecycle recovery" },
-      { href: "/docs/workspace-forks/", title: "Workspace forks" },
-      { href: "/docs/providers/", title: "Inference providers" },
-      { href: "/docs/claude-code/", title: "Claude Code provider" },
-      { href: "/docs/memories/", title: "Memory & embeddings" },
-      { href: "/docs/knowledge/", title: "Project knowledge" },
-      { href: "/docs/openrouter/", title: "OpenRouter" },
-      { href: "/docs/roder-cloud/", title: "roder.cloud provider" },
-      { href: "/docs/fireworks/", title: "Fireworks provider" },
-      { href: "/docs/vertex/", title: "Google Vertex AI" },
-    ],
-  },
-  {
-    label: "Capabilities",
-    items: [
-      { href: "/docs/tools/", title: "Tools & policy" },
-      { href: "/docs/codex-parity-tools/", title: "Codex-parity tools" },
-      { href: "/docs/blaxel-runner/", title: "Blaxel sandbox runner" },
-      { href: "/docs/tool-search/", title: "Provider tool search" },
-      { href: "/docs/edit-tools/", title: "Edit tools package" },
-      { href: "/docs/media-generation/", title: "Media generation" },
-      { href: "/docs/speech/", title: "Speech" },
-      { href: "/docs/usage-analytics/", title: "Usage analytics" },
-      { href: "/docs/workflows/", title: "Dynamic workflows" },
-      { href: "/docs/roadmap-loop/", title: "Roadmap orchestration" },
-      { href: "/docs/agent-swarm/", title: "Agent swarm" },
-      { href: "/docs/agent-control/", title: "Agent control" },
-      { href: "/docs/zerolang/", title: "Zerolang graph edits" },
       { href: "/docs/mcp/", title: "MCP integration" },
       { href: "/docs/process-extensions/", title: "Process extensions" },
       { href: "/docs/cursor-sdk-agents/", title: "Cursor SDK agents" },
-      { href: "/docs/goal-mode/", title: "Plan mode & goals" },
-    ],
-  },
-  {
-    label: "Surfaces",
-    items: [
-      { href: "/docs/tui/", title: "TUI" },
-      { href: "/docs/remote-nodes/", title: "Remote agent nodes" },
-      { href: "/docs/hosted-service/", title: "Hosted service" },
-      { href: "/docs/chrome/", title: "Chrome browser control" },
-      { href: "/docs/desktop/", title: "Desktop clients" },
     ],
   },
   {
@@ -97,6 +124,9 @@ const sections = [
   <div class="container">
     <div class="docs-shell">
       <aside class="sidebar">
+        <details class="docs-navigation" open>
+          <summary>Browse docs</summary>
+          <nav aria-label="Documentation">
         {sections.map((section) => (
           <>
             <h4>{section.label}</h4>
@@ -113,6 +143,8 @@ const sections = [
             </ul>
           </>
         ))}
+          </nav>
+        </details>
       </aside>
       <article class="doc-content">
         {eyebrow && <div class="eyebrow">{eyebrow}</div>}
@@ -138,3 +170,15 @@ const sections = [
     </div>
   </div>
 </Layout>
+
+<script>
+  const navigation = document.querySelector(".docs-navigation");
+  const mobile = window.matchMedia("(max-width: 850px)");
+  const updateNavigation = () => {
+    if (navigation instanceof HTMLDetailsElement) {
+      navigation.open = !mobile.matches;
+    }
+  };
+  updateNavigation();
+  mobile.addEventListener("change", updateNavigation);
+</script>

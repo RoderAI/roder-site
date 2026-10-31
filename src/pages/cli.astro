@@ -14,6 +14,11 @@ const installCommands = [
     command: "brew install RoderAI/tap/roder",
   },
   {
+    title: "Install with npm",
+    note: "Native CLI distributed through npm",
+    command: "npm install -g @roderai/roder",
+  },
+  {
     title: "Build from source",
     note: "For local development",
     command: "git clone https://github.com/RoderAI/roder.git\ncd roder\nmake install",
@@ -21,6 +26,18 @@ const installCommands = [
 ];
 
 const featureCards = [
+  {
+    title: "Generate and revise images",
+    body: "Use GPT Image 2.5 Flare or Sunburst through the media CLI, TUI and shared artifact workflow. OpenAI image generation uses an API key with separate API billing.",
+  },
+  {
+    title: "Work through browser goals",
+    body: "Use Jev or OpenAI Decisions with a shared Chrome session, semantic page evidence and opt-in DOM profiles. Check explicit success conditions against the observed page.",
+  },
+  {
+    title: "Switch models and recover failed input",
+    body: "Continue threads across SuperGrok, OpenAI and Codex with compatible history replay. Model selection avoids a full-history load, and failed follow-ups stay available for `/retry`.",
+  },
   {
     title: "Work in any repo",
     body: "Open Roder in a project and it attaches the run to that workspace, local config, tools, and saved thread state.",
@@ -36,6 +53,22 @@ const featureCards = [
   {
     title: "Connect clients to one runtime",
     body: "The embedded app-server gives TUI, desktop, IDE, ACP, and eval clients a shared JSON-RPC control plane.",
+  },
+  {
+    title: "Review before you ship",
+    body: "Use `/review` for a read-only review turn, pick findings in the TUI, and publish accepted comments through configured review publishers.",
+  },
+  {
+    title: "Turn on Ultra when work should fan out",
+    body: "`/ultra` enables proactive multi-agent delegation for the current thread without changing your provider or model selection.",
+  },
+  {
+    title: "Honor project-local hooks",
+    body: "Run Codex-compatible `.roder/hooks.json` or `.codex/hooks.json` handlers around sessions, prompts, tool calls, approvals, compaction, and subagents; session-start setup runs once for each opened thread.",
+  },
+  {
+    title: "Compose longer prompts safely",
+    body: "Use Shift+Enter for multiline TUI prompts, with Ctrl+J and Alt+Enter fallbacks in terminals that cannot report modified Enter keys.",
   },
 ];
 
@@ -71,6 +104,7 @@ const providers = [
   "xAI",
   "OpenRouter",
   "Fireworks AI",
+  "DeepSeek",
   "Cursor",
   "Claude Code",
   "Kimi Code",
@@ -100,7 +134,7 @@ const providers = [
           <ul class="cli-hero-points" aria-label="Roder CLI highlights">
             <li>Terminal UI and non-interactive `roder exec`</li>
             <li>Provider-neutral model labels like `openai/gpt-5.5`</li>
-            <li>Local thread persistence, replay, and app-server control</li>
+            <li>`/review`, `/ultra`, local hooks, thread persistence, replay, and app-server control</li>
           </ul>
         </div>
         <figure class="cli-hero-shot">

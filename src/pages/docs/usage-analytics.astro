@@ -15,6 +15,20 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     spend, tool popularity, latency percentiles, errors, and session summaries queryable.
   </p>
 
+  <h2>Usage across rounds and interruptions</h2>
+  <p>
+    Configured task agents accumulate usage from every inference round. Runtime turns
+    count cumulative stream snapshots once and retain observed input, output, cache-read,
+    cache-write and service-tier information through provider failures, stream errors,
+    deadlines and user interruptions. Interrupted usage remains in saved history,
+    app-server notifications and local analytics.
+  </p>
+  <p>
+    Thread usage is persisted before terminal notifications. Repeated terminal handling
+    cannot count it twice, and active-turn native compaction is included once.
+    Totals reflect reported usage; Roder cannot recover tokens a provider never reports.
+  </p>
+
   <h2>Privacy defaults</h2>
   <ul>
     <li>Recorded: provider/model ids, tool names, timestamps, durations, token counts, statuses, and bounded error classes.</li>

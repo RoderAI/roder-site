@@ -178,10 +178,31 @@ export const staticOgPages: OgImageMetadata[] = [
   },
   {
     slug: "docs/desktop",
-    title: "Desktop clients",
-    description: "How native desktop shells should integrate with the Roder app-server control plane.",
+    title: "Desktop guide",
+    description: "Use Roder Desktop threads, projects, workspace panels, configuration, and updates.",
     eyebrow: "Documentation",
     accent: "graphite",
+  },
+  {
+    slug: "docs/persistent-agents",
+    title: "Persistent agents & issues",
+    description: "Create a long-lived workspace assistant, enable work explicitly, and track local project issues.",
+    eyebrow: "Documentation",
+    accent: "mint",
+  },
+  {
+    slug: "docs/cloud-machines",
+    title: "Cloud Machines",
+    description: "Bind desktop threads to remote workspaces and understand where tools and data run.",
+    eyebrow: "Documentation",
+    accent: "graphite",
+  },
+  {
+    slug: "docs/thread-followups",
+    title: "Thread follow-ups",
+    description: "Request runtime-local reminders, recurring checks, and topic-triggered turns.",
+    eyebrow: "Documentation",
+    accent: "mint",
   },
   {
     slug: "docs/edit-tools",
@@ -261,6 +282,13 @@ export const staticOgPages: OgImageMetadata[] = [
     accent: "graphite",
   },
   {
+    slug: "docs/local-hooks",
+    title: "Local hooks",
+    description: "Project-local Codex-compatible hooks around sessions, prompts, tools, compaction, and subagents, with one SessionStart setup per opened thread.",
+    eyebrow: "Documentation",
+    accent: "graphite",
+  },
+  {
     slug: "docs/media-generation",
     title: "Media generation",
     description: "Provider-neutral image generation and media artifacts.",
@@ -277,7 +305,7 @@ export const staticOgPages: OgImageMetadata[] = [
   {
     slug: "docs/openrouter",
     title: "OpenRouter",
-    description: "Configure Roder's OpenRouter provider and Grok Build model route.",
+    description: "Configure Roder's OpenRouter provider and Grok 4.6 model route.",
     eyebrow: "Documentation",
     accent: "graphite",
   },
@@ -343,6 +371,13 @@ export const staticOgPages: OgImageMetadata[] = [
     description: "Provider-native discovery for large tool catalogs.",
     eyebrow: "Documentation",
     accent: "orange",
+  },
+  {
+    slug: "docs/browser-decisions",
+    title: "Browser decisions",
+    description: "Jev and OpenAI Decisions with semantic DOM evidence, shared browser sessions and observable completion checks.",
+    eyebrow: "Documentation",
+    accent: "graphite",
   },
   {
     slug: "docs/tools",

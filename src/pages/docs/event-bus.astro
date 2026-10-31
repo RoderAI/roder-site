@@ -21,6 +21,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li>Session creation, session load, turn start, turn completion, and cancellation.</li>
     <li>Context assembly, inference start, and provider inference events.</li>
     <li>Tool call requested, started, completed, and failed events.</li>
+    <li>Local hook diagnostics for matched handlers, skipped prompt/agent hooks, invalid matchers, and blocked <code>PreToolUse</code> calls.</li>
     <li>Approval requests, approval resolutions, policy decisions, and plan-mode exits.</li>
     <li>Subagent lifecycle events and child-agent transcript updates.</li>
     <li>Task, notification, memory, file-change preview, and UI-oriented events.</li>
@@ -28,9 +29,18 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <h2>Why this matters</h2>
   <p>
-    The TUI, app server, journals, telemetry exporters, eval harnesses, and future training
+    The TUI, app server, journals, telemetry exporters, eval harnesses, and analytics
     systems should not reach into the runner. They subscribe to the same event stream and
     render, persist, score, or replay from canonical data.
+  </p>
+
+  <h2>Thread follow-ups and timers</h2>
+  <p>
+    To resume an existing conversation after a delay, on a recurring interval, or
+    when a topic is published, use <a href="/docs/thread-followups/">thread follow-ups</a>.
+    These process-local subscriptions are separate from the canonical event stream:
+    they schedule normal turns when a thread is idle, expire within 24 hours, and do
+    not survive runtime exit. A tick never grants new authority.
   </p>
 
   <h2>Event sinks</h2>

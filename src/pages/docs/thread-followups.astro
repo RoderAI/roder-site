@@ -1,0 +1,82 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Thread follow-ups"
+  eyebrow="Agents & automation"
+  description="Request one-shot reminders, recurring CI checks, and topic-triggered follow-ups in an existing Roder thread."
+  prev={{ href: "/docs/agent-control/", title: "Agent control" }}
+  next={{ href: "/docs/persistent-agents/", title: "Persistent agents & issues" }}
+>
+  <p>
+    Ask Roder to check CI periodically or revisit an operation after a delay. Thread
+    events resume the existing conversation when it is idle, retaining its transcript,
+    model, workspace, and tool restrictions. They do not hold a shell command or
+    inference request open while waiting.
+  </p>
+
+  <h2>Request a concrete follow-up</h2>
+  <p>
+    For example: "Check this pull request every minute for the next hour. Investigate
+    failing checks, but do not merge it. Stop checking when CI reaches a terminal state."
+    Give the agent a target, permitted actions, and a stopping condition. Subscriptions
+    should be created only when you request a follow-up.
+  </p>
+  <p>
+    The agent uses <code>subscribe_event</code> with instructions for a later turn.
+    This example requests a bounded recurring check; replace the pull request number
+    and instructions with the actual task.
+  </p>
+  <pre><code>{`{
+  "topic": "ci:pr-167",
+  "prompt": "Check PR 167 CI. Investigate failures within the requested scope. Do not merge. Cancel this subscription when checks are terminal and report the result.",
+  "intervalSeconds": 60,
+  "maxDeliveries": 30,
+  "ttlSeconds": 3600
+}`}</code></pre>
+
+  <h2>Timers and published topics</h2>
+  <ul>
+    <li>Set <code>delaySeconds</code> without an interval for a one-shot reminder.</li>
+    <li>Set <code>intervalSeconds</code> for recurring checks. An optional delay controls the first tick.</li>
+    <li>Omit both to listen only for <code>publish_event</code> messages on the named topic.</li>
+    <li>Use <code>list_event_subscriptions</code> to inspect next ticks, remaining deliveries, pending state, and delivery errors.</li>
+    <li>Use <code>cancel_event_subscription</code> with the subscription ID to stop it and discard pending delivery. A turn already admitted continues.</li>
+  </ul>
+  <p>
+    A busy thread retains one pending delivery per subscription; ticks coalesce rather
+    than starting overlapping turns. A published event counts queued subscriptions,
+    not completed follow-ups. Topics are local to the runtime and require explicit
+    subscribers.
+  </p>
+
+  <h2>Lifetime and authority</h2>
+  <div class="callout">
+    <strong>Keep the owning runtime running.</strong> Subscriptions expire within
+    24 hours and disappear when the harness exits. They do not survive restart or
+    provide an unattended service while the desktop app is closed.
+  </div>
+  <p>
+    A tick grants no new permissions. The resumed turn still follows policy, approval
+    requirements, and the original task scope. Cancel recurring checks once their
+    requested stopping condition is reached. Use separately configured durable
+    automations for schedules that must survive process restarts; those create
+    independent run threads rather than continuing this conversation.
+  </p>
+
+  <h2>App-server integration</h2>
+  <p>
+    Clients use <code>thread/events/subscribe</code>, <code>thread/events/list</code>,
+    <code>thread/events/cancel</code>, and <code>thread/events/publish</code>.
+    Subscription requests include <code>threadId</code>. The thread must have started
+    a turn in this runtime so the harness has a real continuation context. A client
+    disconnect does not remove a subscription if the owning runtime stays alive.
+  </p>
+  <p>
+    Delay and interval values range from 1 to 86,400 seconds.
+    <code>maxDeliveries</code> defaults to 100, with a maximum of 1,000;
+    <code>ttlSeconds</code> defaults to 86,400 and cannot exceed that limit.
+    A one-shot delay receives one delivery.
+  </p>
+</DocsLayout>

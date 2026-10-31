@@ -6,7 +6,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   title="Provider tool search"
   eyebrow="Capabilities"
   description="How Roder lets capable model providers search large tool catalogs without advertising every tool up front."
-  prev={{ href: "/docs/tools/", title: "Tools & policy" }}
+  prev={{ href: "/docs/code-review/", title: "Code review" }}
   next={{ href: "/docs/edit-tools/", title: "Edit tools package" }}
 >
   <p>
@@ -41,5 +41,19 @@ provider_variant = "bm25"`}</code></pre>
     Provider-native search keeps model context focused when a distribution installs many
     built-in, MCP, skill, browser, workflow, or domain-specific tools. The runtime still
     owns execution, policy, approvals, and result routing after the model selects a tool.
+  </p>
+  <h2>Runtime discovery is a separate catalog</h2>
+  <p>
+    Provider-native tool search is distinct from Roder's lazy discovery tools.
+    Agents can use <code>discovery.list</code>, <code>discovery.search</code>, and
+    <code>discovery.read</code> to find tools, skills, and other capabilities and
+    promote their detailed instructions before use.
+  </p>
+  <p>
+    Since CLI 0.4.2, the CLI builds discovery catalogs during startup rather than
+    waiting for a discovery request. If discovery is unavailable, its error supplies
+    a fallback; agents should use that guidance instead of repeatedly searching a
+    missing catalog. Discovery and execution still respect configuration-directory
+    precedence, tool restrictions, and policy.
   </p>
 </DocsLayout>

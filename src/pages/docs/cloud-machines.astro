@@ -1,0 +1,123 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Cloud Machines"
+  eyebrow="Desktop"
+  description="Configure a runner execution profile for new desktop threads, with explicit workspace ownership, credentials, and platform limits."
+  prev={{ href: "/docs/persistent-agents/", title: "Persistent agents" }}
+  next={{ href: "/docs/app-server/", title: "App server" }}
+>
+  <p>
+    Cloud Machines are named execution profiles in Roder Desktop. A profile selects
+    the runner and workspace used by a new thread's native coding tools.
+    The feature is available in the v0.1.9 release line; this guide describes
+    <strong>Desktop v0.1.11</strong> with its pinned <strong>Roder v0.4.1</strong> harness.
+    It is not the <a href="/docs/roder-cloud/">roder.cloud inference provider</a>.
+  </p>
+
+  <div class="callout">
+    Cloud Machines are unavailable on Windows in this desktop version because the
+    embedded runner validates remote POSIX paths using host path rules. Use
+    <strong>Local machine</strong> for native Windows tools. Existing saved profiles
+    remain visible but cannot be selected or run on Windows.
+  </div>
+
+  <h2>Prepare the execution workspace</h2>
+  <p>
+    Prepare the remote directory and repository before starting work. A profile does
+    not upload or synchronize your local repository. Choose an absolute workspace
+    path on the runner, not a path that only exists on your laptop.
+  </p>
+  <ol>
+    <li>Set the provider's required authentication environment variables before starting Roder Desktop.</li>
+    <li>Open <strong>Settings &gt; Cloud Machines</strong> and add a named profile.</li>
+    <li>Choose an available runner provider and enter its absolute workspace path.</li>
+    <li>Enter only non-secret JSON configuration. Use the provider help below the selector for examples and authentication variables.</li>
+    <li>On a new thread, choose the profile in the execution-machine selector beside the policy controls.</li>
+  </ol>
+  <p>
+    Adding a profile checks its configuration shape and provider availability. It
+    does not provision infrastructure or verify credentials. The harness validates
+    the runner binding at thread creation, then creates or resumes a runner session
+    when a native coding tool first needs it.
+  </p>
+
+  <h2>Understand what runs where</h2>
+  <p>
+    The default is <strong>Local machine</strong>, preserving the native host tools,
+    shell, and workspace behavior. Choosing a profile fixes that thread's runner
+    binding when the thread is created and persists it in thread metadata.
+    Reopening the thread keeps the binding. Changing the new-thread selector does
+    not move an existing thread.
+  </p>
+  <p>
+    The local project remains the thread's desktop workspace context. Native coding
+    tools use the runner workspace, but the desktop's file panel, terminal, browser,
+    and host-provided tools remain desktop-side. This is not a remote desktop or
+    a second app-server connection. Do not assume a file visible in a local panel
+    exists on the execution machine.
+  </p>
+  <p>
+    Selecting a desktop profile does not change the harness's global runner
+    configuration. If a global runner destination is configured, a request for
+    Local machine fails instead of silently inheriting the remote destination.
+    Clear the global runner setting and restart the app, or select a cloud profile.
+  </p>
+
+  <h2>Choose a supported provider</h2>
+  <p>
+    Desktop discovers available providers through <code>runners/list</code>. The
+    pinned harness includes Sprites, Blaxel, Docker, unix-local, Cloudflare, Daytona,
+    E2B, Modal, Runloop, and Vercel. The list is a runtime capability catalog rather
+    than a guarantee that every vendor's ordinary API can be used directly.
+  </p>
+  <ul>
+    <li><strong>Sprites and Blaxel:</strong> profiles can name an existing machine or sandbox.</li>
+    <li><strong>Docker:</strong> requires Docker on the app-server host.</li>
+    <li><strong>unix-local:</strong> executes on the app-server host, despite appearing in the runner catalog.</li>
+    <li><strong>Cloudflare, Daytona, E2B, Modal, Runloop, and Vercel:</strong> require a compatible runner-gateway <code>/sessions</code> endpoint. Their <code>base_url</code> must not point at an ordinary vendor API.</li>
+  </ul>
+  <p>
+    This harness version has no SSH runner. An arbitrary SSH hostname is not a
+    supported profile. See the <a href="/docs/blaxel-runner/">Blaxel runner guide</a>
+    for its harness-level execution contract.
+  </p>
+
+  <h2>Keep credentials out of profiles</h2>
+  <p>
+    Authentication comes from the environment inherited by the desktop app's
+    app-server process. Restart the app after changing those variables. Credentials
+    are shared per provider within that process; this version has no per-profile
+    credential entry or isolated app-server process for each profile.
+  </p>
+  <div class="callout">
+    Do not put API keys, passwords, tokens, or credential-bearing URLs in profile
+    JSON. Runner configuration is persisted with threads. Desktop rejects
+    credential-like fields, but that check cannot recognize every possible secret.
+  </div>
+  <p>
+    Saved profiles use Electron <code>safeStorage</code> encryption in
+    <code>&lt;userData&gt;/cloud-machines.enc</code>. Storage fails closed if OS-backed
+    encryption is unavailable. The renderer persists only the selected profile ID.
+    Invalid or deleted selections fail instead of silently running the prompt locally.
+  </p>
+
+  <h2>Remove or change a profile safely</h2>
+  <p>
+    Removing a profile does not stop or delete cloud resources, change existing
+    threads, or transfer their files. Manage the provider's infrastructure separately.
+    Start a new thread when you need a different execution binding, and prepare its
+    workspace before continuing work.
+  </p>
+
+  <h2>Source reference</h2>
+  <p>
+    These limits and ownership rules follow the tagged
+    <a href="https://github.com/RoderAI/roder-desktop/blob/v0.1.11/docs/cloud-machines.md">desktop Cloud Machines contract</a>
+    and <a href="https://github.com/RoderAI/roder-desktop/blob/v0.1.11/roder-distro-config.toml">embedded harness pin</a>.
+    See <a href="/docs/app-server/">app server</a> for remote-controller integration,
+    which is separate from runner execution profiles.
+  </p>
+</DocsLayout>

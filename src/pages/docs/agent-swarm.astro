@@ -7,7 +7,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   eyebrow="Capabilities"
   description="Run one task shape across many items with bounded parallel agents."
   prev={{ href: "/docs/tools/", title: "Tools & policy" }}
-  next={{ href: "/docs/agent-control/", title: "Agent control" }}
+  next={{ href: "/docs/ultra-mode/", title: "Ultra mode" }}
 >
   <p>
     Agent-swarm mode lets a lead model apply one prompt template to many items, run the
@@ -68,6 +68,13 @@ rate_limit_base_backoff_ms = 3000`}</code></pre>
     parallelism.
   </p>
 
+  <p>
+    For model-facing <code>task</code> fanouts, children inherit the parent thread's live
+    provider and model by default. A request can also raise lane <code>max_concurrent</code>
+    for large scout or reviewer fanouts, while runner lanes and the dispatcher global cap
+    still bound execution.
+  </p>
+
   <h2>Live progress for every client</h2>
   <p>
     The TUI renders live completed, failed, and aborted counts plus a compact child
@@ -87,5 +94,6 @@ rate_limit_base_backoff_ms = 3000`}</code></pre>
   <p>
     For durable teammate threads, canonical task paths, follow-up work, and
     non-destructive interruption, see <a href="/docs/agent-control/">agent control</a>.
+    For proactive delegation with any model, see <a href="/docs/ultra-mode/">Ultra mode</a>.
   </p>
 </DocsLayout>

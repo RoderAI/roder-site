@@ -5,15 +5,15 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 <DocsLayout
   title="OpenRouter"
   eyebrow="Providers"
-  description="Configure Roder's OpenRouter provider and Grok Build model route."
+  description="Configure Roder's OpenRouter provider and Grok 4.6 model route."
   prev={{ href: "/docs/memories/", title: "Memory & embeddings" }}
   next={{ href: "/docs/tools/", title: "Tools & policy" }}
 >
   <p>
     Roder exposes OpenRouter as the provider id <code>openrouter</code>. The default
-    built-in model route is <code>x-ai/grok-build-0.1</code>, surfaced in Roder as
-    <code>openrouter/x-ai/grok-build-0.1</code> when selected from provider/model shorthand.
-    The route has a 256k context window, auto-compacts near 230k tokens, and advertises
+    built-in model route is <code>x-ai/grok-4.6</code>, surfaced in Roder as
+    <code>openrouter/x-ai/grok-4.6</code> when selected from provider/model shorthand.
+    The route has a 500k context window, auto-compacts near 450k tokens, and advertises
     tool use, structured outputs, image input, compaction, and patch-style edits.
   </p>
 
@@ -25,12 +25,12 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 
   <pre><code>export OPENROUTER_API_KEY="..."
 export RODER_PROVIDER=openrouter
-export RODER_MODEL=x-ai/grok-build-0.1
+export RODER_MODEL=x-ai/grok-4.6
 cargo run -p roder-cli</code></pre>
 
   <pre><code># ~/.roder/config.toml
 provider = "openrouter"
-model = "x-ai/grok-build-0.1"
+model = "x-ai/grok-4.6"
 
 [providers.openrouter]
 api_key = "..."
@@ -58,6 +58,46 @@ app_title = "Roder"</code></pre>
     <code>RODER_OPENROUTER_APP_TITLE</code>.
   </p>
 
+  <h2>Upstream routing and service tiers</h2>
+  <p>
+    OpenRouter can serve a model through several upstream providers. Roder sends
+    <code>provider.sort = "price"</code> by default. Configure a routing object to
+    replace that default, or use a per-model table to replace the global routing
+    object for one model slug.
+  </p>
+
+  <pre><code>{`[providers.openrouter]
+service_tier = "flex"
+
+[providers.openrouter.routing]
+sort = "throughput"
+
+[providers.openrouter.model_routing."deepseek/deepseek-v4.1-flash"]
+only = ["deepinfra/fp8"]
+allow_fallbacks = false`}</code></pre>
+
+  <p>
+    This example prefers throughput globally and pins the named DeepSeek route to
+    one upstream without fallback. Routing options are passed as OpenRouter's
+    <code>provider</code> object, including <code>only</code>, <code>order</code>,
+    <code>allow_fallbacks</code>, <code>sort</code>, and <code>max_price</code>.
+    Check upstream availability before disabling fallbacks.
+  </p>
+
+  <p>
+    To restore OpenRouter's own load balancing instead of Roder's price preference,
+    use an empty routing object in place of the routing table:
+  </p>
+  <pre><code>{`[providers.openrouter]
+routing = {}`}</code></pre>
+
+  <p>
+    The provider's <code>service_tier</code> setting supports values such as
+    <code>flex</code>, <code>priority</code>, and <code>ultrafast</code>. A runtime
+    per-request tier takes precedence over this setting. Availability and billing
+    depend on the selected model and upstream.
+  </p>
+
   <h2>Model discovery</h2>
   <p>
     Roder returns built-in OpenRouter models immediately, refreshes stale discovery
@@ -73,16 +113,24 @@ RODER_MODELS_CACHE_PATH=/tmp/roder-models-cache.json cargo run -p roder-cli</cod
   <p>
     OpenRouter runs through Roder's Responses-compatible transport at
     <code>POST /responses</code>. Requests send the OpenRouter model slug exactly,
-    including provider-prefixed ids such as <code>x-ai/grok-build-0.1</code>.
+    including provider-prefixed ids such as <code>x-ai/grok-4.6</code>.
     Roder does not send OpenAI encrypted reasoning replay fields to OpenRouter by
     default.
   </p>
 
-  <pre><code>RODER_OPENROUTER_LIVE=1 OPENROUTER_LIVE_MODEL=x-ai/grok-build-0.1 cargo test -p roder-ext-openrouter --test live_openrouter -- --ignored</code></pre>
+  <p>
+    Requests carry a stable conversation key as <code>prompt_cache_key</code> and
+    <code>session_id</code>, using the runtime prompt-cache key or the turn's thread
+    id. This lets OpenRouter keep a conversation on the same upstream for prompt
+    caching; it does not guarantee a cache hit. The session id is capped at 256
+    characters.
+  </p>
+
+  <pre><code>RODER_OPENROUTER_LIVE=1 OPENROUTER_LIVE_MODEL=x-ai/grok-4.6 cargo test -p roder-ext-openrouter --test live_openrouter -- --ignored</code></pre>
 
   <div class="callout">
     <strong>Provider/model split.</strong> Direct xAI uses model ids such as
-    <code>grok-build-0.1</code>. OpenRouter uses slugs such as
-    <code>x-ai/grok-build-0.1</code>, and Roder preserves that slug.
+    <code>grok-4.6</code>. OpenRouter uses slugs such as
+    <code>x-ai/grok-4.6</code>, and Roder preserves that slug.
   </div>
 </DocsLayout>

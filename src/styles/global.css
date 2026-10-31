@@ -137,8 +137,10 @@ hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
 
 .sidebar a:hover { background: var(--bg-card); color: var(--fg); text-decoration: none; }
 .sidebar a.active { background: var(--bg-card); color: var(--accent-strong); }
+.docs-navigation > summary { display: none; }
 
 .doc-content { min-width: 0; max-width: 790px; }
+.doc-content :not(pre) > code { overflow-wrap: anywhere; }
 .doc-content > h1:first-child { margin-top: 0; }
 
 .doc-content table {
@@ -416,12 +418,15 @@ hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
 }
 
 .terminal-demo {
+  max-width: 100%;
   margin: 1.5rem 0;
 }
 
 .terminal-demo img {
   display: block;
+  max-width: 100%;
   width: 100%;
+  height: auto;
   border-radius: 8px;
   border: 1px solid #2c343c;
   background: #111316;
@@ -437,7 +442,9 @@ hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
 }
 
 .changelog-article {
+  width: min(100%, 920px);
   max-width: 920px;
+  min-width: 0;
   padding-top: clamp(2.5rem, 6vw, 5rem);
   padding-bottom: clamp(3rem, 8vw, 6rem);
 }
@@ -456,21 +463,33 @@ hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
 }
 
 .changelog-article__header h1 {
+  width: 100%;
   max-width: 860px;
   margin: 0;
   font-size: clamp(2.4rem, 6vw, 4.8rem);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .changelog-article__header p {
+  width: 100%;
   max-width: 780px;
   color: var(--fg-muted);
   font-size: 1.12rem;
+  overflow-wrap: anywhere;
 }
 
 .changelog-article__body {
+  width: 100%;
   max-width: 760px;
+  min-width: 0;
   font-size: 1.02rem;
   line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+.changelog-article__body > * {
+  max-width: 100%;
 }
 
 .changelog-article__body h2 {
@@ -518,12 +537,22 @@ hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
   .paper-hero img { width: 160px; height: 160px; }
   .docs-shell { grid-template-columns: 1fr; gap: 1.5rem; }
   .sidebar { position: static; }
+  .docs-navigation > summary {
+    display: list-item;
+    cursor: pointer;
+    padding: 0.7rem 0;
+    font-weight: 700;
+  }
+  .docs-navigation[open] > summary { margin-bottom: 1rem; }
 }
 
 @media (max-width: 560px) {
   .container { padding: 0 1rem; }
   .next-prev { flex-direction: column; }
   .next-prev .next { text-align: left; }
+  .changelog-article__header h1 { font-size: 2.35rem; }
+  .changelog-article__header p { font-size: 1rem; }
+  .changelog-article__body { font-size: 1rem; }
   .changelog-pagination { grid-template-columns: 1fr; }
   .release-actions { flex-direction: column; }
 }

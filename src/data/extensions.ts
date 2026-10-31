@@ -22,7 +22,7 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-openai-responses",
         provides: ["InferenceEngine({provider_id})"],
-        how: "Generic OpenAI Responses API engine: streams /v1/responses and maps output items and deltas to inference events, including reasoning summaries, hosted web search, and opaque provider compaction items. Reused as the engine for xAI API-key, OpenRouter, Codex OAuth, and custom OpenAI-compatible providers. Codex exposes GPT-5.6 Sol/Terra/Luna, defaults to Sol, and maps Roder's Ultra effort to the provider's max reasoning value.",
+        how: "Generic OpenAI Responses API engine: streams /v1/responses and maps output items and deltas to inference events, including reasoning summaries, hosted web search, and opaque provider compaction items. Reused as the engine for xAI API-key, OpenRouter, Codex OAuth, and custom OpenAI-compatible providers. Codex defaults to GPT-6.1 Sol and includes GPT-6.1 Terra, GPT-6 Astra/Luna, and GPT-5.6 models. Roder's Ultra effort maps to the provider's max reasoning value.",
         install: "When configured",
       },
       {
@@ -40,19 +40,19 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-gemini",
         provides: ["InferenceEngine(gemini)"],
-        how: "Adapts harness turns to the Google Gemini generateContent streaming API with text and tool-call support.",
+        how: "Adapts harness turns to the Google Gemini generateContent streaming API with text and tool-call support. The default catalog includes Gemini 3.8 Flash and Gemini 3.7 Flash alongside older pinned Flash and Pro entries.",
         install: "When configured",
       },
       {
         crate: "roder-ext-vertex",
         provides: ["InferenceEngine(vertex)"],
-        how: "Runs Gemini models on Vertex AI using service-account OAuth (credentials path or inline JSON) with project and location configuration.",
+        how: "Runs Gemini models on Vertex AI using service-account OAuth (credentials path or inline JSON) with project and location configuration, including the same Gemini 3.8 Flash and 3.7 Flash catalog entries.",
         install: "When configured",
       },
       {
         crate: "roder-ext-xai",
         provides: ["InferenceEngine(supergrok)", "InferenceEngine(xai)"],
-        how: "Always registers the SuperGrok OAuth engine; when an xAI API key is declared it additionally installs a direct xAI surface built on the OpenAI Responses engine pointed at api.x.ai/v1. Both catalogs default to grok-4.5 with 500k context and high reasoning.",
+        how: "Always registers the SuperGrok OAuth engine; when an xAI API key is declared it additionally installs a direct xAI surface built on the OpenAI Responses engine pointed at api.x.ai/v1. Both catalogs default to grok-4.7 with 500k context and high reasoning.",
         install: "Default · SuperGrok",
       },
       {
@@ -64,7 +64,7 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-cursor",
         provides: ["InferenceEngine(cursor)"],
-        how: "Talks directly to Cursor's AgentService backend APIs for Composer-style agent turns, including fast model variants, Claude Fable 5, reasoning parameters, and stable per-thread conversation ids. Live turns require a Cursor User API key.",
+        how: "Talks directly to Cursor's AgentService backend APIs for Composer-style agent turns, including fast model variants, Grok 4.6, Gemini 3.7 Flash, Claude Fable 5.1, reasoning parameters, and stable per-thread conversation ids. Live turns require a Cursor User API key.",
         install: "Default",
       },
       {
@@ -82,14 +82,20 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-openrouter",
         provides: ["InferenceEngine(openrouter)"],
-        how: "OpenRouter API-key provider built on the OpenAI Responses engine, with optional HTTP-Referer and X-Title attribution headers.",
+        how: "OpenRouter API-key provider built on the OpenAI Responses engine, defaulting to the x-ai/grok-4.6 route with optional HTTP-Referer and X-Title attribution headers. Routes by price unless configured otherwise, supports per-model upstream routing and service tiers, and sends a stable conversation key for sticky routing and prompt caching.",
         install: "Default · needs key",
       },
       {
         crate: "roder-ext-opencode",
         provides: ["InferenceEngine(opencode)", "InferenceEngine(opencode-go)"],
-        how: "Two OpenCode subscription providers (Zen and Go) speaking a chat-completions-style HTTP API at opencode.ai, with cached model lists and retry policy.",
+        how: "Two OpenCode subscription providers (Zen and Go) speaking a chat-completions-style HTTP API at opencode.ai, with cached model lists, current Zen free models, paid DeepSeek flash/pro routes, coalesced parallel tool-call histories for DeepSeek rollouts, and structured OpenCode error messages.",
         install: "Default",
+      },
+      {
+        crate: "roder-ext-deepseek",
+        provides: ["InferenceEngine(deepseek)"],
+        how: "First-party DeepSeek Platform provider over the OpenAI-compatible Chat Completions API at api.deepseek.com/v1. It resolves DEEPSEEK_API_KEY or RODER_DEEPSEEK_API_KEY, defaults to deepseek-chat, includes deepseek-chat, deepseek-reasoner, deepseek-v4-flash, and deepseek-v4-pro catalog entries, and preserves DeepSeek thinking-mode reasoning across streaming and tool-call turns.",
+        install: "Default · needs key",
       },
       {
         crate: "roder-ext-poolside",
@@ -119,6 +125,25 @@ export const categories: ExtensionCategory[] = [
         provides: ["InferenceRouter(local)"],
         how: "Local policy router for adaptive model selection: when [inference_router] is enabled it scores turn signals and picks a tiered provider, model, and reasoning level from config before each turn.",
         install: "Default · off until configured",
+      },
+    ],
+  },
+  {
+    id: "image-generation",
+    title: "Image generation",
+    intro: "Image providers share the media request and artifact store across the CLI, TUI, tools and app-server clients. Image model selection is separate from chat inference.",
+    extensions: [
+      {
+        crate: "roder-ext-openai-images",
+        provides: ["MediaGenerator(openai)"],
+        how: "Generates and edits images with GPT Image 2.5 Flare by default or explicitly selected Sunburst and older GPT Image models. Supports six GPT Image 2.5 quality levels and artifact-based editing inputs. Requires an OpenAI API key and separate API billing.",
+        install: "Default · needs API credentials",
+      },
+      {
+        crate: "roder-ext-google-images",
+        provides: ["MediaGenerator(google)"],
+        how: "Generates images through Gemini Nano Banana models with aspect ratio and model-specific image-size options, persisting outputs and SynthID watermark metadata as Roder media artifacts.",
+        install: "Default · needs API credentials",
       },
     ],
   },
@@ -258,8 +283,8 @@ export const categories: ExtensionCategory[] = [
       },
       {
         crate: "roder-ext-parallel-search",
-        provides: ["ToolProvider(parallel-search)"],
-        how: "Parallel.ai objective-oriented search with extended tool-argument options for goal-directed queries.",
+        provides: ["ToolProvider(parallel-search)", "Tool(parallel_extract)"],
+        how: "Parallel.ai objective-oriented search and URL markdown extraction. It maps max_results, domain filters, location, and mode into Parallel V1 advanced_settings, auto-installs parallel_extract when Parallel is selected, and adds turn instructions for search-first/extract-deeper web workflows.",
         install: "Router backend",
       },
     ],
@@ -270,6 +295,12 @@ export const categories: ExtensionCategory[] = [
     intro:
       "ToolProvider extensions add callable tools to the registry; the policy layer governs every invocation. This group also covers version control and workspace fork providers.",
     extensions: [
+      {
+        crate: "roder-ext-jev",
+        provides: ["ToolProvider(jev)"],
+        how: "Runs bounded browser goals in a thread-scoped Chrome session through Jev or OpenAI Decisions. Returns semantic DOM evidence, action effects and optional completion verification; opt-in DOM/image profiles preserve approvals, origin restrictions and secret handling.",
+        install: "Default · needs browser and decision credentials",
+      },
       {
         crate: "roder-ext-chrome",
         provides: ["ToolProvider(chrome)"],
@@ -322,10 +353,16 @@ export const categories: ExtensionCategory[] = [
   },
   {
     id: "policy",
-    title: "Policy",
+    title: "Policy and local hooks",
     intro:
-      "PolicyContributor extensions participate in tool-call review alongside the core permission system.",
+      "Policy contributors and local hooks participate in tool-call review alongside the core permission system.",
     extensions: [
+      {
+        crate: "roder-core",
+        provides: ["LocalHookDispatcher"],
+        how: "Loads `.roder/hooks.json` before falling back to `.codex/hooks.json`, dispatches Codex-compatible local hooks around sessions, prompts, approval requests, tool calls, compaction, subagents, and stop events, records hook diagnostics, runs SessionStart once for the opened thread session, and lets PreToolUse hooks deny or rewrite tool input before execution.",
+        install: "Built in",
+      },
       {
         crate: "roder-ext-plan-mode",
         provides: ["PolicyContributor(plan-mode)", "ToolProvider(plan-mode-tools)"],
@@ -411,7 +448,7 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-runner-blaxel",
         provides: ["RemoteRunnerProvider(blaxel)"],
-        how: "First-party Blaxel Sandboxes provider over the control-plane plus per-sandbox process, filesystem, and preview APIs. It lazily initializes runner-bound threads on first approved workspace tool, routes coding tools into the selected sandbox, supports pause/resume plus durable detach/rejoin, and force-kills remote process groups on cancellation.",
+        how: "First-party Blaxel Sandboxes provider over the control-plane plus per-sandbox process, filesystem, preview, and lifecycle APIs. It lazily initializes runner-bound threads on first approved workspace tool, routes coding tools into the selected sandbox, supports pause/resume plus durable detach/rejoin, reconciles standby/expiration policy, and proves tagged descendant cleanup before cancellation succeeds.",
         install: "Default · needs API key and workspace",
       },
       {
@@ -469,12 +506,6 @@ export const categories: ExtensionCategory[] = [
         provides: ["Support library (no manifest)"],
         how: "The shared HTTP client implementing the hosted-runner session protocol (sessions, commands, files) used by the Cloudflare, Daytona, E2B, Modal, Runloop, and Vercel runner crates. Hosted runner commands can carry cancellation leases; Blaxel uses its provider-specific sandbox APIs.",
         install: "Library",
-      },
-      {
-        crate: "roder-ext-disk-context",
-        provides: ["Helper only (extension not yet implemented)"],
-        how: "Exports a saved_context_block helper for building disk-sourced context blocks. Distribution metadata references a DiskContextExtension that is not implemented yet, so there is currently no runtime install path.",
-        install: "Not installable yet",
       },
     ],
   },

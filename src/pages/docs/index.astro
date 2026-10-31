@@ -9,9 +9,9 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   next={{ href: "/docs/install/", title: "Install & run" }}
 >
   <p>
-    <strong>Roder</strong> is reusable Rust infrastructure for coding agents. Use it when
-    you need a runtime that can run tools, enforce policy, preserve state, emit replayable
-    events, and support multiple product or research surfaces.
+    <strong>Roder</strong> is a coding-agent runtime with terminal and desktop clients.
+    Use it to work in a repository, delegate to teammates, automate browser tasks, or
+    build an agent product on the same tools, policy, and persistent state.
   </p>
 
   <p>
@@ -37,14 +37,50 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><a href="/evals/">Eval scoreboard</a> if you want current development trajectory results and run artifacts.</li>
   </ul>
 
-  <h2>Repository map</h2>
+  <h2>Desktop and daily coding</h2>
+  <ul>
+    <li><a href="/docs/desktop/">Desktop guide</a>: threads, attachments, projects, archives, settings, updates, and workspace panels.</li>
+    <li><a href="/docs/persistent-agents/">Persistent agents &amp; issues</a>: create a long-lived assistant, enable work explicitly, and track project tasks.</li>
+    <li><a href="/docs/tui/">Terminal interface</a>: multiline input, model switching, retained prompts, source copying, and image previews.</li>
+    <li><a href="/docs/code-review/">Code review</a>: read-only reviews, structured findings, and optional GitHub publishing.</li>
+    <li><a href="/docs/usage-analytics/">Usage analytics</a>: token accounting, cost, and child-agent usage.</li>
+  </ul>
+
+  <h2>Agents and automation</h2>
+  <ul>
+    <li><a href="/docs/agent-control/">Agent control</a>: reusable teammates, messages, follow-up turns, and owned Git worktrees.</li>
+    <li><a href="/docs/agent-swarm/">Agent swarm</a> and <a href="/docs/ultra-mode/">Ultra mode</a>: bounded batch fanout and proactive delegation.</li>
+    <li><a href="/docs/goal-mode/">Plan mode &amp; goals</a> and <a href="/docs/roadmap-loop/">roadmap orchestration</a>: track scope, progress, and completion evidence.</li>
+    <li><a href="/docs/thread-followups/">Thread follow-ups</a>: one-shot reminders, recurring CI checks, and runtime-local topic events.</li>
+    <li><a href="/docs/local-hooks/">Local hooks</a> and <a href="/docs/workflows/">dynamic workflows</a>: project checks and approval-gated automation.</li>
+  </ul>
+
+  <h2>Browser, media, and remote work</h2>
+  <ul>
+    <li><a href="/docs/browser-decisions/">Browser decisions</a>: bounded browser goals, research evidence, backends, and observable success checks.</li>
+    <li><a href="/docs/chrome/">Chrome browser control</a>: work with an existing logged-in browser session.</li>
+    <li><a href="/docs/media-generation/">Media generation</a> and <a href="/docs/speech/">speech</a>: image providers, editing, artifacts, and audio.</li>
+    <li><a href="/docs/cloud-machines/">Cloud Machines</a>: bind desktop threads to remote workspaces.</li>
+    <li><a href="/docs/blaxel-runner/">Blaxel sandbox runner</a> and <a href="/docs/remote-nodes/">remote nodes</a>: choose between sandboxed coding tools and a full remote runtime.</li>
+  </ul>
+
+  <h2>Models and integrations</h2>
+  <ul>
+    <li><a href="/docs/providers/">Inference providers</a>: GPT-6.1 Sol/Terra, provider authentication, custom Responses capabilities, and compaction.</li>
+    <li><a href="/docs/openrouter/">OpenRouter</a>: price routing, per-model overrides, and service tiers.</li>
+    <li><a href="/docs/tool-search/">Tool search &amp; discovery</a>: find tools and skills without loading every definition upfront.</li>
+    <li><a href="/docs/acp/">ACP</a>: connect compatible editors with persistent sessions, authentication, MCP tools, and image prompts.</li>
+    <li><a href="/docs/app-server/">App server</a> and <a href="/docs/sdk/">TypeScript SDK</a>: build clients, stream turns, and read bounded history pages.</li>
+  </ul>
+
+  <h2>Repository map for integrators</h2>
   <p>
     The Rust implementation is organized around the <code>roder</code> binary and
     <code>roder-*</code> crates:
   </p>
   <ul>
     <li><code>crates/roder-api</code> — extension traits, canonical events, tools, inference, sessions, policy, and shared types.</li>
-    <li><code>crates/roder-core</code> — runtime loop, event bus, policy gate, tool execution, cancellation, media artifacts, forks, knowledge recall, compaction boundaries, lifecycle recovery, agent-control lifecycles, and provider orchestration.</li>
+    <li><code>crates/roder-core</code> — runtime loop, event bus, policy gate, tool execution, local hooks, cancellation, media artifacts, forks, knowledge recall, compaction boundaries, lifecycle recovery, agent-control lifecycles, and provider orchestration.</li>
     <li><code>crates/roder-extension-host</code> — default distribution wiring for providers, web search, subagents, sessions, tools, media, knowledge, process extensions, and TUI services.</li>
     <li><code>crates/roder-app-server</code> and <code>crates/roder-protocol</code> — local, remote-node, and hosted JSON-RPC control planes plus typed protocol shapes.</li>
     <li><code>crates/roder-dynamic-workflows</code> and <code>crates/roder-roadmap</code> — approval-gated workflow scripts, child-agent orchestration, roadmap boards, loop orchestration, checkpoints, and reports.</li>
@@ -64,6 +100,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><a href="/docs/memories/">Memory &amp; embeddings</a> — SQLite memory plus OpenAI, Google, and ZeroEntropy embeddings.</li>
     <li><a href="/docs/knowledge/">Project knowledge</a> — markdown requirements, decisions, runbooks, links, revisions, and recall.</li>
     <li><a href="/docs/agent-swarm/">Agent swarm</a> — bounded, rate-limit-aware fanout with live progress and ordered results.</li>
+    <li><a href="/docs/ultra-mode/">Ultra mode</a> — proactive multi-agent delegation for any model through <code>/ultra</code> and <code>thread/set_ultra_mode</code>.</li>
     <li><a href="/docs/agent-control/">Agent control</a> — long-lived teammates with canonical paths, follow-up turns, waiting, and non-destructive interruption.</li>
     <li><a href="/docs/lifecycle-recovery/">Lifecycle recovery</a> — interrupted-turn records, cleanup proof, runtime drain, and restart diagnostics.</li>
     <li><a href="/docs/blaxel-runner/">Blaxel sandbox runner</a> — isolated remote coding workspaces with pause, resume, detach, and rejoin.</li>
@@ -74,14 +111,17 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><a href="/docs/hosted-service/">Hosted service</a> — multi-tenant Roder gateway with isolated tenant runtimes.</li>
     <li><a href="/docs/process-extensions/">Process extensions</a> — non-Rust services through stdio JSON-RPC.</li>
     <li><a href="/docs/roadmap-loop/">Roadmap orchestration</a> — inbox triage, worker dispatch, and evidence-gated completion.</li>
-    <li><a href="/docs/openrouter/">OpenRouter provider</a> — Grok Build setup, model discovery, and API-key configuration.</li>
+    <li><a href="/docs/openrouter/">OpenRouter provider</a> — Grok 4.6 setup, model discovery, and API-key configuration.</li>
     <li><a href="/docs/roder-cloud/">roder.cloud provider</a> — hosted inference with roder_ key exchange and Responses-subset turns.</li>
     <li><a href="/docs/fireworks/">Fireworks provider</a> — first-party API-key provider with account-scoped model ids and Responses transport.</li>
-    <li><a href="/docs/providers/">Inference providers</a> — default provider set, including Codex GPT-5.6 Sol/Terra/Luna, Grok 4.5 on xAI/SuperGrok, Cursor AgentService, Kimi Code auth, Claude Fable 5, and provider compaction boundaries.</li>
+    <li><a href="/docs/providers/">Inference providers</a> — model catalogs, authentication, current defaults, custom endpoints, and provider compaction boundaries.</li>
+    <li><a href="/docs/tools/">Tools &amp; policy</a> — coding tools, policy modes, Parallel search/extract web access, and extension tool registration.</li>
+    <li><a href="/docs/local-hooks/">Local hooks</a> — project-local Codex-compatible hooks around sessions, prompts, tools, compaction, and subagents.</li>
     <li><a href="/docs/claude-code/">Claude Code provider</a> — local CLI sessions with optional subscription-backed Claude-in-Chrome browser tools.</li>
     <li><a href="/docs/vertex/">Google Vertex AI</a> — Gemini-on-Vertex via service-account OAuth and regional endpoints.</li>
     <li><a href="/docs/tool-search/">Provider tool search</a> — provider-native discovery for large tool catalogs.</li>
     <li><a href="/docs/codex-parity-tools/">Codex-parity tools</a> — <code>view_image</code>, <code>unified_exec</code>, freeform patches, and eval-loop persistence.</li>
+    <li><a href="/docs/code-review/">Code review</a> — <code>/review</code> on a read-only thread, structured findings, and pluggable publishers that post GitHub pull request reviews.</li>
     <li><a href="/docs/chrome/">Chrome browser control</a> — pair Roder with a logged-in Chrome session.</li>
     <li><a href="/docs/workflows/">Dynamic workflows</a> — approval-gated scripts for larger multi-agent jobs.</li>
     <li><a href="/docs/zerolang/">Zerolang graph edits</a> — checked ProgramGraph editing tools for Zero tasks.</li>

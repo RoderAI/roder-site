@@ -6,7 +6,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   title="Agent control"
   eyebrow="Capabilities"
   description="Coordinate long-lived teammate agents with canonical paths, follow-up turns, waiting, and interruption."
-  prev={{ href: "/docs/agent-swarm/", title: "Agent swarm" }}
+  prev={{ href: "/docs/ultra-mode/", title: "Ultra mode" }}
   next={{ href: "/docs/tui/", title: "TUI" }}
 >
   <p>
@@ -14,6 +14,9 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     from the one-shot <code>task</code> tool and from <a href="/docs/agent-swarm/">agent
     swarm</a>: a teammate is backed by a normal Roder thread, keeps a canonical path,
     and can receive later messages or follow-up work during the parent session.
+    <a href="/docs/ultra-mode/">Ultra mode</a> turns on proactive use of these tools for
+    any model, while the same policy still runs through Roder's workspace, runner, and
+    approval boundaries.
   </p>
 
   <h2>Tool surface</h2>
@@ -30,9 +33,10 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
   <p>
     Spawning a teammate can copy all parent turns, copy none, or copy only the most
     recent N turns. With copied history, the child inherits the parent agent type and
-    live model selection. With a fresh or last-N fork, the spawn may either inherit the
-    parent provider, model, reasoning effort, workspace, policy, tools, runner, and
-    developer context, or provide an explicit compatible model selection.
+    live provider and model selection. With a fresh or last-N fork, the spawn may either
+    inherit the parent provider, model, reasoning effort, Ultra mode, workspace, policy,
+    tools, runner, and developer context, or provide an explicit compatible model
+    selection.
   </p>
 
   <p>
@@ -103,4 +107,33 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     approval. Tool calls from child agents still flow through the active policy, runner,
     and workspace boundary.
   </div>
+  <h2>Isolate coding agents in owned worktrees</h2>
+  <p>
+    Since CLI 0.4.0, <code>spawn_agent</code> accepts
+    <code>workspace_isolation: "shared" | "worktree"</code>. The default
+    <code>shared</code> uses the caller's checkout. This is separate from
+    <code>fork_turns</code>, which only chooses conversation history.
+  </p>
+  <pre><code>{`{
+  "task_name": "implement_parser",
+  "message": "Implement the parser and report the resulting branch.",
+  "fork_turns": "all",
+  "workspace_isolation": "worktree"
+}`}</code></pre>
+  <p>
+    Worktree isolation requires the Git fork provider, durable thread storage, and
+    a local clean checkout. The branch starts at committed HEAD: uncommitted work
+    is not copied. Dirty sources and remote-runner parents are rejected.
+    The child keeps the parent's policy and tool filters. This separates coding
+    workspaces; it is not a security sandbox.
+  </p>
+  <p>
+    Spawn results include <code>workspace</code> and <code>workspace_fork</code>,
+    with durable ownership metadata. Completed or interrupted agents keep their
+    checkouts for review and follow-up. There is no automatic merge or cleanup.
+    Explicit path-confirmed <code>thread/remove_fork</code> or
+    <code>forks/remove</code> refuses dirty, locked, external, or actively used
+    checkouts. Removal retains branches. See
+    <a href="https://github.com/RoderAI/roder/blob/master/docs/app-server/agent-worktrees.md">owned worktree lifecycle</a>.
+  </p>
 </DocsLayout>

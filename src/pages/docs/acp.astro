@@ -5,30 +5,84 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 <DocsLayout
   title="ACP compatibility"
   eyebrow="Protocols"
-  description="How Agent Client Protocol fits into Roder's compatibility roadmap."
+  description="Connect ACP clients to Roder with persistent sessions, model controls, images, and injected MCP tools."
   prev={{ href: "/docs/app-server/", title: "App server" }}
 >
   <p>
-    The older implementation in this repository includes an Agent Client Protocol server.
-    The Rust Roder runtime is app-server-first today, with ACP compatibility tracked as a
-    protocol parity surface once the Rust session, tools, policy, and transport contracts
-    settle.
+    Run <code>roder acp</code> to serve ACP v1 over newline-delimited JSON-RPC on
+    stdin/stdout. Diagnostics go to stderr. ACP clients share Roder's runtime,
+    tools, permissions, and durable thread store. Native integrations can use the
+    broader <a href="/docs/app-server/">app-server protocol</a>.
   </p>
 
-  <h2>Compatibility target</h2>
+  <h2>Connect and authenticate</h2>
+  <pre><code>{`npm install -g @roderai/roder
+roder auth login codex
+roder acp`}</code></pre>
+  <p>
+    Send <code>initialize</code> and use the running binary's advertised capabilities.
+    Fresh installations default to Codex; configured providers and models remain in
+    use. With Codex selected, clients can request browser sign-in through
+    <code>authenticate</code>. Roder owns provider credentials.
+  </p>
+  <h2>Persistent sessions</h2>
   <ul>
-    <li>Expose Roder as an ACP agent over stdio JSON-RPC.</li>
-    <li>Map ACP sessions to Roder threads and turns.</li>
-    <li>Translate ACP prompt blocks into canonical Roder input messages.</li>
-    <li>Surface tool progress, assistant deltas, and permission requests as ACP session updates.</li>
-    <li>Attach stdio MCP servers through the ACP session contract where supported.</li>
+    <li>Create sessions with <code>session/new</code>; load or resume stored sessions after restarting the host.</li>
+    <li><code>session/list</code> returns saved sessions, optional cwd filtering, and an opaque <code>nextCursor</code>. Pass the cursor unchanged, even after an empty filtered page.</li>
+    <li><code>session/close</code> releases active resources without deleting persisted history.</li>
+    <li>Text, image prompts, resource links, assistant streaming, tool activity, cancellation, and permission requests translate to the native runtime.</li>
   </ul>
 
-  <h2>Current guidance</h2>
+  <h2>Choose a model and permission mode</h2>
   <p>
-    Use <a href="/docs/app-server/">the Roder app server</a> for new Rust integrations. Use
-    the legacy implementation only when you specifically need the existing ACP behavior as
-    a reference or bridge during the rewrite.
+    New, loaded, and resumed sessions return <code>modes</code> and
+    <code>configOptions</code>. Select an advertised <code>provider/model</code>
+    value through <code>session/set_config_option</code> with
+    <code>configId: "model"</code>. Model and mode changes require an idle session.
+    Both persist per thread.
+  </p>
+  <pre><code>{`{"jsonrpc":"2.0","id":4,"method":"session/set_mode","params":{"sessionId":"THREAD_ID","modeId":"plan"}}`}</code></pre>
+  <p>
+    Modes are <code>default</code>, <code>accept_all</code>, <code>plan</code>,
+    and <code>bypass</code>. Injected MCP calls still ask for permission in
+    <code>accept_all</code>; <code>plan</code> rejects them because their side effects
+    are unknown. <code>bypass</code> runs them without an ACP permission request.
+    Team restrictions still take precedence.
+  </p>
+  <h2>Inject MCP tools</h2>
+  <p>
+    Supply stdio or streamable HTTP servers through <code>mcpServers</code> when
+    creating, loading, or resuming a session. Roder discovers their schemas before
+    returning the session. Stdio servers run in the session cwd.
+  </p>
+  <pre><code>{`{"jsonrpc":"2.0","id":2,"method":"session/new","params":{
+  "cwd":"/absolute/project",
+  "mcpServers":[
+    {"name":"local","command":"example-mcp","args":[],"env":[]},
+    {"type":"http","name":"remote","url":"http://127.0.0.1:9000/mcp","headers":[]}
+  ]
+}}`}</code></pre>
+  <p>
+    Tools use <code>mcp__SERVER__TOOL</code> names. Keep credentials and server launch
+    configuration in the host. Restoring a session requires resupplying servers
+    with exactly the saved tool names, descriptions, and schemas; missing or changed
+    bindings fail with <code>-32602</code>. Session close and orderly shutdown close
+    MCP clients. SSE, MCP resources, and MCP prompts are not exposed by this adapter.
+  </p>
+  <h2>Images and host instructions</h2>
+  <p>
+    Image blocks accept base64 PNG, JPEG, WebP, and GIF with matching MIME types.
+    The selected provider must support image input. Paseo hosts can set
+    <code>_meta._paseo.systemPrompt</code> on new sessions; Roder stores it as
+    developer instructions beneath the harness prompt. Resume must omit it or
+    supply the same string. Workspace instructions and policy still apply.
+  </p>
+  <p>
+    These features shipped in CLI 0.3.21 and 0.3.25. See the
+    <a href="https://github.com/RoderAI/roder/blob/master/docs/roder-acp.md">ACP integration contract</a>
+    and <a href="https://github.com/RoderAI/roder/blob/master/docs/openclaw-acp.md">ACPx and OpenClaw setup</a>
+    for host-specific configuration. Session deletion, additional workspace roots,
+    audio, and embedded resource content remain unsupported.
   </p>
 
   <div class="callout">

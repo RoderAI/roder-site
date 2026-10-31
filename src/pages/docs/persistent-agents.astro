@@ -1,0 +1,168 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Persistent agents"
+  eyebrow="Desktop"
+  description="Create a paused project agent, preserve its mission and memory, and explicitly enable bounded proactive work while Roder Desktop is running."
+  prev={{ href: "/docs/desktop/", title: "Roder Desktop" }}
+  next={{ href: "/docs/cloud-machines/", title: "Cloud Machines" }}
+>
+  <p>
+    A persistent agent owns one saved Roder thread and a long-lived mission. It
+    returns to that thread across check-ins and desktop restarts instead of starting
+    a new conversation each time. Its editable memory carries decisions and next
+    actions; native memory search and context compaction support longer work.
+    Durable context does not mean an unlimited model context window.
+  </p>
+  <p>
+    This guide describes the desktop feature through <strong>v0.1.11</strong>.
+    Persistent agents are distinct from short-lived subagents, runtime event
+    subscriptions, and a cloud-hosted worker.
+  </p>
+
+  <h2>Create a project agent</h2>
+  <ol>
+    <li>Open <strong>Persistent Agents</strong> in Roder Desktop.</li>
+    <li>Choose an existing project workspace, a display name, and a concrete mission.</li>
+    <li>Keep the engine's default model or choose a model and supported reasoning effort.</li>
+    <li>Create the agent, then review its mission, editable memory, and run limits.</li>
+  </ol>
+  <div class="callout">
+    New agents start <strong>paused</strong>. Creating an agent creates its thread,
+    but does not authorize a proactive conversation turn or enable scheduled work.
+    Choose <strong>Run once</strong> for one explicit run, or separately enable
+    proactive work after reviewing the controls.
+  </div>
+
+  <h2>Character generation is separate</h2>
+  <p>
+    Creation also queues a persona character through the installed Codex CLI's
+    managed image-generation route. That job can use Codex quota even while the
+    agent is paused. It requires native Codex sign-in, separate from Roder's
+    inference-provider credentials, and does not enable proactive work.
+  </p>
+  <p>
+    A failed or interrupted character job needs an explicit retry. Desktop does not
+    silently fall back to a billed API request. The separate OpenAI API generation
+    action requires its own key and explicit selection; saving the key alone does
+    not generate an image. A character is presentation, not evidence that the
+    persistent agent has started working.
+  </p>
+
+  <h2>Create one from chat</h2>
+  <p>
+    Desktop v0.1.10 introduced the built-in <code>$persistent-agent</code> skill and
+    <code>persistent_agent_create</code> tool. For example, ask:
+  </p>
+  <pre><code>Create a persistent agent named "Docs caretaker" for this workspace.
+Its mission is to keep the project's documentation aligned with released features.
+Keep it paused.</code></pre>
+  <p>
+    The agent needs a name and mission. In the v0.1.11 interface,
+    <code>workspaceId</code> is optional and defaults to the calling thread's existing
+    workspace. To target a different workspace, select it in the UI or supply its
+    existing workspace ID. An Issues project ID is not a workspace ID.
+    Explicit model choices use <code>modelProvider</code> and <code>model</code>
+    together; <code>reasoning</code> is optional.
+  </p>
+  <p>
+    The tool does not enable proactive work. If the current thread does not
+    advertise it, start a new desktop chat instead of treating a prose description
+    as successful creation.
+  </p>
+
+  <h2>Choose when it can work</h2>
+  <ul>
+    <li><strong>Run once:</strong> starts one manual run, including while the agent is paused.</li>
+    <li><strong>Check-in interval:</strong> allows recurring checks after proactive work is enabled. Zero disables recurring checks.</li>
+    <li><strong>Scheduled wake:</strong> stores a specific future check-in.</li>
+    <li><strong>Engine event subscription:</strong> queues a check-in for selected forwarded notifications, such as <code>turn/completed</code>.</li>
+  </ul>
+  <p>
+    Explicitly choose <strong>Enable proactive work</strong> to allow automatic runs.
+    Intervals and pending wakes do nothing while paused. Repeated notifications
+    coalesce, and events from the persistent agent's own thread are ignored.
+    Only one active run may hold the agent's execution lease.
+  </p>
+
+  <h2>Set limits before enabling</h2>
+  <p>
+    The defaults are <strong>five run starts per rolling 24 hours</strong> and
+    <strong>ten minutes per run</strong>. Manual runs consume the same run allowance.
+    Time-limit enforcement checks periodically and requests interruption; it is not
+    an instantaneous process kill. Approval and user-input waits remain subject to
+    the run's time limit.
+  </p>
+  <p>
+    <strong>Pause and interrupt</strong> saves the paused state and requests that an
+    active run stop. The active lease remains until the engine confirms completion
+    or an idle thread, preventing overlapping runs. Normal approval policy still
+    applies to every action.
+  </p>
+  <div class="callout">
+    A run allowance limits starts and wall-clock time, not dollars or exact token
+    spending. Model calls, tools, and execution machines can incur separate costs.
+    Manual compaction can also call a model outside the proactive run allowance.
+    These controls are not a billing integration or hard financial cap.
+  </div>
+
+  <h2>Keep memory useful</h2>
+  <p>
+    Store the mission, current decisions, blockers, owned work, and next actions in
+    concise memory. The agent's native tools can read or replace this memory with
+    <code>persistent_agent_memory_read</code> and
+    <code>persistent_agent_memory_write</code>. Additional retrievable facts use
+    <code>persistent_agent_memory_save</code> and
+    <code>persistent_agent_memory_query</code>. Scheduled wakes use
+    <code>persistent_agent_wake_schedule</code> when advertised.
+  </p>
+  <p>
+    Memory is local plaintext, not encrypted secret storage. Do not put credentials
+    in it. The editable memory file is bounded to 32,000 characters; use native
+    memory for additional facts rather than silently dropping older decisions.
+    If an edit conflicts with an agent or external editor's change, reopen the
+    agent and review the latest memory before saving.
+  </p>
+
+  <h2>What survives a restart</h2>
+  <p>
+    The mission, enabled state, memory, budget ledger, pending wakes, and thread
+    identity are persisted locally. On restart, the service reconciles any active
+    run with the engine before starting another. It does not replace a missing or
+    failed thread with a fresh one to hide history or context limits.
+  </p>
+  <p>
+    The desktop and its engine must be running for wakes to execute. No OS daemon,
+    cloud worker, or closed-app scheduler is installed. Persisted due wakes are
+    considered after restart; missed recurring intervals become one check-in rather
+    than a backlog. Engine events emitted while the desktop is closed are not replayed.
+  </p>
+
+  <h2>Work across projects deliberately</h2>
+  <p>
+    A persistent agent is associated with a desktop workspace. A mission mentioning
+    several repositories does not configure their access, synchronization, or
+    monitoring. Give it the folders and tools it actually needs, and keep worker
+    write ownership explicit. Delegation depends on the tools available to that
+    thread; a mission cannot create unavailable subagent capabilities.
+  </p>
+  <p>
+    Local Issues can link an organizational project to that workspace and its
+    persistent agent without creating a second agent. Issue assignment still does
+    not schedule work or automatically close an issue when a thread finishes.
+    See <a href="/docs/desktop/">the desktop guide</a> for local issue workflows.
+  </p>
+
+  <h2>Source and interface scope</h2>
+  <p>
+    The desktop hosts the management route and
+    <code>desktop/persistent-agents/*</code> methods; these are desktop additions,
+    not a promise that every CLI or remote app-server exposes the same tools.
+    See the tagged
+    <a href="https://github.com/RoderAI/roder-desktop/blob/v0.1.11/electron/persistent-agents/service.ts">service implementation</a>
+    and <a href="https://github.com/RoderAI/roder-desktop/blob/v0.1.11/electron/persistent-agents/creation-tool.ts">creation-tool contract</a>.
+    Newer untagged workspace-selection or UI changes are outside this versioned guide.
+  </p>
+</DocsLayout>

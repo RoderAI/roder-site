@@ -42,7 +42,7 @@ default_destination = "blaxel-dev"
 [remote_runners.destinations.blaxel-dev]
 provider = "blaxel"
 secret_env = { BLAXEL_API_KEY = "BLAXEL_API_KEY", BL_WORKSPACE = "BL_WORKSPACE" }
-config = { image = "blaxel/base-image:latest", memory = 4096, region = "eu-lon-1", working_dir = "/home/user/roder", cleanup = "detach-on-close" }`}</code></pre>
+config = { image = "blaxel/base-image:latest", memory = 4096, region = "eu-lon-1", standby_after = "5m", working_dir = "/home/user/roder", cleanup = "detach-on-close" }`}</code></pre>
 
   <p>
     New sandboxes default to <code>blaxel/base-image:latest</code>, 4096 MB of memory,
@@ -61,9 +61,33 @@ config = { image = "blaxel/base-image:latest", memory = 4096, region = "eu-lon-1
   <p>
     Optional destination settings include <code>sandbox_name</code> for an existing
     sandbox, <code>sandbox_name_prefix</code>, <code>external_id</code>, <code>image</code>,
-    <code>memory</code>, <code>region</code>, <code>ttl</code>, and
-    <code>working_dir</code>. A Blaxel volume can provide durability beyond the
-    sandbox's preserved standby state.
+    {" "}<code>memory</code>, <code>region</code>, <code>ttl</code>, and
+    {" "}<code>working_dir</code>. <code>standby_after</code> keeps a sandbox warm for a bounded
+    grace interval after each operation, and a <code>lifecycle</code> block can reconcile
+    server-side idle or max-age expiration policies on create and rejoin. A Blaxel volume
+    can provide durability beyond the sandbox's preserved standby state.
+  </p>
+
+  <h2>Standby grace and expiration</h2>
+  <p>
+    Blaxel sandboxes naturally move to standby after their last connection drops.
+    {" "}<code>standby_after</code> lets Roder keep a bounded keep-alive lease after create,
+    rejoin, filesystem work, preview setup, and completed runner commands so follow-up
+    tool calls do not immediately pay a cold wake. A value such as <code>5m</code> keeps
+    the sandbox warm for that interval; <code>0s</code> disables the grace process.
+  </p>
+
+  <pre><code>{`[remote_runners.destinations.blaxel-dev.config.lifecycle]
+expiration_policies = [
+  { type = "ttl-idle", value = "7d" },
+  { type = "ttl-max-age", value = "30d" },
+]`}</code></pre>
+
+  <p>
+    Lifecycle policies are validated before Roder sends them to Blaxel. A
+    {" "}<code>ttl-idle</code> policy deletes a sandbox after it has been unused for the
+    duration, while <code>ttl-max-age</code> deletes it after the duration from creation.
+    Roder updates those policies in place without replacing the sandbox or checkout.
   </p>
 
   <h2>Pause, resume, detach, and rejoin</h2>
@@ -97,8 +121,8 @@ roder runners rejoin <thread-id> --sandbox <name>`}</code></pre>
   <h2>App-server and SDK control</h2>
   <p>
     Product clients and automation can call the thread-scoped
-    <code>runners/pause</code>, <code>runners/resume</code>,
-    <code>runners/detach</code>, and <code>runners/rejoin</code> methods. These methods
+    {" "}<code>runners/pause</code>, <code>runners/resume</code>,
+    {" "}<code>runners/detach</code>, and <code>runners/rejoin</code> methods. These methods
     are registered in the app-server manifest and included in the JSON schema and
     generated TypeScript and Python client types.
   </p>
@@ -106,7 +130,7 @@ roder runners rejoin <thread-id> --sandbox <name>`}</code></pre>
   <h2>Ports and previews</h2>
   <p>
     Exposing a sandbox port returns a Blaxel preview URL. Bind the service to
-    <code>0.0.0.0</code> inside the sandbox so the preview can reach it. Blaxel preview
+    {" "}<code>0.0.0.0</code> inside the sandbox so the preview can reach it. Blaxel preview
     connections currently have a 15-minute timeout.
   </p>
 
@@ -116,5 +140,15 @@ roder runners rejoin <thread-id> --sandbox <name>`}</code></pre>
     timeouts, turn interruption, or dropped transports request force-kill through the
     Blaxel process API, while the server-side lease is the backstop if Roder cannot
     deliver the cancellation request.
+  </p>
+
+  <p>
+    Roder also tags each command's descendant process tree with a unique
+    {" "}<code>RODER_BLAXEL_COMMAND_TAG</code>. Cancellation runs an untagged cleanup pass
+    inside the sandbox that matches exact environment tags, uses Linux pidfds to avoid
+    reused-PID mistakes, and requires two tag-free scans before it treats descendant
+    cleanup as proven. If the sandbox image cannot provide that proof, cancellation fails
+    closed and keeps the tombstone for retry instead of claiming a detached child was
+    stopped.
   </p>
 </DocsLayout>

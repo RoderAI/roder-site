@@ -1,0 +1,233 @@
+---
+import DocsLayout from "../../layouts/DocsLayout.astro";
+---
+
+<DocsLayout
+  title="Code review"
+  eyebrow="Capabilities"
+  description="Run a read-only reviewer over a diff, get prioritized structured findings, and publish them as pull request review comments."
+  prev={{ href: "/docs/codex-parity-tools/", title: "Codex-parity tools" }}
+  next={{ href: "/docs/tool-search/", title: "Provider tool search" }}
+>
+  <p>
+    <code>/review</code> runs a reviewer over a diff on a <strong>detached, read-only
+    thread</strong> and returns prioritized findings anchored to file and line ranges.
+    Findings land in a TUI panel where you keep or drop each one, and the kept set can be
+    submitted to a review platform through a pluggable publisher. The same flow is
+    available over the app server as <code>review/start</code>, so an external client can
+    put Roder into review mode without a terminal.
+  </p>
+
+  <h2>Run a review</h2>
+  <pre><code>/review                      # staged, unstaged, and untracked changes
+/review --base main          # everything since the branch diverged from main
+/review --commit a1b2c3d     # one commit
+/review --uncommitted        # explicit form of the default
+/review check error handling in the new parser   # free-form scope</code></pre>
+
+  <p>
+    Anything that is not a recognised flag becomes a free-form scope, so the last form
+    needs no quoting. <code>--publish &lt;id&gt;</code> does <em>not</em> publish on its
+    own — it preselects which publisher the panel's <kbd>p</kbd> key will use, so
+    submitting a review stays an explicit action.
+  </p>
+
+  <h2>How the review turn runs</h2>
+  <p>
+    Roder resolves the target into a natural-language prompt (using the merge base for
+    <code>--base</code>), creates a child thread of the requesting thread, and starts a
+    single turn on it with the reviewer rubric installed as the system prompt. That thread
+    carries a read-only tool allowlist: the reviewer can read files, search, and run
+    <code>git diff</code>, but nothing that writes files, edits code, or applies patches is
+    advertised or dispatchable.
+  </p>
+  <p>
+    When the turn finishes, the reviewer's final message is parsed into structured findings
+    and echoed back into the <em>requesting</em> thread as a synthetic
+    <code>&lt;user_action&gt;</code> record plus a rendered summary. The parent agent can
+    therefore act on the findings in its next turn — "fix the P1s" works — without the
+    review turn ever having had permission to edit anything itself.
+  </p>
+
+  <div class="callout">
+    <strong>The review runs in a separate thread.</strong> Findings are advisory
+    records in your thread's history. Nothing is applied, committed, or pushed as a side
+    effect of running <code>/review</code>.
+  </div>
+
+  <h2>Findings</h2>
+  <p>
+    Roder has no provider-independent structured-output channel, so the rubric asks for a
+    single JSON object and the parser recovers it with a four-tier ladder: the whole
+    message, the contents of a fenced block, the first balanced <code>&#123;…&#125;</code>
+    substring, and finally the raw text carried as the explanation. Tiers 1–3 also
+    normalize snake_case keys and numeric priorities, so a model that drifts from the
+    schema still produces usable findings instead of an empty review.
+  </p>
+
+  <pre><code>&#123;
+  "findings": [
+    &#123;
+      "title": "[P1] Guard the divisor before dividing",
+      "body": "…markdown explaining why this is a problem…",
+      "confidenceScore": 0.74,
+      "priority": "p1",
+      "codeLocation": &#123;
+        "absoluteFilePath": "/repo/src/calc.py",
+        "lineRange": &#123; "start": 16, "end": 20 &#125;
+      &#125;
+    &#125;
+  ],
+  "overallCorrectness": "patch is correct",
+  "overallExplanation": "…1-3 sentences…",
+  "overallConfidenceScore": 0.85
+&#125;</code></pre>
+
+  <p>
+    Priorities run <code>p0</code> (blocking) through <code>p3</code> (nice to have) and
+    default to <code>p2</code>. The rubric deliberately suppresses findings the author
+    would not act on: pre-existing bugs, pure style, and anything demanding more rigor than
+    the surrounding code already has. A review that finds nothing worth reporting is a
+    normal, healthy result.
+  </p>
+
+  <h2>The review panel</h2>
+  <p>
+    Findings open in a panel over the transcript. Every finding starts kept; drop the ones
+    you disagree with before publishing.
+  </p>
+  <ul>
+    <li><kbd>↑</kbd>/<kbd>↓</kbd> move, <kbd>Home</kbd>/<kbd>End</kbd> jump.</li>
+    <li><kbd>Space</kbd> keep or drop the selected finding.</li>
+    <li><kbd>a</kbd> keep all, <kbd>d</kbd> drop all.</li>
+    <li><kbd>Enter</kbd> open the full body, <kbd>Esc</kbd> back or close.</li>
+    <li><kbd>p</kbd> publish the kept findings.</li>
+  </ul>
+
+  <h2>Publishers</h2>
+  <p>
+    Publishing goes through a <code>ReviewPublisher</code> extension service. Core resolves
+    a publisher by id from the extension registry and calls it — it knows nothing about
+    GitHub specifically.
+  </p>
+
+  <pre><code>#[async_trait]
+pub trait ReviewPublisher: Send + Sync + 'static &#123;
+    fn descriptor(&amp;self) -&gt; ReviewPublisherDescriptor;
+    async fn is_available(&amp;self, workspace_root: &amp;Path) -&gt; bool &#123; true &#125;
+    async fn publish(&amp;self, request: ReviewPublishRequest)
+        -&gt; Result&lt;ReviewPublishResult, ReviewPublishError&gt;;
+&#125;</code></pre>
+
+  <p>
+    <code>ReviewDestination</code> is free-form — <code>&#123; publisherId, target, options
+    &#125;</code> — so a publisher interprets <code>target</code> however it needs: a pull
+    request reference, an issue id, a chat channel. Each
+    <code>[review.publishers.&lt;id&gt;]</code> config block is stored opaquely and parsed
+    by the publisher's own crate, so adding a platform never edits a core config type, and
+    a block for a publisher you have not installed is ignored rather than rejected.
+  </p>
+
+  <p>Publisher selection resolves in order:</p>
+  <ol>
+    <li><code>publisherId</code> on the <code>review/publish</code> request, or <code>--publish &lt;id&gt;</code>.</li>
+    <li><code>[review].default_publisher</code>.</li>
+    <li>The only installed publisher, when exactly one is installed.</li>
+    <li>Otherwise an error naming the installed candidates.</li>
+  </ol>
+
+  <h2>GitHub publisher</h2>
+  <p>
+    <code>roder-ext-github-review</code> submits findings as a pull request review. It
+    prefers the <code>gh</code> CLI when it is installed and falls back to the REST API
+    with a token, selectable with <code>mode</code>. With no explicit destination it
+    resolves the pull request for the current branch.
+  </p>
+
+  <pre><code># ~/.roder/config.toml
+[review]
+default_publisher = "github"   # omit, or "none", to always ask
+model = "opus"                 # optional reviewer-specific model
+
+[review.publishers.github]
+mode = "auto"                  # auto | cli | http
+event = "COMMENT"              # COMMENT | REQUEST_CHANGES | APPROVE
+min_priority = "p2"            # drop anything less severe
+token_env = "GITHUB_TOKEN"     # http mode only</code></pre>
+
+  <p>
+    <code>event</code> defaults to <code>COMMENT</code>, which never changes a pull
+    request's state. Approving or requesting changes on your behalf is opt-in.
+  </p>
+
+  <h3>Anchoring comments to the diff</h3>
+  <p>
+    GitHub rejects an <em>entire</em> review with a 422 if any single comment names a path
+    that is not in the pull request or a line outside its diff hunks — so a partially
+    unmappable review would otherwise post nothing at all. Roder therefore prefilters:
+    every finding is checked against the hunk spans parsed from the pull request's file
+    patches, and anything that cannot be anchored is moved into the review summary body and
+    reported in <code>skipped</code> with a reason, instead of poisoning the request.
+  </p>
+  <p>
+    Commentable lines are the full post-change span of each hunk, context lines included —
+    not just added lines. Multi-line findings emit <code>start_line</code> only when the
+    range genuinely spans more than one line, and paths are relativized to the git repo
+    root rather than the workspace root, which differ under worktree forks.
+  </p>
+
+  <div class="callout">
+    <strong>Preview before you post.</strong> <code>dryRun: true</code> on
+    <code>review/publish</code> returns the exact JSON payload GitHub would receive,
+    including the prefilter's decisions, without making any network call.
+  </div>
+
+  <h2>Over the app server</h2>
+  <p>
+    Three methods and four notifications expose the same flow to any client.
+    <code>review/start</code> takes a <code>threadId</code>, a <code>target</code>, and a
+    <code>delivery</code> of <code>inline</code> (await the findings) or
+    <code>detached</code> (return immediately and receive them as events).
+  </p>
+
+  <pre><code>&#123;
+  "method": "review/start",
+  "params": &#123;
+    "threadId": "thread-123",
+    "target": &#123; "kind": "baseBranch", "branch": "main" &#125;,
+    "delivery": "detached"
+  &#125;
+&#125;
+
+// -> &#123; "turnId": "…", "reviewId": "…", "reviewThreadId": "…" &#125;
+// -> review/started notification
+// -> review/completed notification, carrying the parsed findings</code></pre>
+
+  <p>
+    <code>review/publish</code> submits a stored review by <code>reviewId</code>, optionally
+    narrowed to <code>findingIndexes</code>, and <code>review/publishers/list</code>
+    enumerates installed publishers and their capabilities. Notifications are
+    <code>review/started</code>, <code>review/completed</code>,
+    <code>review/failed</code>, and <code>review/published</code>.
+  </p>
+
+  <h2>Adding another platform</h2>
+  <p>
+    Supporting a different review platform is three mechanical steps and touches no shared
+    crate:
+  </p>
+  <ol>
+    <li>
+      Add a <code>crates/roder-ext-&lt;platform&gt;-review</code> crate implementing
+      <code>ReviewPublisher</code> and parsing its own
+      <code>[review.publishers.&lt;id&gt;]</code> block.
+    </li>
+    <li>Hand that block to the crate from the extension host's review module.</li>
+    <li>Install it in the default registry.</li>
+  </ol>
+  <p>
+    Nothing in the API types, core, protocol, app server, or TUI changes.
+    <code>review/publishers/list</code> picks the new publisher up automatically and
+    <code>--publish &lt;id&gt;</code> can select it.
+  </p>
+</DocsLayout>
