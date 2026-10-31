@@ -58,7 +58,7 @@ Do not describe uncommitted application work as released.
 - [x] Build the production site and check local route/fragment/asset links.
 - [x] Smoke-test new guides and changelog pages in a browser.
 - [x] Review the release diff and exclude local browser artifacts.
-- [ ] Release via GitHub Pages and verify the deployed commit and public routes.
+- [x] Release via GitHub Pages and verify the deployed commit and public routes.
 
 ## Release authority
 
@@ -82,3 +82,10 @@ work, rewrite remote history, or claim deployment before GitHub reports success.
   tracked trees differ only in the provider page, whose newer catalog content is
   preserved by this update. Release from a separate worktree based on remote
   `master`; do not force-push or rewrite the user's checkout.
+- Site release commit: `7d4dfe615ac23e0da0b83268b57e00375a52f744`.
+  [GitHub Pages deployment 41153664216](https://github.com/RoderAI/roder-site/actions/runs/41153664216)
+  completed successfully.
+- Live `https://roder.sh` verification: the same 28 route/viewport checks passed
+  with no broken images, horizontal overflow, or page errors. Mobile navigation
+  toggles correctly. Seven targeted content probes confirmed the new guides,
+  current ACP instructions, and CLI 0.4.5 release text rather than stale pages.
