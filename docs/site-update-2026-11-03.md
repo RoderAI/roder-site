@@ -21,7 +21,7 @@ Do not promote dirty application experiments.
   direct xAI/SuperGrok Grok 4.7 default.
 - [x] Verify production build, internal references, and representative browser flows.
 - [x] Integrate on current remote master without changing the dirty original checkout.
-- [ ] Merge, deploy, and verify live routes and content.
+- [x] Merge, deploy, and verify live routes and content.
 
 ## Sources
 
@@ -59,3 +59,19 @@ publishing requires renewed explicit approval.
 - Approved content was copied into a fresh remote-master-based release branch,
   with concurrent-upstream checks and no deletion of the original checkout's
   already-released untracked files.
+
+## Released and verified
+
+- [PR #3](https://github.com/RoderAI/roder-site/pull/3) merged as
+  `cb24af45229b37097e48e1eaa123cdf104112a3f`.
+- [GitHub Pages run 41761194267](https://github.com/RoderAI/roder-site/actions/runs/41761194267)
+  built and deployed successfully.
+- The same 48 browser checks passed on `https://roder.sh`; seven additional
+  content checks confirmed the new homepage, Harness page, CLI 0.4.6/0.4.7
+  articles, provider setup, OpenRouter snapshot, and browser gate instructions.
+- Native recurring maintenance was saved and read back at 259,200 seconds,
+  enabled, with overlapping runs forbidden and missed runs coalesced. The user
+  explicitly accepted activation on the next Desktop restart; a fresh app-server
+  startup confirmed the enabled persisted scheduler configuration. Existing
+  Desktop sessions require that restart, and the owning app must remain running.
+  Private machine configuration and automation identifiers are not committed here.

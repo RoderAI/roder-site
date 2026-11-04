@@ -1,6 +1,6 @@
 # Harness and Desktop positioning iteration
 
-Status: user approved integration and release; current release evidence is in
+Status: merged and deployed with PR #3; current release evidence is in
 `site-update-2026-11-03.md`.
 
 ## Direction
