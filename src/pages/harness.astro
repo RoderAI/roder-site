@@ -1,0 +1,226 @@
+---
+import Layout from "../layouts/Layout.astro";
+import HarnessStack from "../components/HarnessStack.astro";
+import "../styles/product.css";
+import "../styles/harness.css";
+
+const responsibilities = [
+  {
+    label: "Run the turn",
+    title: "Keep the model and tools in a working loop.",
+    body: "Assemble context, stream inference, execute tool calls, return results, and handle cancellation. Provider-specific wire formats stay in their adapters.",
+    href: "/docs/architecture/",
+    link: "Runtime architecture",
+  },
+  {
+    label: "Control execution",
+    title: "Apply policy before an action runs.",
+    body: "Route tools through permissions, approvals, and workspace boundaries. Choose the execution runner for the distribution or task; remote execution has its own setup and limits.",
+    href: "/docs/tools/",
+    link: "Tools and policy",
+  },
+  {
+    label: "Preserve the work",
+    title: "Keep a record beyond the current request.",
+    body: "Persist threads, tool results, and compaction boundaries. Expose typed events so clients can render progress and integrations can inspect or evaluate what happened.",
+    href: "/docs/sessions/",
+    link: "Sessions and state",
+  },
+  {
+    label: "Coordinate agents",
+    title: "Give delegated work an explicit lifecycle.",
+    body: "Start teammates, send context, assign follow-up turns, wait for results, and interrupt without deleting their identity. Use owned worktrees when supported and appropriate.",
+    href: "/docs/agent-control/",
+    link: "Agent control",
+  },
+];
+
+const extensionPoints = [
+  ["Inference", "Connect model providers through canonical requests and streaming events.", "/docs/providers/"],
+  ["Tools", "Register coding, browser, media, MCP, or domain-specific capabilities.", "/docs/tools/"],
+  ["Context and memory", "Choose how the agent assembles context and retrieves project knowledge.", "/docs/memories/"],
+  ["Storage and events", "Provide session storage and event sinks for your product or evaluation setup.", "/docs/event-bus/"],
+  ["Execution", "Use local execution or a configured runner for sandboxed coding tools.", "/docs/blaxel-runner/"],
+];
+
+const integrationPaths = [
+  {
+    title: "Build a client",
+    body: "Use the app server to start turns, stream events, answer approvals, and read thread history. The TypeScript SDK offers a client integration path.",
+    href: "/docs/app-server/",
+    link: "App-server protocol",
+    tag: "JSON-RPC / SDK",
+  },
+  {
+    title: "Add capabilities",
+    body: "Implement extension contracts in Rust, attach MCP tools, or connect a process extension over stdio. Keep your integration at the boundary it needs.",
+    href: "/docs/extensibility/",
+    link: "Extension model",
+    tag: "Rust / MCP / processes",
+  },
+  {
+    title: "Run and evaluate",
+    body: "Start from the CLI for headless work, connect an ACP-compatible editor, or use the evaluation harness and its run artifacts to inspect behavior.",
+    href: "/docs/evals/",
+    link: "Evaluation setup",
+    tag: "CLI / ACP / evals",
+  },
+];
+---
+
+<Layout
+  title="The Roder harness · build on an open coding-agent runtime"
+  description="Roder is an open Rust harness for model orchestration, tools, policy, state, and agent coordination. Use its clients or build your own product on the runtime."
+  canonicalPath="/harness/"
+  image="/og/harness.png"
+>
+  <div class="product-page harness-page">
+    <section class="product-container product-hero harness-hero">
+      <div>
+        <p class="product-kicker">The Roder harness</p>
+        <h1>Build the agent.<br />Reuse the harness<span class="product-accent">.</span></h1>
+        <p class="product-lead">
+          An open Rust runtime for the work between a model request and a
+          completed agent task.
+        </p>
+        <p class="harness-hero-detail">
+          Roder manages turns, tools, policy, context, and persistent state. Use
+          its Desktop and terminal clients, or bring your own interface and
+          capabilities.
+        </p>
+        <div class="product-actions">
+          <a class="product-button product-button-primary" href="/docs/install/">Run the harness <span aria-hidden="true">→</span></a>
+          <a class="product-button" href="#build">Build on Roder <span aria-hidden="true">↓</span></a>
+        </div>
+        <p class="product-fineprint">Open source. Alpha APIs. A runtime, not a hosted inference subscription.</p>
+      </div>
+      <div class="harness-hero-diagram">
+        <HarnessStack />
+      </div>
+    </section>
+
+    <section class="harness-definition">
+      <div class="product-container">
+        <p class="product-kicker">What is a harness?</p>
+        <p>
+          The model decides what to try next. The harness supplies context, routes
+          tool calls, applies policy, records results, and keeps the task moving
+          across requests. Roder makes that layer reusable across clients and
+          model providers.
+        </p>
+      </div>
+    </section>
+
+    <section class="product-container product-section" aria-labelledby="runtime-work">
+      <div class="product-section-heading">
+        <p class="product-kicker">Runtime responsibilities</p>
+        <h2 id="runtime-work">The parts you would otherwise<br />have to wire together.</h2>
+        <p>
+          Start with a coding-agent runtime, then choose which providers, tools,
+          and storage your distribution includes.
+        </p>
+      </div>
+      <div class="harness-responsibilities">
+        {responsibilities.map((item, index) => (
+          <article>
+            <div class="harness-responsibility-label">
+              <span class="product-index">0{index + 1}</span>
+              <span>{item.label}</span>
+            </div>
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.body}</p>
+              <a class="product-text-link" href={item.href}>{item.link} <span aria-hidden="true">→</span></a>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="harness-extension-band">
+      <div class="product-container product-section harness-extension-grid">
+        <div class="product-section-heading">
+          <p class="product-kicker">Extension-first</p>
+          <h2>Choose what surrounds<br />the core.</h2>
+          <p>
+            The core owns lifecycle and event semantics. Extensions provide the
+            integrations. You can change those integrations without making the
+            core depend on a particular model vendor or product UI.
+          </p>
+          <a class="product-text-link" href="/extensions/">Explore the extension directory <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="harness-extension-list">
+          {extensionPoints.map(([title, body, href]) => (
+            <a href={href}>
+              <h3>{title}</h3>
+              <p>{body}</p>
+              <span aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="product-container product-section" id="build" aria-labelledby="build-heading">
+      <div class="product-section-heading">
+        <p class="product-kicker">Integration paths</p>
+        <h2 id="build-heading">Bring the part that makes<br />your agent yours.</h2>
+      </div>
+      <div class="harness-build-grid">
+        {integrationPaths.map((path) => (
+          <article>
+            <span class="product-index">{path.tag}</span>
+            <h3>{path.title}</h3>
+            <p>{path.body}</p>
+            <a class="product-text-link" href={path.href}>{path.link} <span aria-hidden="true">→</span></a>
+          </article>
+        ))}
+      </div>
+      <div class="harness-quickstart">
+        <div>
+          <h3>Start with the distribution.</h3>
+          <p>
+            Install the CLI to try the runtime and its bundled extensions.
+            Configure a provider before starting model work.
+          </p>
+          <a class="product-text-link" href="/docs/install/">Installation and authentication <span aria-hidden="true">→</span></a>
+        </div>
+        <pre aria-label="Install Roder and start the app server"><code>{`npm install -g @roderai/roder
+roder app-server`}</code></pre>
+      </div>
+      <p class="product-fineprint">
+        The app server speaks JSON-RPC over stdio; it is not an HTTP chat endpoint.
+        Read the initialization and turn lifecycle before writing a client.
+        Public APIs are still evolving, so pin compatible versions. A tool or
+        provider is available only when the distribution configures and exposes it.
+      </p>
+    </section>
+
+    <section class="harness-client-band">
+      <div class="product-container product-section harness-client-grid">
+        <div>
+          <p class="product-kicker">Use the harness today</p>
+          <h2>You do not need to build<br />a client to use Roder.</h2>
+          <p>
+            Desktop adds project threads, workspace panels, local issues, and
+            persistent agents around the harness. The CLI keeps coding work in
+            your terminal. Both provide a way to try the foundation before
+            integrating it into your own product.
+          </p>
+          <div class="product-actions">
+            <a class="product-button product-button-primary" href="/desktop/">Explore Desktop <span aria-hidden="true">↗</span></a>
+            <a class="product-button" href="/cli/">See the CLI <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+        <aside>
+          <h3>Inspect the design and evidence.</h3>
+          <a href="/docs/architecture/">Runtime architecture <span aria-hidden="true">→</span></a>
+          <a href="/evals/">Published evaluation results <span aria-hidden="true">→</span></a>
+          <a href="/mission/">Design principles <span aria-hidden="true">→</span></a>
+          <a href="https://github.com/RoderAI/roder" rel="noopener noreferrer">Source code <span aria-hidden="true">↗</span></a>
+          <p>Evaluation results describe specific configurations, not a guarantee for every model or task.</p>
+        </aside>
+      </div>
+    </section>
+  </div>
+</Layout>

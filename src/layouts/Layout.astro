@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import "../styles/nav.css";
+import "../styles/product-navigation.css";
 import { buildSeo, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH, SITE_NAME, type SeoType } from "../lib/seo";
 
 export interface Props {
@@ -18,7 +19,7 @@ export interface Props {
 
 const {
   title,
-  description = "Roder is reusable Rust infrastructure for building, evaluating, and embedding coding agents.",
+  description = "Roder is an open Rust harness for coding agents, with desktop and terminal clients for real project work.",
   canonicalPath,
   image,
   imageAlt,
@@ -42,16 +43,19 @@ const seo = buildSeo({
 });
 
 const navItems = [
-  { href: "/cli/", label: "CLI" },
+  { href: "/harness/", label: "Harness" },
   { href: "/desktop/", label: "Desktop" },
+  { href: "/cli/", label: "CLI" },
   { href: "/docs/", label: "Docs" },
+  { href: "/extensions/", label: "Extensions" },
   { href: "/changelog/", label: "Changelog" },
-  { href: "/evals/", label: "Evals" },
-  { href: "/mission/", label: "Mission" },
+  { href: "https://github.com/RoderAI/roder", label: "GitHub", external: true },
+];
+const resourceLinks = [
   { href: "/docs/architecture/", label: "Architecture" },
-  { href: "/docs/extensibility/", label: "Extensions" },
+  { href: "/mission/", label: "Design principles" },
+  { href: "/evals/", label: "Evaluation results" },
   { href: "/contact/", label: "Contact" },
-  { href: "https://github.com/roderai/roder", label: "GitHub", external: true },
 ];
 ---
 
@@ -102,19 +106,20 @@ const navItems = [
         <a class="brand" href="/"><img src="/roder-icon.png" alt="" /> <span>Roder</span></a>
         <nav class="nav-links" aria-label="Primary">
           {navItems.map((item) => (
-            <a href={item.href} rel={item.external ? "noopener noreferrer" : undefined}>{item.label}</a>
+            <a href={item.href} aria-current={Astro.url.pathname === item.href ? "page" : undefined} rel={item.external ? "noopener noreferrer" : undefined}>{item.label}</a>
           ))}
         </nav>
-        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false" data-nav-toggle>
+        <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="site-navigation" data-nav-toggle>
           <span></span>
           <span></span>
         </button>
       </div>
-      <div class="nav-overlay" aria-hidden="true" data-nav-overlay>
+      <div class="nav-overlay" id="site-navigation" aria-hidden="true" inert data-nav-overlay>
         <nav class="nav-overlay-links" aria-label="Mobile navigation">
           {navItems.map((item, index) => (
             <a
               href={item.href}
+              aria-current={Astro.url.pathname === item.href ? "page" : undefined}
               rel={item.external ? "noopener noreferrer" : undefined}
               style={`--nav-delay: ${120 + index * 55}ms`}
             >
@@ -128,8 +133,15 @@ const navItems = [
       <slot />
     </main>
     <footer class="site-footer">
-      <div class="container">
-        Roder &middot; alpha software &middot; reusable runtime infrastructure for coding agents
+      <div class="container product-footer">
+        <div>
+          <a class="product-footer-brand" href="/">Roder</a>
+          <p>The open coding-agent harness.<br />Desktop and terminal clients, built on Rust.</p>
+          <span>Alpha software. Open source.</span>
+        </div>
+        <nav aria-label="Resources">
+          {resourceLinks.map((item) => <a href={item.href}>{item.label}</a>)}
+        </nav>
       </div>
     </footer>
     <script is:inline>
@@ -142,6 +154,7 @@ const navItems = [
         toggle?.setAttribute("aria-expanded", String(isOpen));
         toggle?.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
         overlay?.setAttribute("aria-hidden", String(!isOpen));
+        if (overlay) overlay.inert = !isOpen;
         document.body.classList.toggle("nav-open", isOpen);
       };
 
@@ -154,7 +167,13 @@ const navItems = [
       });
 
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") setMenuOpen(false);
+        if (event.key === "Escape" && header?.classList.contains("is-open")) {
+          setMenuOpen(false);
+          toggle?.focus();
+        }
+      });
+      window.matchMedia("(min-width: 901px)").addEventListener("change", (event) => {
+        if (event.matches) setMenuOpen(false);
       });
     </script>
   </body>

@@ -25,7 +25,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     <li><code>roder-ext-claude-code</code> - the local Claude Code CLI, with resumable sessions and optional Claude-in-Chrome browser tools.</li>
     <li><code>roder-ext-gemini</code> - Gemini through the configured Google-compatible API-key path, including Gemini 3.8 Flash and Gemini 3.7 Flash.</li>
     <li><code>roder-ext-vertex</code> - Gemini-on-Vertex through service-account OAuth and regional Vertex AI endpoints, including the same Flash catalog.</li>
-    <li><code>roder-ext-xai</code> - SuperGrok OAuth and direct xAI API-key inference, with Grok 4.6 as the default model.</li>
+    <li><code>roder-ext-xai</code> - SuperGrok OAuth and direct xAI API-key inference, with Grok 4.7 as the default model.</li>
     <li><code>roder-ext-cursor</code> - Cursor Composer and proxied frontier models, including Grok 4.6, Gemini 3.7 Flash, and Claude Fable 5.1, through Cursor AgentService.</li>
     <li><code>roder-ext-kimi-code</code> - Kimi Code through subscription OAuth or API-key auth.</li>
     <li><code>roder-ext-openrouter</code> - OpenRouter API-key provider, defaulting to the <code>x-ai/grok-4.6</code> route.</li>
@@ -159,10 +159,19 @@ RODER_PROVIDER=supergrok RODER_MODEL=grok-4.6 cargo run -p roder-cli</code></pre
   <p>
     OpenRouter is a first-class provider id. The built-in catalog includes
     {" "}<code>x-ai/grok-4.6</code>, a 500k-context Grok route that supports tools,
-    structured outputs, image input, compaction, and patch-style edits. Roder keeps the
+    structured outputs, image input, client-side compaction, and patch-style edits. Roder keeps the
     OpenRouter model slug intact, so clients should keep provider and model fields separate
     instead of splitting every model id on <code>/</code>. Its reasoning options are
     {" "}<code>none</code>, <code>low</code>, <code>medium</code>, and <code>high</code>.
+  </p>
+  <p>
+    The catalog also includes <code>deepseek/deepseek-v4.1-flash-1017</code>, the
+    October 17 DeepSeek V4.1 Flash snapshot. It has a 1,048,576-token context
+    window, image input, tools, and structured output. Reasoning defaults to
+    <code>high</code>, with <code>none</code>, <code>low</code>,
+    <code>medium</code>, and <code>high</code> available. These OpenRouter routes
+    use Roder's client-side compaction, not Responses-native server compaction.
+    See the <a href="/docs/openrouter/#deepseek-flash-1017">snapshot setup</a>.
   </p>
 
   <h2>roder.cloud and Vertex</h2>
@@ -292,9 +301,86 @@ roder memory providers set zeroentropy --model zembed-1</code></pre>
     <strong>Provider-specific APIs stay outside the core.</strong> Responses, Messages,
     Gemini, Claude Code, Cursor AgentService, OpenRouter, Fireworks, and chat-completions shapes are adapter details, not runtime types.
   </div>
-  <h2>Custom Responses endpoint capabilities</h2>
+  <h2 id="custom-chat-completions">Custom Chat Completions endpoints</h2>
   <p>
-    Custom Responses-compatible providers can declare native V2 compaction and a
+    CLI 0.4.7 adds native Rust Chat Completions transport for custom inference
+    providers. Use it for an OpenAI-compatible endpoint that serves
+    <code>/chat/completions</code> rather than <code>/responses</code>. Set
+    <code>protocol = "chat_completions"</code> explicitly; omitting the protocol
+    keeps the existing Responses transport.
+  </p>
+  <p>
+    Add a uniquely named provider to <code>~/.roder/config.toml</code>. Use the API
+    root for <code>base_url</code>, not the full completion URL: Roder appends
+    <code>/chat/completions</code>. This example uses an environment variable for
+    the endpoint's API key, sent as a Bearer credential. Supply the real key in
+    your environment; the configuration stores its variable name.
+  </p>
+  <pre><code>{`[providers.my_chat_endpoint]
+base_url = "https://chat.example/v1"
+api_key_env = "MY_CHAT_ENDPOINT_API_KEY"
+protocol = "chat_completions"
+models = ["my-chat-model"]
+context_window = 16384
+tool_allowlist = ["read_file", "grep", "glob", "apply_patch", "shell"]`}</code></pre>
+  <p>
+    Replace the example URL and model ID with your deployment's values, then
+    select the provider and model for a session:
+  </p>
+  <pre><code>RODER_PROVIDER=my_chat_endpoint RODER_MODEL=my-chat-model roder</code></pre>
+  <ul>
+    <li>
+      <code>models</code> lists exact IDs accepted by the endpoint. It is optional:
+      when omitted or empty, Roder discovers models from <code>/models</code>.
+      Explicit IDs are useful when that route is unavailable or incomplete.
+    </li>
+    <li>
+      <code>context_window</code> is the deployed backend's actual token limit,
+      shared by this provider's models. Roder uses it for model metadata and prompt
+      budgeting. A model's advertised maximum may exceed the server's configured
+      limit; this setting does not enlarge that limit.
+    </li>
+    <li>
+      <code>tool_allowlist</code> limits the tool schemas sent to this provider,
+      reducing prompt overhead for small-context models. Entries are exact Roder
+      tool names. Omit it or use an empty list to leave schemas unfiltered.
+    </li>
+  </ul>
+  <div class="callout">
+    <strong>A schema allowlist is not an execution permission boundary.</strong>
+    Normal tool approval and access policies still apply. These settings affect
+    only this custom provider; they neither switch the main model nor change
+    other providers. Select the provider explicitly where you want to use it.
+  </div>
+  <h3>Streaming, tools, and endpoint limits</h3>
+  <p>
+    The native adapter streams assistant output and assembles streamed tool calls
+    into canonical Roder requests. Roder executes approved calls through its
+    normal runtime and sends their results back in subsequent model requests.
+    The endpoint must support compatible streaming and tool-call round trips;
+    configuring the protocol cannot add those abilities to a model or server.
+  </p>
+  <p>
+    This custom adapter does not advertise image input, prompt caching, or
+    provider-native tool search. The Responses capability settings below do not
+    enable Responses-native compaction or hosted search on Chat Completions.
+    Built-in provider IDs retain their own transport: use a distinct custom ID
+    rather than trying to replace a built-in by changing its protocol.
+  </p>
+  <p>
+    Start by checking a streamed answer, then an approved tool call and its
+    follow-up answer against your endpoint. If requests exceed its context,
+    check the deployed limit and reduce the schemas with
+    <code>tool_allowlist</code>; do not treat fewer schemas as a substitute for
+    access policy. See the
+    <a href="https://github.com/RoderAI/roder/blob/roder/v0.4.7/docs/custom-responses-providers.md">released custom-provider contract</a>
+    for the canonical configuration.
+  </p>
+
+  <h2 id="custom-responses">Custom Responses endpoint capabilities</h2>
+  <p>
+    Existing custom Responses providers keep their defaults in CLI 0.4.7; no
+    protocol change is required. Responses-compatible providers can declare native V2 compaction and a
     hosted-web access ceiling. These settings constrain requests; they do not grant
     extra tools or permissions.
   </p>

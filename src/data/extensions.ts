@@ -28,8 +28,8 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-openai-chat-completions",
         provides: ["InferenceEngine(openai-chat-completions)"],
-        how: "Streams the classic OpenAI Chat Completions API (/v1/chat/completions) through a shared stream_chat_completions helper. Not wired into the default host; mainly consumed as a library by other providers such as Xiaomi MiMo.",
-        install: "Opt-in",
+        how: "Shared native Rust Chat Completions transport for streaming answers and tool-call round trips. Used by Xiaomi MiMo and, from CLI 0.4.7, custom providers configured with protocol = \"chat_completions\". Custom provider configuration can supply model IDs, deployed context limits, and tool-schema allowlists; normal execution policy still applies.",
+        install: "Library · custom provider transport",
       },
       {
         crate: "roder-ext-anthropic",
@@ -82,7 +82,7 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-openrouter",
         provides: ["InferenceEngine(openrouter)"],
-        how: "OpenRouter API-key provider built on the OpenAI Responses engine, defaulting to the x-ai/grok-4.6 route with optional HTTP-Referer and X-Title attribution headers. Routes by price unless configured otherwise, supports per-model upstream routing and service tiers, and sends a stable conversation key for sticky routing and prompt caching.",
+        how: "OpenRouter API-key provider built on the OpenAI Responses engine, defaulting to x-ai/grok-4.6 and including the DeepSeek V4.1 Flash 1017 snapshot. Supports client-side compaction, optional attribution headers, price-first or per-model upstream routing and service tiers, and a stable conversation key for sticky routing and prompt caching.",
         install: "Default · needs key",
       },
       {
@@ -298,7 +298,7 @@ export const categories: ExtensionCategory[] = [
       {
         crate: "roder-ext-jev",
         provides: ["ToolProvider(jev)"],
-        how: "Runs bounded browser goals in a thread-scoped Chrome session through Jev or OpenAI Decisions. Returns semantic DOM evidence, action effects and optional completion verification; opt-in DOM/image profiles preserve approvals, origin restrictions and secret handling.",
+        how: "Runs bounded browser goals in a thread-scoped Chrome session through Jev or OpenAI Decisions. Returns semantic DOM evidence, action effects, saved download results and optional completion verification. Request-aware waits, bounded frame reads and shared form-value generation reduce repeated work; opt-in DOM/image profiles retain approvals, origin restrictions and secret handling.",
         install: "Default · needs browser and decision credentials",
       },
       {

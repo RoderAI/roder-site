@@ -5,7 +5,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 <DocsLayout
   title="OpenRouter"
   eyebrow="Providers"
-  description="Configure Roder's OpenRouter provider and Grok 4.6 model route."
+  description="Configure OpenRouter models, DeepSeek Flash snapshots, upstream routing, and service tiers in Roder."
   prev={{ href: "/docs/memories/", title: "Memory & embeddings" }}
   next={{ href: "/docs/tools/", title: "Tools & policy" }}
 >
@@ -14,7 +14,25 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     built-in model route is <code>x-ai/grok-4.6</code>, surfaced in Roder as
     <code>openrouter/x-ai/grok-4.6</code> when selected from provider/model shorthand.
     The route has a 500k context window, auto-compacts near 450k tokens, and advertises
-    tool use, structured outputs, image input, compaction, and patch-style edits.
+    tool use, structured outputs, image input, and patch-style edits. Compaction
+    runs on Roder's client side; this route does not advertise Responses-native
+    server compaction.
+  </p>
+
+  <h2 id="deepseek-flash-1017">DeepSeek V4.1 Flash 1017</h2>
+  <p>
+    CLI 0.4.6 and later include the October 17, 2026 DeepSeek Flash snapshot as
+    <code>deepseek/deepseek-v4.1-flash-1017</code>. Select it explicitly; it does
+    not replace OpenRouter's default Grok route.
+  </p>
+  <pre><code>RODER_PROVIDER=openrouter RODER_MODEL=deepseek/deepseek-v4.1-flash-1017 roder</code></pre>
+  <p>
+    The catalog declares a 1,048,576-token context window, image input, tool use,
+    and structured output. Reasoning defaults to <code>high</code>; supported
+    efforts are <code>none</code>, <code>low</code>, <code>medium</code>, and
+    <code>high</code>, not <code>max</code>. Roder uses client-side compaction
+    near 943,718 tokens. Actual model access and upstream availability still
+    depend on your OpenRouter account and routing choices.
   </p>
 
   <h2>API key setup</h2>

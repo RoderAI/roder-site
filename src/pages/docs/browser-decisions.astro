@@ -104,6 +104,43 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
     same call with the same scope, secrets, approvals, and action gates.
   </p>
 
+  <h2>Waiting, forms and downloads in CLI 0.4.6</h2>
+  <p>
+    After an action starts fetch or XHR work without changing the page, Jev waits
+    for the response and rendering within the existing 2.5-second settle cap.
+    Observation scripts are installed once per document. Cross-origin frame reads
+    reuse sessions and have a five-second deadline, with shorter retries after a
+    miss. Reading a frame does not grant general control of its elements.
+    Recognized self-clearing interstitials can be waited out; access refusals still stop.
+  </p>
+  <p>
+    Eligible forms can generate values for several empty text fields in one helper
+    call. Each field still requires its own decision, and a prepared value is reused
+    only while the field is unchanged and empty. Actions that may submit discard
+    unused values. Forms with passwords or one-time codes keep single-field handling.
+  </p>
+  <p>
+    Exports from Jev's tabs are saved under the temporary <code>jev-downloads</code>
+    directory. Inspect <code>downloads</code> and the tool result's “Files Jev
+    downloaded” section for names, saved paths, sizes and incomplete or repeated
+    status. Readable text files include a bounded preview. Identical repeated downloads
+    do not count as new progress. A starting URL that is itself a file and downloads
+    in newly opened tabs not yet adopted by Jev remain outside this handling.
+  </p>
+  <p>
+    The irreversible-action gate is off by default. Enable it for built-in tools with
+    <code>JEV_CONFIRM_IRREVERSIBLE=1</code>. With it enabled, broader commitment checks
+    use labels, link destinations, surrounding context and form submissions, with
+    explicit handling for new-password submissions. A goal
+    forbidding downloads still blocks them even when irreversible actions are
+    authorized. These checks have limits: keep the goal explicit and verify results.
+    The confidence-based consult and light-recovery options
+    (<code>JEV_CONSULT_BELOW</code>, <code>JEV_LIGHT_RECOVERIES</code>) remain off by
+    default; full fallback remains the production policy.
+    See the <a href="https://github.com/RoderAI/roder/blob/roder/v0.4.6/docs/jev-browser.md">0.4.6 browser contract</a>
+    for the released behavior and evaluation details.
+  </p>
+
   <h2>Choose a decision backend</h2>
   <p>
     Jev uses the TypeSafe decision service with <code>JEV_API_KEY</code>. The default
@@ -177,8 +214,8 @@ roder`}</code></pre>
   <p>
     Full fallback remains the production policy for browser research. The smaller
     one-tool rescue followed by native hand-back is an evaluation-only experiment,
-    not a production setting to enable. Native Decisions research still has documented
-    failures, including a completion claim after a forbidden write. These results do
+    not a production setting to enable. The retained 0.4.5 native Decisions research evaluation documented
+    failures, including a completion claim after a forbidden write. Those results do
     not establish reliable native-only completion: inspect supporting evidence and
     the observed outcome, and retain approval and action boundaries.
   </p>

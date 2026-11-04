@@ -1,0 +1,108 @@
+.cli-page .cli-kicker {
+  display: block;
+  margin-bottom: 1rem;
+  color: var(--cli-orange-dark);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.cli-page .cli-product-links {
+  margin-top: 1.5rem;
+  font-size: 0.92rem;
+}
+
+.cli-page .cli-product-links a,
+.cli-page .cli-text-link {
+  color: var(--cli-orange-dark);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.cli-page .cli-text-link {
+  display: inline-block;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.cli-page .cli-product-grid,
+.cli-page .cli-workflow-map {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cli-page .cli-workflow-map {
+  display: grid;
+  gap: 1.5rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cli-workflow-map li {
+  padding-top: 1.25rem;
+  border-top: 2px solid var(--cli-orange);
+}
+
+.cli-step-number {
+  color: var(--cli-orange-dark);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.cli-workflow-map h3 {
+  margin: 0.7rem 0 0;
+  color: var(--cli-ink);
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.cli-workflow-map p {
+  margin: 0.7rem 0 0;
+  color: var(--cli-muted);
+  font-size: 0.96rem;
+  line-height: 1.6;
+}
+
+.cli-page .cli-integration-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.cli-integration-links a {
+  color: #ff9f76;
+  font-size: 0.93rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.cli-page a:focus-visible {
+  outline: 2px solid var(--cli-orange);
+  outline-offset: 4px;
+}
+
+@media (max-width: 980px) {
+  .cli-page .cli-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cli-page .cli-workflow-map {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .cli-page .cli-product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.cli-page {
+  --cli-orange: #c43b00;
+  --cli-orange-dark: #ad3100;
+}
