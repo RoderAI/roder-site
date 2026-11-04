@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import "../styles/roder-cli.css";
+import "../styles/cli-product.css";
 
 const installCommands = [
   {
@@ -27,48 +28,76 @@ const installCommands = [
 
 const featureCards = [
   {
-    title: "Generate and revise images",
-    body: "Use GPT Image 2.5 Flare or Sunburst through the media CLI, TUI and shared artifact workflow. OpenAI image generation uses an API key with separate API billing.",
+    title: "Choose the model for the task",
+    body: "Use built-in providers or a custom compatible endpoint. Switch models within a thread while Roder keeps the workspace, tool history and policy state.",
+    href: "/docs/providers/",
+    link: "Providers and model setup",
   },
   {
-    title: "Work through browser goals",
-    body: "Use Jev or OpenAI Decisions with a shared Chrome session, semantic page evidence and opt-in DOM profiles. Check explicit success conditions against the observed page.",
+    title: "Resume or explore another path",
+    body: "Reopen saved work with its transcript and settings. Use /fork for a child conversation in a separate workspace, retaining the original thread. The default Git provider requires a clean, committed checkout.",
+    href: "/docs/sessions/",
+    link: "How thread state is saved",
   },
   {
-    title: "Switch models and recover failed input",
-    body: "Continue threads across SuperGrok, OpenAI and Codex with compatible history replay. Model selection avoids a full-history load, and failed follow-ups stay available for `/retry`.",
+    title: "Delegate a part of the job",
+    body: "Give teammates scoped work, send follow-ups and inspect their results. Coding agents can use shared files or owned worktrees from a clean, committed checkout; nothing merges automatically.",
+    href: "/docs/agent-control/",
+    link: "Agents and worktree ownership",
   },
   {
-    title: "Work in any repo",
-    body: "Open Roder in a project and it attaches the run to that workspace, local config, tools, and saved thread state.",
+    title: "Choose when tools can act",
+    body: "Use plan mode to inspect and propose changes, then choose an approval policy for execution. Tool calls and delegated work pass through runtime policy rather than a separate TUI-only gate.",
+    href: "/docs/tools/",
+    link: "Tools and approval policy",
   },
   {
-    title: "Use interactive or headless mode",
-    body: "Start the terminal UI with `roder`, or run a one-shot task with `roder exec` when scripts, evals, or CI need plain output.",
+    title: "Review the patch separately",
+    body: "Run /review against local changes, a commit or a base branch. A read-only reviewer returns file- and line-linked findings; applying fixes or publishing a review stays a separate action.",
+    href: "/docs/code-review/",
+    link: "Read-only review workflow",
   },
   {
-    title: "Resume the exact run",
-    body: "Threads are saved locally, including transcript items, workspace metadata, provider/model selection, and usage.",
+    title: "Keep prompts and source intact",
+    body: "Compose multiline instructions, recover rejected input with /retry, and use /copy for original Markdown or code without terminal wrapping. Uncertain submissions are not automatically resent.",
+    href: "/docs/tui/",
+    link: "Terminal controls and recovery",
+  },
+];
+
+const toolCards = [
+  {
+    title: "Bring the project's workflow",
+    body: "Connect MCP tools and skills, and use project-local hooks around prompts, tool calls, approvals and sessions. Enable /ultra when you want proactive delegation on the current thread.",
+    href: "/docs/workflows/",
+    link: "Tools, skills and workflows",
   },
   {
-    title: "Connect clients to one runtime",
-    body: "The embedded app-server gives TUI, desktop, IDE, ACP, and eval clients a shared JSON-RPC control plane.",
+    title: "Check work in the browser",
+    body: "Use Jev or OpenAI Decisions for browser tasks with page evidence, saved download results and explicit success conditions. Request-aware waits and shared form-value generation reduce repeated work; verify the observed outcome.",
+    href: "/docs/browser-decisions/",
+    link: "Browser work and verification",
   },
   {
-    title: "Review before you ship",
-    body: "Use `/review` for a read-only review turn, pick findings in the TUI, and publish accepted comments through configured review publishers.",
+    title: "Create and inspect images",
+    body: "Generate or revise images as shared artifacts, and preview them inline in supported Kitty/Sixel terminals. Other terminals show paths and metadata. OpenAI image generation has separate API billing.",
+    href: "/docs/media-generation/",
+    link: "Media tools and providers",
+  },
+];
+
+const workflowSteps = [
+  {
+    title: "Understand the change",
+    body: "Start in your repo. Ask Roder to inspect the relevant files, explain a failure or propose a plan using the project's instructions and tools.",
   },
   {
-    title: "Turn on Ultra when work should fan out",
-    body: "`/ultra` enables proactive multi-agent delegation for the current thread without changing your provider or model selection.",
+    title: "Work with a visible trail",
+    body: "Follow streamed responses, tool activity and file diffs. Steer the next step, answer an approval request or delegate an independent task.",
   },
   {
-    title: "Honor project-local hooks",
-    body: "Run Codex-compatible `.roder/hooks.json` or `.codex/hooks.json` handlers around sessions, prompts, tool calls, approvals, compaction, and subagents; session-start setup runs once for each opened thread.",
-  },
-  {
-    title: "Compose longer prompts safely",
-    body: "Use Shift+Enter for multiline TUI prompts, with Ctrl+J and Alt+Enter fallbacks in terminals that cannot report modified Enter keys.",
+    title: "Verify and carry it forward",
+    body: "Ask for tests and a review of the patch. Inspect the evidence, then continue in the saved thread or fork a different approach.",
   },
 ];
 
@@ -113,29 +142,34 @@ const providers = [
 ---
 
 <Layout
-  title="Roder CLI - terminal coding agent"
-  description="Install the Roder CLI, run coding-agent sessions from your terminal, resume saved work, and connect provider-neutral agent infrastructure to local clients."
+  title="Roder CLI - the agent harness in your terminal"
+  description="Code, test and review from your terminal with Roder's open-source Rust harness: saved threads, model choice, delegated agents, worktrees and explicit tool policy."
   canonicalPath="/cli/"
 >
   <div class="cli-page">
     <section class="cli-hero">
       <div class="cli-container cli-hero-grid">
         <div class="cli-hero-copy">
-          <h1>Run a Rust-native coding agent from your terminal.</h1>
+          <span class="cli-kicker">Roder CLI / Open-source agent harness</span>
+          <h1>Build in your repo. Stay in your terminal.</h1>
           <p>
-            Install Roder, open it in a repo, and give it real work: inspect files,
-            edit code, run commands, call providers, resume sessions, and expose the
-            same runtime through a local app-server.
+            The terminal client for Roder's open-source Rust harness. Ask it to
+            investigate, change code, run tests and review the diff, with a saved
+            thread you can resume or fork.
           </p>
           <div class="cli-actions" aria-label="Primary actions">
-            <a class="cli-button cli-button-primary" href="#install">Install Roder</a>
-            <a class="cli-button cli-button-secondary" href="/docs/install/">Read install docs</a>
+            <a class="cli-button cli-button-primary" href="#install">Install the CLI</a>
+            <a class="cli-button cli-button-secondary" href="#workflow">See the workflow</a>
           </div>
           <ul class="cli-hero-points" aria-label="Roder CLI highlights">
-            <li>Terminal UI and non-interactive `roder exec`</li>
-            <li>Provider-neutral model labels like `openai/gpt-5.5`</li>
-            <li>`/review`, `/ultra`, local hooks, thread persistence, replay, and app-server control</li>
+            <li>Model choice with shared tools and thread state</li>
+            <li>Read-only review and owned agent worktrees</li>
+            <li>Interactive TUI, headless runs and ACP</li>
           </ul>
+          <p class="cli-product-links">
+            Prefer a visual workspace? <a href="/desktop/">Explore Desktop</a>.
+            Building a client? <a href="/harness/">Explore the harness</a>.
+          </p>
         </div>
         <figure class="cli-hero-shot">
           <img
@@ -151,74 +185,58 @@ const providers = [
       </div>
     </section>
 
-    <section class="cli-install" id="install">
+    <section class="cli-section" id="workflow">
       <div class="cli-container">
         <div class="cli-section-head">
-          <h2>Install Roder</h2>
+          <h2>From a question to a checked change.</h2>
           <p>
-            The installer downloads the latest release archive, verifies its SHA-256
-            checksum, and writes `roder` to `~/.local/bin` unless you override the
-            destination.
+            Keep the investigation, edits, commands and review in one thread.
+            Roder runs against your workspace, so you can inspect what happened
+            and decide what comes next.
           </p>
         </div>
-        <div class="install-layout">
-          <div class="install-commands">
-            {installCommands.map((item) => (
-              <article class="install-command">
-                <div>
-                  <h3>{item.title}</h3>
-                  <p>{item.note}</p>
-                </div>
-                <pre><code>{item.command}</code></pre>
-              </article>
-            ))}
-          </div>
-          <aside class="install-card" aria-label="First run checklist">
-            <h3>First run</h3>
-            <ol>
-              <li><code>export PATH="$HOME/.local/bin:$PATH"</code></li>
-              <li><code>roder auth status</code></li>
-              <li><code>cd /path/to/your/repo</code></li>
-              <li><code>roder</code></li>
-            </ol>
-            <p>
-              Keep a separate profile with `--config-dir /tmp/lab-roder` when you
-              want clean config and thread state.
-            </p>
-          </aside>
-        </div>
+        <ol class="cli-workflow-map">
+          {workflowSteps.map((step, index) => (
+            <li>
+              <span class="cli-step-number" aria-hidden="true">0{index + 1}</span>
+              <h3>{step.title}</h3>
+              <p>{step.body}</p>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
 
-    <section class="cli-section">
+    <section class="cli-section" id="features">
       <div class="cli-container">
         <div class="cli-section-head">
-          <h2>What the CLI gives you</h2>
+          <h2>A workflow that survives the next turn.</h2>
           <p>
-            Roder is the local product surface for the Rust harness: terminal UI,
-            one-shot automation, provider setup, saved sessions, and the embedded
-            control plane.
+            The harness manages more than the model request: thread state,
+            tool execution, policy and agent lifecycles. The terminal makes
+            those controls available while you work.
           </p>
         </div>
-        <div class="feature-grid">
+        <div class="feature-grid cli-product-grid">
           {featureCards.map((feature) => (
             <article class="feature-card">
               <h3>{feature.title}</h3>
               <p>{feature.body}</p>
+              <a class="cli-text-link" href={feature.href}>{feature.link}</a>
             </article>
           ))}
         </div>
       </div>
     </section>
 
-    <section class="cli-section screenshots-section" id="features">
+    <section class="cli-section screenshots-section" aria-labelledby="cli-screenshots-heading">
       <div class="cli-container">
         <div class="cli-section-head">
-          <h2>Screenshots from a real Roder session</h2>
+          <h2 id="cli-screenshots-heading">The terminal, as it runs.</h2>
           <p>
-            These captures use Ghostty. The build demo asked Roder to create a tiny
-            static product card in `~/tmp`, then resumed the saved thread and checked
-            provider/setup commands.
+            Real Ghostty captures: a small static-site build, its saved thread,
+            provider setup and the local app-server. These show the CLI itself,
+            not a simulated conversation.
           </p>
         </div>
         <div class="screenshot-grid">
@@ -238,18 +256,20 @@ const providers = [
     <section class="cli-section provider-section">
       <div class="cli-container provider-layout">
         <div>
-          <h2>Use the model and provider you prefer.</h2>
+          <h2>Choose the provider. Keep the workflow.</h2>
           <p>
-            Roder model labels use `provider/model`, and the default distribution
-            includes first-party provider integrations plus custom OpenAI-compatible
-            provider config.
+            Roder separates provider integration from the tools, saved threads
+            and approval policy you use to get work done. Use built-in integrations
+            or configure a compatible endpoint. Model capabilities and provider
+            billing still apply.
           </p>
           <div class="provider-list" aria-label="Supported provider examples">
             {providers.map((provider) => <span>{provider}</span>)}
           </div>
+          <a class="cli-text-link" href="/docs/providers/">Compare provider setup and capabilities</a>
         </div>
         <div class="config-panel">
-          <h3>Example config</h3>
+          <h3>Custom provider example</h3>
           <pre><code>{`provider = "synthetic"
 model = "syn:large:text"
 
@@ -260,24 +280,128 @@ base_url = "https://api.synthetic.new/openai/v1"`}</code></pre>
       </div>
     </section>
 
+    <section class="cli-section">
+      <div class="cli-container">
+        <div class="cli-section-head">
+          <h2>Work beyond the source file.</h2>
+          <p>
+            Bring in project-specific tools, check a browser flow or create
+            media without moving the task into an unrelated chat.
+          </p>
+        </div>
+        <div class="feature-grid cli-product-grid">
+          {toolCards.map((feature) => (
+            <article class="feature-card">
+              <h3>{feature.title}</h3>
+              <p>{feature.body}</p>
+              <a class="cli-text-link" href={feature.href}>{feature.link}</a>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+
     <section class="cli-section workflow-section">
       <div class="cli-container workflow-grid">
         <div class="workflow-copy">
-          <h2>Interactive when you want it. Scriptable when you need it.</h2>
+          <h2>Use the harness without the terminal UI.</h2>
           <p>
-            Use the full terminal UI for live development sessions. Use `roder exec`
-            for repeatable tasks, eval harnesses, and automation. Start
-            `roder app-server` when another local client should drive the same
-            runtime.
+            Run <code>roder exec</code> for scripts, evals and one-shot automation.
+            Use <code>roder acp</code> from a compatible editor or host, or start
+            the JSON-RPC app-server for a custom client. These are entry points
+            to the runtime, not separate agent implementations.
           </p>
+          <p>
+            ACP exposes the capabilities supported by that adapter; native
+            clients use the broader app-server protocol.
+          </p>
+          <div class="cli-integration-links">
+            <a href="/docs/acp/">ACP setup</a>
+            <a href="/docs/app-server/">App-server protocol</a>
+            <a href="/harness/">Harness architecture</a>
+          </div>
         </div>
         <div class="workflow-commands">
           <pre><code>{`roder
 roder resume <thread-id>
-roder exec --mode bypass "inspect this repo"
+roder exec "inspect this repo"
 roder exec resume --last "continue"
+roder acp
 roder app-server --listen stdio://
 roder media providers`}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="cli-install" id="install">
+      <div class="cli-container">
+        <div class="cli-section-head">
+          <h2>Start with the CLI.</h2>
+          <p>
+            Choose npm, Homebrew, the release installer or a source build.
+            The quick-install script verifies the release archive's SHA-256
+            checksum and writes <code>roder</code> to <code>~/.local/bin</code>
+            unless you override the destination.
+          </p>
+        </div>
+        <div class="install-layout">
+          <div class="install-commands">
+            {installCommands.map((item) => (
+              <article class="install-command">
+                <div>
+                  <h3>{item.title}</h3>
+                  <p>{item.note}</p>
+                </div>
+                <pre><code>{item.command}</code></pre>
+              </article>
+            ))}
+          </div>
+          <aside class="install-card" aria-label="First run with Codex">
+            <h3>First run with Codex</h3>
+            <ol>
+              <li><code>export PATH="$HOME/.local/bin:$PATH"</code></li>
+              <li><code>roder auth login codex</code></li>
+              <li><code>roder auth status</code></li>
+              <li><code>cd /path/to/your/repo</code></li>
+              <li><code>roder</code></li>
+            </ol>
+            <p>
+              Using another provider? <a href="/docs/providers/">Choose its authentication setup</a>.
+              See <a href="/docs/install/">installation details</a> for supported platforms.
+              Use <code>--config-dir /tmp/lab-roder</code> for a separate config
+              and thread store.
+            </p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="cli-section cli-surface-section">
+      <div class="cli-container">
+        <div class="cli-section-head">
+          <h2>One harness. Choose how you work.</h2>
+          <p>
+            The CLI is for terminal sessions and automation. Desktop adds a
+            visual workspace around Roder, while the open harness lets you
+            build your own client or distribution.
+          </p>
+        </div>
+        <div class="feature-grid cli-product-grid">
+          <article class="feature-card">
+            <h3>CLI</h3>
+            <p>Stay close to your editor, shell and repo. Work interactively or run a task from a script.</p>
+            <a class="cli-text-link" href="/docs/tui/">Learn the terminal controls</a>
+          </article>
+          <article class="feature-card">
+            <h3>Desktop</h3>
+            <p>Manage projects and threads in a visual workspace with file, diff, terminal and browser panels.</p>
+            <a class="cli-text-link" href="/desktop/">Explore Roder Desktop</a>
+          </article>
+          <article class="feature-card">
+            <h3>Harness</h3>
+            <p>Build on the Rust runtime, extensions and client protocols that power Roder's product surfaces.</p>
+            <a class="cli-text-link" href="/harness/">Explore the open harness</a>
+          </article>
         </div>
       </div>
     </section>
@@ -285,13 +409,13 @@ roder media providers`}</code></pre>
     <section class="cli-final">
       <div class="cli-container cli-final-inner">
         <div>
-          <h2>Install Roder and start in your repo.</h2>
+          <h2>Give your next change a thread.</h2>
           <p>
-            One command gets the CLI onto your path. From there, run `roder` in a
-            workspace or use `roder exec` for direct terminal automation.
+            Install Roder, choose a provider and open it in your repo.
+            Start with a question, a bug or a patch you want reviewed.
           </p>
         </div>
-        <a class="cli-button cli-button-primary" href="#install">Install Roder</a>
+        <a class="cli-button cli-button-primary" href="#install">Install the CLI</a>
       </div>
     </section>
   </div>

@@ -1,0 +1,582 @@
+.desktop-product {
+  --desktop-bg: #f5f5ef;
+  --desktop-muted: #565c56;
+  background: var(--desktop-bg);
+}
+
+.desktop-product .desktop-container {
+  width: min(1240px, calc(100% - 4rem));
+}
+
+.desktop-product h2 {
+  border: 0;
+  padding: 0;
+}
+
+.desktop-product h2,
+.desktop-product h3 {
+  text-wrap: balance;
+}
+
+.desktop-product .desktop-product-eyebrow,
+.desktop-product .desktop-product-step {
+  margin: 0 0 1.25rem;
+  color: #62695e;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+.desktop-product .desktop-hero {
+  padding: clamp(4rem, 7vw, 6.5rem) 0 4rem;
+}
+
+.desktop-product .desktop-hero-grid {
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+
+.desktop-product .desktop-hero-copy h1 {
+  font-family: var(--sans);
+  font-size: clamp(3.4rem, 5vw, 4.65rem);
+  font-weight: 600;
+  letter-spacing: -0.065em;
+  line-height: 1.02;
+}
+
+.desktop-product .desktop-hero-copy h1 span {
+  color: #a5320b;
+}
+
+.desktop-product .desktop-hero-copy > p:not(.desktop-product-eyebrow):not(.desktop-download-meta) {
+  font-size: 1.1rem;
+  line-height: 1.65;
+}
+
+.desktop-product .desktop-actions {
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+}
+
+.desktop-product .desktop-button {
+  min-height: 2.85rem;
+  border-radius: 5px;
+  font-size: 0.77rem;
+}
+
+.desktop-product .desktop-button-primary {
+  background: #c33c0c;
+  box-shadow: none;
+}
+
+.desktop-product .desktop-button-primary:hover {
+  background: #a5320b;
+}
+
+.desktop-product .desktop-download-meta {
+  font-size: 0.71rem;
+  line-height: 1.65;
+}
+
+.desktop-product .desktop-hero-points {
+  gap: 0.5rem;
+  margin-top: 1.4rem;
+  font-size: 0.83rem;
+  font-weight: 500;
+}
+
+.desktop-product .desktop-hero-points li::before {
+  width: 0.3rem;
+  height: 0.3rem;
+  background: #626e59;
+}
+
+.desktop-product .desktop-hero-shot {
+  position: relative;
+}
+
+.desktop-product .desktop-hero-shot::before {
+  position: absolute;
+  z-index: 0;
+  inset: -2.2rem -1.5rem 1.8rem 1.5rem;
+  border: 1px solid #dddcd0;
+  background: #e9e9de;
+  content: "";
+}
+
+.desktop-product .desktop-hero-shot img {
+  position: relative;
+  z-index: 1;
+  border-radius: 6px;
+  box-shadow: 0 24px 60px #1f221c24;
+}
+
+.desktop-product .desktop-hero-shot figcaption,
+.desktop-product .desktop-screenshot-card figcaption {
+  position: relative;
+  margin-top: 0.85rem;
+  color: var(--desktop-muted);
+  font-size: 0.77rem;
+  line-height: 1.65;
+}
+
+.desktop-product-foundation {
+  padding: 3.25rem 0;
+  border-top: 1px solid var(--desktop-line);
+  border-bottom: 1px solid var(--desktop-line);
+  background: #eaece4;
+}
+
+.desktop-product-foundation-grid,
+.desktop-product-project,
+.desktop-product-evidence-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: clamp(2rem, 7vw, 6rem);
+}
+
+.desktop-product-foundation h2 {
+  max-width: 22rem;
+  margin: 0;
+  font-family: var(--sans);
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
+}
+
+.desktop-product-foundation p:not(.desktop-product-eyebrow) {
+  margin: 0 0 0.85rem;
+  color: var(--desktop-muted);
+  font-size: 0.98rem;
+  line-height: 1.7;
+}
+
+.desktop-product .desktop-product-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  max-width: 100%;
+  margin-top: 0.6rem;
+  color: #354b3c;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.6;
+  text-decoration: underline;
+  text-decoration-color: #354b3c55;
+  text-underline-offset: 0.22em;
+}
+
+.desktop-product .desktop-product-link:hover {
+  color: #a5320b;
+  text-decoration-color: currentColor;
+}
+
+.desktop-product-workflows {
+  padding: 5rem 0;
+}
+
+.desktop-product-workflows-head {
+  max-width: 45rem;
+  margin-bottom: 4rem;
+}
+
+.desktop-product-workflows-head h2,
+.desktop-product-evidence h2,
+.desktop-product-mission h2,
+.desktop-product-providers h2 {
+  margin: 0;
+  color: var(--desktop-ink);
+  font-family: var(--sans);
+  font-size: clamp(2.3rem, 4vw, 3.6rem);
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 1.1;
+}
+
+.desktop-product-workflows-head > p:last-child {
+  max-width: 34rem;
+  margin-top: 1.3rem;
+  color: var(--desktop-muted);
+  font-size: 1.07rem;
+  line-height: 1.7;
+}
+
+.desktop-product-story-copy h3,
+.desktop-product-execution h3 {
+  margin: 0 0 1.1rem;
+  font-family: var(--sans);
+  font-size: clamp(1.65rem, 2.8vw, 2.55rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.17;
+}
+
+.desktop-product-story-copy > p:not(.desktop-product-step),
+.desktop-product-mission > p:not(.desktop-product-step),
+.desktop-product-execution > p:not(.desktop-product-eyebrow),
+.desktop-product-provider-grid > div > p:not(.desktop-product-eyebrow) {
+  color: var(--desktop-muted);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.desktop-product-project {
+  padding-bottom: 4rem;
+  border-bottom: 1px solid var(--desktop-line);
+}
+
+.desktop-product-project-facts,
+.desktop-product-panel-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.desktop-product-project-facts > div {
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--desktop-line);
+}
+
+.desktop-product-project-facts > div:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.desktop-product-project-facts dt,
+.desktop-product-panel-list dt {
+  margin-bottom: 0.3rem;
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+
+.desktop-product-project-facts dd,
+.desktop-product-panel-list dd {
+  margin: 0;
+  color: var(--desktop-muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.desktop-product-delegation {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: center;
+  padding-top: 4rem;
+}
+
+.desktop-product .desktop-screenshot-card {
+  min-width: 0;
+  gap: 0;
+}
+
+.desktop-product .desktop-screenshot-card img {
+  box-shadow: 0 12px 35px #1f221c1a, 0 0 0 1px #1f221c1a;
+}
+
+.desktop-product-evidence {
+  padding: 4.5rem 0;
+  color: #f3f4ee;
+  background: #232c25;
+}
+
+.desktop-product-evidence .desktop-product-step,
+.desktop-product-evidence .desktop-product-story-copy > p:not(.desktop-product-step),
+.desktop-product-evidence dd {
+  color: #c3ccbf;
+}
+
+.desktop-product-evidence h2,
+.desktop-product-evidence .desktop-product-link {
+  color: #f3f4ee;
+}
+
+.desktop-product-evidence .desktop-product-link {
+  text-decoration-color: #f3f4ee66;
+}
+
+.desktop-product-evidence .desktop-product-link:hover {
+  color: #f3f4ee;
+  text-decoration-color: currentColor;
+}
+
+.desktop-product-panel-list > div {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.7fr) minmax(0, 1.3fr);
+  gap: 1.5rem;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid #c3ccbf33;
+}
+
+.desktop-product-panel-list > div:first-child {
+  padding-top: 0;
+}
+
+.desktop-product-panel-list > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.desktop-product-continuity {
+  padding: 5rem 0;
+}
+
+.desktop-product-continuity-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: clamp(2rem, 7vw, 6rem);
+}
+
+.desktop-product-mission {
+  padding-right: 1rem;
+}
+
+.desktop-product-mission-example {
+  margin: 1.5rem 0;
+  padding: 1rem 0 1rem 1.25rem;
+  border-left: 2px solid #c33c0c;
+}
+
+.desktop-product-mission-example span {
+  color: var(--desktop-muted);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.desktop-product-mission-example blockquote {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  border: 0;
+  color: var(--desktop-ink);
+  background: none;
+  font-size: 1.2rem;
+  line-height: 1.55;
+}
+
+.desktop-product-execution {
+  padding: 2rem;
+  border: 1px solid #d5dacd;
+  background: #eaece4;
+}
+
+.desktop-product .desktop-product-note {
+  font-size: 0.84rem !important;
+  line-height: 1.7;
+}
+
+.desktop-product-providers {
+  background: #fffef9;
+}
+
+.desktop-product-provider-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: center;
+}
+
+.desktop-product .desktop-provider-list {
+  gap: 0.4rem;
+  padding: 0;
+  list-style: none;
+}
+
+.desktop-product .desktop-provider-list li {
+  margin: 0;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid #d9ded3;
+  color: #42533d;
+  background: #eef1e9;
+  font-size: 0.75rem;
+}
+
+.desktop-product-extension-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr) auto;
+  gap: 2rem;
+  align-items: baseline;
+  margin-top: 3.5rem;
+  padding-top: 1.7rem;
+  border-top: 1px solid var(--desktop-line);
+}
+
+.desktop-product-extension-row h3 {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.desktop-product-extension-row p {
+  margin: 0;
+  color: var(--desktop-muted);
+  font-size: 0.93rem;
+  line-height: 1.7;
+}
+
+.desktop-product .desktop-section-head h2,
+.desktop-product .desktop-final h2 {
+  font-family: var(--sans);
+  font-size: clamp(2rem, 3.7vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1.15;
+}
+
+.desktop-product-release-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 1.6rem 0;
+  color: #6b7366;
+  font-size: 0.85rem;
+}
+
+.desktop-product-download-details {
+  margin-top: 2rem;
+  border-top: 1px solid var(--desktop-line);
+  padding-top: 1.1rem;
+}
+
+.desktop-product-download-details summary {
+  width: fit-content;
+  color: #42533d;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.desktop-product-download-details[open] summary {
+  margin-bottom: 1.25rem;
+}
+
+.desktop-product .desktop-final-inner {
+  padding: 2rem;
+  border: 0;
+  background: #eaece4;
+}
+
+.desktop-product a:focus-visible,
+.desktop-product summary:focus-visible {
+  outline: 2px solid #a5320b;
+  outline-offset: 5px;
+}
+
+@media (max-width: 980px) {
+  .desktop-product .desktop-hero-grid,
+  .desktop-product-foundation-grid,
+  .desktop-product-project,
+  .desktop-product-delegation,
+  .desktop-product-evidence-grid,
+  .desktop-product-continuity-grid,
+  .desktop-product-provider-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .desktop-product .desktop-hero-copy h1 {
+    font-size: clamp(3.8rem, 8vw, 5.5rem);
+  }
+
+  .desktop-product .desktop-hero-copy > p,
+  .desktop-product .desktop-hero-copy h1 {
+    max-width: 40rem;
+  }
+
+  .desktop-product .desktop-hero-shot {
+    margin-top: 1rem;
+  }
+
+  .desktop-product-delegation .desktop-product-story-copy {
+    grid-row: 1;
+  }
+
+  .desktop-product-story-copy,
+  .desktop-product-mission,
+  .desktop-product-execution {
+    max-width: 45rem;
+  }
+
+  .desktop-product-execution {
+    max-width: none;
+  }
+
+  .desktop-product-extension-row {
+    grid-template-columns: 1fr 1.5fr;
+    gap: 1rem 2rem;
+  }
+
+  .desktop-product-extension-row .desktop-product-link {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .desktop-product .desktop-container {
+    width: calc(100% - 2.5rem);
+  }
+
+  .desktop-product .desktop-hero {
+    padding-top: 3rem;
+  }
+
+  .desktop-product .desktop-hero-copy h1 {
+    font-size: clamp(3rem, 12vw, 3.5rem);
+  }
+
+  .desktop-product .desktop-hero-shot::before {
+    inset: -0.8rem -0.5rem 1.8rem 0.5rem;
+  }
+
+  .desktop-product-workflows,
+  .desktop-product-continuity {
+    padding: 3.5rem 0;
+  }
+
+  .desktop-product-evidence {
+    padding: 3.5rem 0;
+  }
+
+  .desktop-product-workflows-head {
+    margin-bottom: 2.5rem;
+  }
+
+  .desktop-product-project {
+    padding-bottom: 2.5rem;
+  }
+
+  .desktop-product-delegation {
+    padding-top: 2.5rem;
+  }
+
+  .desktop-product-panel-list > div {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .desktop-product-mission {
+    padding-right: 0;
+  }
+
+  .desktop-product-execution {
+    padding: 1.4rem;
+  }
+
+  .desktop-product-extension-row {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .desktop-product-extension-row .desktop-product-link {
+    grid-column: auto;
+  }
+
+  .desktop-product .desktop-final-inner {
+    padding: 1.4rem;
+  }
+}

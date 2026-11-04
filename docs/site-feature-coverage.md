@@ -1,6 +1,6 @@
 # Site feature coverage TODO
 
-Scope: published CLI releases through `roder/v0.4.5` and Desktop through
+Scope: published CLI releases through `roder/v0.4.7` and Desktop through
 `v0.1.11`. Audit the existing site changes as well as missing documentation.
 Do not describe uncommitted application work as released.
 
@@ -14,6 +14,10 @@ Do not describe uncommitted application work as released.
 - Site: existing worktree changes are preserved and reviewed, not replaced.
 
 ## Release notes
+
+- [x] Extend coverage through CLI 0.4.6 browser execution/reporting and CLI 0.4.7
+  native custom Chat Completions providers. See `site-update-2026-11-01.md` and
+  `site-update-2026-11-03.md` for sources and current release verification.
 
 - [x] Add all 13 missing CLI articles: 0.3.20 through 0.3.26 and 0.4.0 through
   0.4.5. Verify dates and links against published releases.

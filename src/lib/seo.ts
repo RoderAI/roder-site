@@ -3,7 +3,7 @@ import type { ChangelogEntry } from "./changelog";
 export const SITE_URL = "https://roder.sh";
 export const SITE_NAME = "Roder";
 export const DEFAULT_DESCRIPTION =
-  "Roder is reusable Rust infrastructure for building, evaluating, and embedding coding agents.";
+  "Roder is an open Rust harness for coding agents, with desktop and terminal clients for real project work.";
 export const DEFAULT_OG_IMAGE = "/og/default.png";
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
@@ -47,14 +47,28 @@ export const staticOgPages: OgImageMetadata[] = [
     slug: "default",
     title: "Roder",
     description: DEFAULT_DESCRIPTION,
-    eyebrow: "Runtime infrastructure",
+    eyebrow: "Open coding-agent harness",
     accent: "orange",
   },
   {
     slug: "index",
-    title: "Runtime infrastructure for coding agents",
-    description: "Real tools, policy, state, events, replay, and one control plane for every client.",
+    title: "The open coding-agent harness and desktop",
+    description: "Choose your models, coordinate agents, and keep tools and project work in one workspace. Use Roder or build on it.",
     eyebrow: "Roder",
+    accent: "orange",
+  },
+  {
+    slug: "harness",
+    title: "Build the agent. Reuse the harness.",
+    description: "An open Rust runtime for tools, policy, persistent state, and agent coordination. Bring your client and capabilities.",
+    eyebrow: "The Roder harness",
+    accent: "graphite",
+  },
+  {
+    slug: "cli",
+    title: "The Roder harness, in your terminal",
+    description: "Choose a model, work in a repository, delegate tasks, and inspect the results from the CLI.",
+    eyebrow: "Terminal client",
     accent: "orange",
   },
   {
@@ -102,7 +116,7 @@ export const staticOgPages: OgImageMetadata[] = [
   {
     slug: "desktop",
     title: "Roder Desktop",
-    description: "Local coding-agent app with subagents, workspace panels, MCP, skills, and the full model catalog.",
+    description: "A local workspace for agent-powered coding: choose models, delegate work, inspect changes, and keep project context.",
     eyebrow: "Desktop app",
     accent: "orange",
   },

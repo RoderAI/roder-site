@@ -1,0 +1,138 @@
+---
+const productImageBase = "https://dl.roder.sh/desktop/product";
+const panels = [
+  { title: "Files & Review", body: "Open project files and inspect changed code beside the thread." },
+  { title: "Terminal", body: "Run project commands and inspect their output in a native terminal." },
+  { title: "Browser", body: "Open a local preview or let the agent inspect and interact with a page." },
+  { title: "Canvas & Design", body: "Sketch, annotate, or work with structured layers, text, and design tokens." },
+];
+---
+
+<section class="desktop-product-workflows" aria-labelledby="desktop-workflows-heading">
+  <div class="desktop-container">
+    <header class="desktop-product-workflows-head">
+      <p class="desktop-product-eyebrow">From intent to evidence</p>
+      <h2 id="desktop-workflows-heading">The work belongs<br />beside the conversation.</h2>
+      <p>
+        A task spans more than a prompt. Keep the project, delegated work, and
+        the result connected as you move from one step to the next.
+      </p>
+    </header>
+
+    <article class="desktop-product-project">
+      <div class="desktop-product-story-copy">
+        <p class="desktop-product-step">01 / Ground the work</p>
+        <h3>Start with a project.<br />Keep its history.</h3>
+        <p>
+          Open a folder and give each task a thread. Return to earlier decisions
+          and tool history instead of rebuilding the conversation from scratch.
+        </p>
+        <a class="desktop-product-link" href="/docs/desktop/">Projects, threads &amp; local issues <span aria-hidden="true">&rarr;</span></a>
+      </div>
+      <dl class="desktop-product-project-facts">
+        <div>
+          <dt>A place for each task</dt>
+          <dd>Project-grouped threads, saved locally. Archive finished project groups and restore them later.</dd>
+        </div>
+        <div>
+          <dt>A route back through the work</dt>
+          <dd>Navigate long transcripts and reopen earlier turns. Persisted history is separate from the model's context window.</dd>
+        </div>
+        <div>
+          <dt>A local task list</dt>
+          <dd>Track issues and launch a linked thread in the right workspace. No hosted issue service or automatic external sync.</dd>
+        </div>
+      </dl>
+    </article>
+
+    <article class="desktop-product-delegation">
+      <figure class="desktop-screenshot-card">
+        <img
+          src={`${productImageBase}/desktop-subagents-panel.png`}
+          alt="Roder Desktop transcript with subagent lifecycle updates and a panel of completed child agents"
+          width="1440"
+          height="940"
+          loading="lazy"
+        />
+        <figcaption>Actual Desktop capture: delegated work has status and a thread you can inspect.</figcaption>
+      </figure>
+      <div class="desktop-product-story-copy">
+        <p class="desktop-product-step">02 / Delegate visibly</p>
+        <h3>Split the task.<br />Follow the agents.</h3>
+        <p>
+          Use subagents for independent parts of the job. Lifecycle updates in the
+          transcript and the activity overview keep child threads visible as
+          they run and finish.
+        </p>
+        <p>
+          Delegation uses the tools and policy available to the thread.
+          Review the returned work before accepting it.
+        </p>
+        <a class="desktop-product-link" href="/docs/agent-control/">How agent control works <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="desktop-product-evidence" aria-labelledby="desktop-evidence-heading">
+  <div class="desktop-container desktop-product-evidence-grid">
+    <div class="desktop-product-story-copy">
+      <p class="desktop-product-step">03 / Inspect the result</p>
+      <h2 id="desktop-evidence-heading">See the change.<br />Check the result.</h2>
+      <p>
+        Keep a diff, a running command, or a browser preview beside the agent.
+        Check what happened in the workspace before moving on.
+      </p>
+      <a class="desktop-product-link" href="/docs/desktop/">Explore the workspace panels <span aria-hidden="true">&rarr;</span></a>
+    </div>
+    <dl class="desktop-product-panel-list">
+      {panels.map((panel) => (
+        <div>
+          <dt>{panel.title}</dt>
+          <dd>{panel.body}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</section>
+
+<section class="desktop-product-continuity" aria-labelledby="desktop-continuity-heading">
+  <div class="desktop-container desktop-product-continuity-grid">
+    <article class="desktop-product-mission">
+      <p class="desktop-product-step">04 / Keep a mission going</p>
+      <h2 id="desktop-continuity-heading">Give repeat work<br />a home.</h2>
+      <p>
+        A persistent agent keeps a mission, editable memory, and a durable
+        thread across check-ins. Use it for ongoing project work that needs
+        continuity beyond a single task.
+      </p>
+      <div class="desktop-product-mission-example">
+        <span>Example mission</span>
+        <blockquote>Keep this project's documentation aligned with released features.</blockquote>
+      </div>
+      <p class="desktop-product-note">
+        New agents start paused. Enable proactive work explicitly, set run and
+        time limits, and keep Desktop running for check-ins to execute.
+      </p>
+      <a class="desktop-product-link" href="/docs/persistent-agents/">Persistent agents &amp; their controls <span aria-hidden="true">&rarr;</span></a>
+    </article>
+    <article class="desktop-product-execution">
+      <p class="desktop-product-eyebrow">Choose where code executes</p>
+      <h3>Local by default.<br />Remote when configured.</h3>
+      <p>
+        On supported platforms, Cloud Machines profiles bind a new thread's
+        native coding tools to a configured runner workspace.
+      </p>
+      <p>
+        Prepare the remote repository yourself. Profiles do not sync local
+        files, and Desktop's terminal, browser, and file panels remain local.
+        The execution binding stays fixed for that thread.
+      </p>
+      <p class="desktop-product-note">
+        Cloud Machines are unavailable on Windows in the current documented release.
+        Runner credentials, infrastructure, and charges are separate.
+      </p>
+      <a class="desktop-product-link" href="/docs/cloud-machines/">Setup &amp; platform limits <span aria-hidden="true">&rarr;</span></a>
+    </article>
+  </div>
+</section>

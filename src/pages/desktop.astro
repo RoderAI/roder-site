@@ -1,6 +1,8 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import DesktopWorkflows from "../components/DesktopWorkflows.astro";
 import "../styles/roder-desktop.css";
+import "../styles/desktop-product.css";
 import {
   DESKTOP_APPCAST_URL,
   DESKTOP_CHECKSUMS_URL,
@@ -63,62 +65,7 @@ const platformDownloads = [
   },
 ];
 
-const featureCards = [
-  {
-    title: "Orchestrate subagents",
-    body: "Spawn parallel subagents from one thread. Watch Active/Done status in the Subagents panel, and see lifecycle chips inline in the transcript. Toggle agent-swarm mode when the task needs a crew.",
-  },
-  {
-    title: "Local-first desktop shell",
-    body: "An embedded `roder` harness binary powers every run. Threads are saved locally, including transcript items, workspace metadata, provider/model selection, and usage.",
-  },
-  {
-    title: "Workspace panels",
-    body: "Keep Terminal, Browser, Canvas, Design canvas, Review (changed files), Extensions, Files, and Subagents beside the chat—scoped to the project you opened.",
-  },
-  {
-    title: "Composer with skills and MCP",
-    body: "`$` completes skills, `@` targets MCP servers, plan mode and agent swarm sit next to the model picker, and voice, sketches, and file attachments ride with the turn.",
-  },
-  {
-    title: "Persistent agents and local issues",
-    body: "Give a workspace assistant a long-lived mission, then enable work with explicit limits. Track project issues and launch linked threads without moving your task list to a hosted service.",
-  },
-  {
-    title: "Cloud workspaces and archives",
-    body: "Bind new threads to configured Cloud Machines on supported platforms. Archive completed project groups, restore them later, and jump through full thread history.",
-  },
-];
-
 const productImageBase = "https://dl.roder.sh/desktop/product";
-const screenshots = [
-  {
-    image: `${productImageBase}/desktop-new-agent.png`,
-    title: "Start a new agent",
-    body: "Project-grouped threads in the sidebar, a project picker on the start screen, Recent threads, and a composer with model and reasoning selectors.",
-  },
-  {
-    image: `${productImageBase}/desktop-subagents-panel.png`,
-    title: "Live subagent orchestration",
-    body: "Transcript lifecycle chips for finished and updated members, plus a Subagents panel listing Done · 3 with status blurbs and timestamps.",
-  },
-  {
-    image: `${productImageBase}/desktop-model-picker.png`,
-    title: "Every model, one picker",
-    body: "The provider catalog from the local app-server — GPT-6.1, Claude, Grok 4.7, Gemini, and more — searchable mid-run without leaving the thread.",
-  },
-  {
-    image: `${productImageBase}/desktop-providers.png`,
-    title: "Providers, configured in-app",
-    body: "OAuth and API-key setup for every provider, with per-model access toggles that control exactly what shows up in the composer.",
-  },
-  {
-    image: `${productImageBase}/desktop-settings.png`,
-    title: "Defaults that stick",
-    body: "Set the default model, reasoning effort, and policy mode for new work — plus appearance, skills, MCP servers, git, and usage in one settings surface.",
-  },
-];
-
 const providers = [
   "Codex",
   "Cursor",
@@ -139,20 +86,20 @@ const providers = [
 ---
 
 <Layout
-  title="Roder Desktop - local coding agent app"
-  description="One-click download of Roder Desktop for macOS or Windows. Spawn parallel subagents, pick models from the local app-server catalog, and keep threads, workspace panels, MCP, and skills on your machine."
+  title="Roder Desktop - a workspace for coding agents"
+  description="Run the Roder harness in a local desktop workspace. Choose providers, follow delegated work, inspect code and browser evidence, and give recurring work a persistent agent."
   canonicalPath="/desktop/"
 >
-  <div class="desktop-page">
+  <div class="desktop-page desktop-product">
     <section class="desktop-hero">
       <div class="desktop-container desktop-hero-grid">
         <div class="desktop-hero-copy">
-          <h1>A local desktop shell for the Roder agent harness.</h1>
+          <p class="desktop-product-eyebrow">Roder Desktop / your local agent workspace</p>
+          <h1>A workspace<br />for <span>coding agents.</span></h1>
           <p>
-            Install Roder Desktop, open it in a repo, and give it real work: spawn
-            parallel subagents, pick models from the full app-server catalog, keep
-            threads on disk, and drive Terminal, Browser, Canvas, and Review from one
-            window. Alpha software—signed builds ship today for Apple silicon and Windows.
+            Give coding agents a project, then stay close to what they do.
+            Follow delegated work, inspect changed files, and check the result
+            in a terminal or browser beside the conversation.
           </p>
           <div class="desktop-actions" aria-label="Primary actions">
             <a
@@ -168,14 +115,13 @@ const providers = [
               {defaultPrimary.label}
             </a>
             <a class="desktop-button desktop-button-secondary" href="#install">
-              Other platforms
+              Platforms &amp; install
             </a>
             <a
               class="desktop-button desktop-button-secondary"
-              href={releasesUrl}
-              rel="noopener noreferrer"
+              href="/docs/desktop/"
             >
-              All releases
+              Explore the guide
             </a>
           </div>
           <p
@@ -186,9 +132,9 @@ const providers = [
             Latest {versionLabel} · macOS DMG or Windows installer · one click
           </p>
           <ul class="desktop-hero-points" aria-label="Roder Desktop highlights">
-            <li>Embedded `roder` harness with local thread persistence</li>
-            <li>Subagents panel + inline lifecycle chips for parallel work</li>
-            <li>macOS updates via Sparkle-compatible feed · Check for Updates in-app</li>
+            <li>Choose your inference provider and model</li>
+            <li>Keep project threads and history on your machine</li>
+            <li>Built on the same Rust harness as the CLI</li>
           </ul>
         </div>
         <figure class="desktop-hero-shot">
@@ -199,20 +145,89 @@ const providers = [
             height="1880"
           />
           <figcaption>
-            Start screen: pick a project, reopen a recent thread, or send work from the composer.
+            A real Roder Desktop workspace: projects, saved threads, and the agent composer.
           </figcaption>
         </figure>
+      </div>
+    </section>
+
+    <section class="desktop-product-foundation" aria-labelledby="desktop-foundation-heading">
+      <div class="desktop-container desktop-product-foundation-grid">
+        <div>
+          <p class="desktop-product-eyebrow">One harness. A desktop built around it.</p>
+          <h2 id="desktop-foundation-heading">A workspace for the whole agent loop.</h2>
+        </div>
+        <div>
+          <p>
+            The Roder harness handles models, tools, sessions, and approval policy.
+            Desktop brings that runtime into a project workspace with native
+            terminals, browser views, files, and review panels.
+          </p>
+          <p>
+            Use the <a href="/cli/">CLI</a> when you want a terminal.
+            Use Desktop when you want the conversation and the work side by side.
+            Both build on Roder; Desktop ships its own versioned harness.
+          </p>
+          <a class="desktop-product-link" href="/harness/">Meet the harness behind Desktop <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </div>
+    </section>
+
+    <DesktopWorkflows />
+
+    <section class="desktop-section desktop-product-providers" aria-labelledby="desktop-providers-heading">
+      <div class="desktop-container">
+        <div class="desktop-product-provider-grid">
+          <div>
+            <p class="desktop-product-eyebrow">Provider choice, without changing your workspace</p>
+            <h2 id="desktop-providers-heading">Choose the model.<br />Keep the project.</h2>
+            <p>
+              Connect your accounts in Settings. Choose from the model catalog
+              exposed by the harness, with reasoning controls where supported.
+              Your files, tools, and project threads stay in the same workspace.
+            </p>
+            <ul class="desktop-provider-list" aria-label="Supported provider integrations">
+              {providers.map((name) => <li>{name}</li>)}
+            </ul>
+            <p class="desktop-product-note">
+              Authentication and available models vary by provider. Inference
+              accounts and charges are separate; a local workspace does not mean
+              the model runs locally.
+            </p>
+            <a class="desktop-product-link" href="/docs/providers/">Find your provider <span aria-hidden="true">&rarr;</span></a>
+          </div>
+          <figure class="desktop-screenshot-card">
+            <img
+              src={`${productImageBase}/desktop-model-picker.png`}
+              alt="The searchable provider and model picker in Roder Desktop"
+              width="1440"
+              height="940"
+              loading="lazy"
+            />
+            <figcaption>Real product capture. Browse models by provider; setup entries help you connect an account.</figcaption>
+          </figure>
+        </div>
+        <div class="desktop-product-extension-row">
+          <h3>Bring the tools your project needs.</h3>
+          <p>
+            Complete <code>$</code> skills and target <code>@</code> MCP servers
+            from the composer. Add files, sketches, or voice input, and choose
+            plan mode before work begins.
+          </p>
+          <a class="desktop-product-link" href="/docs/workflows/">Skills, MCP &amp; workflows <span aria-hidden="true">&rarr;</span></a>
+        </div>
       </div>
     </section>
 
     <section class="desktop-install" id="install">
       <div class="desktop-container">
         <div class="desktop-section-head">
-          <h2>One-click install</h2>
+          <p class="desktop-product-eyebrow">Start with a project</p>
+          <h2>Install. Connect a provider. Open a repo.</h2>
           <p>
             Pick your platform. macOS builds are signed and notarized; Windows ships a
-            Squirrel x64 installer. After install, open a project and start an agent.
-            Optional: verify against `SHA256SUMS` on the release.
+            Squirrel x64 installer. Roder Desktop is alpha software.
+            Official builds currently target macOS Apple silicon and Windows x64.
           </p>
         </div>
         <div class="desktop-download-grid" role="list">
@@ -235,147 +250,66 @@ const providers = [
             ))
           }
         </div>
-        <div class="desktop-install-layout desktop-install-secondary">
-          <div class="desktop-install-commands">
-            <article class="desktop-install-command">
-              <div>
-                <h3>
-                  <a href={macosZipUrl} rel="noopener noreferrer">macOS zip + checksums</a>
-                </h3>
-                <p>Same Apple silicon build as a zip, plus SHA256SUMS for verification.</p>
-              </div>
-              <pre><code>{`${macosZipUrl}\n${checksumsUrl}`}</code></pre>
-            </article>
-            <article class="desktop-install-command">
-              <div>
-                <h3>
-                  <a href={DESKTOP_APPCAST_URL} rel="noopener noreferrer">Sparkle feeds (R2)</a>
-                </h3>
-                <p>
-                  macOS auto-updates read Cloudflare R2 feeds published by release CI
-                  (`updates.json` + Sparkle `appcast.xml` on dl.roder.sh).
-                </p>
-              </div>
-              <pre><code>{`${DESKTOP_UPDATES_JSON_URL}\n${DESKTOP_APPCAST_URL}`}</code></pre>
-            </article>
-          </div>
-          <aside class="desktop-install-card" aria-label="First run checklist">
-            <h3>First run</h3>
-            <ol>
-              <li>Click Download for your OS</li>
-              <li>macOS: drag Roder into Applications</li>
-              <li>Windows: run the installer</li>
-              <li>Open a project and start a new agent</li>
-            </ol>
-            <p>
-              Artifacts from {downloadSource}. On Mac, use{" "}
-              <strong>Check for Updates…</strong> — feed{" "}
-              <a href={DESKTOP_UPDATES_JSON_URL} rel="noopener noreferrer">updates.json</a>.
-            </p>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <section class="desktop-section">
-      <div class="desktop-container">
-        <div class="desktop-section-head">
-          <h2>What the desktop gives you</h2>
-          <p>
-            Same Rust harness as the CLI, wrapped in a workspace UI: threads,
-            providers, subagents, panels, MCP, skills, and extensions without leaving
-            the project folder.
-          </p>
-        </div>
-        <div class="desktop-feature-grid">
-          {
-            featureCards.map((card) => (
-              <article class="desktop-feature-card">
-                <h3>{card.title}</h3>
-                <p>{card.body}</p>
+        <p class="desktop-product-release-links">
+          <a href={releasesUrl} rel="noopener noreferrer">All releases</a>
+          <span aria-hidden="true">/</span>
+          <a href="/docs/desktop/">First-run guide</a>
+          <span aria-hidden="true">/</span>
+          <a href="/docs/cloud-machines/">Cloud Machines platform limits</a>
+        </p>
+        <details class="desktop-product-download-details">
+          <summary>Alternative downloads, verification &amp; update feeds</summary>
+          <div class="desktop-install-layout desktop-install-secondary">
+            <div class="desktop-install-commands">
+              <article class="desktop-install-command">
+                <div>
+                  <h3>
+                    <a href={macosZipUrl} rel="noopener noreferrer">macOS zip + checksums</a>
+                  </h3>
+                  <p>Same Apple silicon build as a zip, plus SHA256SUMS for verification.</p>
+                </div>
+                <pre><code>{`${macosZipUrl}\n${checksumsUrl}`}</code></pre>
               </article>
-            ))
-          }
-        </div>
-      </div>
-    </section>
-
-    <section class="desktop-section">
-      <div class="desktop-container">
-        <div class="desktop-section-head">
-          <h2>In the product</h2>
-          <p>Fresh captures from the signed desktop build.</p>
-        </div>
-        <div class="desktop-screenshot-grid">
-          {
-            screenshots.map((shot) => (
-              <figure class="desktop-screenshot-card">
-                <img src={shot.image} alt={shot.title} width="1440" height="940" loading="lazy" />
-                <figcaption>
-                  <strong>{shot.title}</strong>
-                  <span>{shot.body}</span>
-                </figcaption>
-              </figure>
-            ))
-          }
-        </div>
-      </div>
-    </section>
-
-    <section class="desktop-section desktop-provider-section">
-      <div class="desktop-container desktop-provider-layout">
-        <div>
-          <h2>Bring your providers.</h2>
-          <p>
-            Sign in or paste keys in Settings. The composer model list mirrors what the
-            local app-server reports—including Ultra reasoning where the provider supports it.
-          </p>
-        </div>
-        <div class="desktop-config-panel">
-          <h3>Works with</h3>
-          <ul class="desktop-provider-list">
-            {providers.map((name) => <li>{name}</li>)}
-          </ul>
-          <pre><code>{`Composer
-$ skills completion
-@ MCP server targeting
-plan mode · agent swarm
-voice · sketch · file attach`}</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <section class="desktop-section desktop-workflow-section">
-      <div class="desktop-container desktop-workflow-grid">
-        <div class="desktop-workflow-copy">
-          <h2>One window for chat, tools, and workspace evidence.</h2>
-          <p>
-            Keep the agent transcript next to the panels that matter for the turn.
-            Open Terminal or Browser when the agent needs a shell or a page. Use
-            Review for changed files, Canvas and Design canvas for visual work, and
-            Subagents when the swarm is running.
-          </p>
-        </div>
-        <div class="desktop-workflow-commands">
-          <pre><code>{`Panels
-  Terminal · Browser · Canvas
-  Design canvas · Review
-  Extensions · Files · Subagents
-
-Composer
-  $ skill · @ mcp · plan · swarm
-  voice · attach · reasoning`}</code></pre>
-        </div>
+              <article class="desktop-install-command">
+                <div>
+                  <h3>
+                    <a href={DESKTOP_APPCAST_URL} rel="noopener noreferrer">Sparkle feeds (R2)</a>
+                  </h3>
+                  <p>
+                    macOS auto-updates read Cloudflare R2 feeds published by release CI
+                    (`updates.json` + Sparkle `appcast.xml` on dl.roder.sh).
+                  </p>
+                </div>
+                <pre><code>{`${DESKTOP_UPDATES_JSON_URL}\n${DESKTOP_APPCAST_URL}`}</code></pre>
+              </article>
+            </div>
+            <aside class="desktop-install-card" aria-label="First run checklist">
+              <h3>First run</h3>
+              <ol>
+                <li>Click Download for your OS</li>
+                <li>macOS: drag Roder into Applications</li>
+                <li>Windows: run the installer</li>
+                <li>Connect an inference provider in Settings</li>
+                <li>Open a project and start a new agent</li>
+              </ol>
+              <p>
+                Artifacts from {downloadSource}. On Mac, use{" "}
+                <strong>Check for Updates…</strong> — feed{" "}
+                <a href={DESKTOP_UPDATES_JSON_URL} rel="noopener noreferrer">updates.json</a>.
+              </p>
+            </aside>
+          </div>
+        </details>
       </div>
     </section>
 
     <section class="desktop-final">
       <div class="desktop-container desktop-final-inner">
         <div>
-          <h2>Download Desktop and open a project.</h2>
+          <h2>Bring a project.<br />Stay with the work.</h2>
           <p>
-            One click for macOS DMG or Windows installer. Then open a repo and start an
-            agent—updates on Mac check the Sparkle-compatible feed automatically.
+            Start a thread, choose a model, and keep the tools you need beside it.
+            The <a href="/docs/desktop/">Desktop guide</a> walks through your first project.
           </p>
         </div>
         <a
